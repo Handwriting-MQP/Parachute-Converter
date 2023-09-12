@@ -3,7 +3,7 @@ from PIL import Image
 import requests
 
 # load image from the IAM database
-url = 'img_1.png'
+url = 'img.png'
 image = Image.open(url).convert("RGB")
 
 processor = TrOCRProcessor.from_pretrained('microsoft/trocr-base-handwritten')
