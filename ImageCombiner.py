@@ -195,6 +195,7 @@ if __name__ == '__main__':
         # im_tile_resize = 255 * (im_tile_resize > 200).astype(np.uint8)  # To darken numbers
         cv.imwrite("img_inv_1.png", im_tile_resize)
 
+    # TODO Implement whole number above fraction
     else:
         # function calling
         whole_number = horizontal_concat(img1, img2)
