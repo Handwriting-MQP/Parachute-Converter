@@ -165,6 +165,8 @@ if __name__ == '__main__':
         fraction = vertical_concat(img3, img4)
         fraction = cv.copyMakeBorder(fraction, 1, 1, 1, 1, cv.BORDER_CONSTANT, value=[255, 255, 255])
         im_tile_resize = horizontal_concat(whole_number, fraction)
+        #im_tile_resize = 255 * (im_tile_resize > 200).astype(np.uint8)  # To darken numbers
+
         cv.imwrite("img_inv_1.png", im_tile_resize)
     else:
         # function calling
@@ -173,5 +175,6 @@ if __name__ == '__main__':
         fraction = horizontal_concat(img3, img4)
         fraction = cv.copyMakeBorder(fraction, 1, 1, 1, 1, cv.BORDER_CONSTANT, value=[255, 255, 255])
         im_tile_resize = vertical_concat(whole_number, fraction)
+
         cv.imwrite("img_inv_0.png", im_tile_resize)
 
