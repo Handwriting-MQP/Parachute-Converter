@@ -85,7 +85,7 @@ def concat_tile_resize(list_2d,
 
 
 def horizontal_concat(img_1, img_2):
-    print(f'Before {img_1.shape[0]} {img_1.shape[1]}\n{img_2.shape[0]} {img_2.shape[1]}')
+    # print(f'Before {img_1.shape[0]} {img_1.shape[1]}\n{img_2.shape[0]} {img_2.shape[1]}')
     if img_1.shape[0] > img_2.shape[0]:
         scale = img_1.shape[0] / img_2.shape[0]
         width = int(img_2.shape[1] * scale)
@@ -101,52 +101,55 @@ def horizontal_concat(img_1, img_2):
     return cv.hconcat([img_1, img_2])
 
 
-def vertical_concat(img_1, img_2):
-    print(f'Before {img_1.shape[0]} {img_1.shape[1]}\n{img_2.shape[0]} {img_2.shape[1]}')
+def vertical_concat(img_1, img_2, fraction):
+    # print(f'Before {img_1.shape[0]} {img_1.shape[1]}\n{img_2.shape[0]} {img_2.shape[1]}')
     if img_1.shape[0] > img_2.shape[0]:
-        print(1)
+        # print(1)
         img_1, img_2 = vertical_resize(img_1, img_2)
     elif img_2.shape[0] > img_1.shape[0]:
-        print(2)
+        # print(2)
         img_2, img_1 = vertical_resize(img_2, img_1)
     else:
         if img_1.shape[1] > img_2.shape[1]:
-            print(1)
+            # print(1)
             img_2 = horizontal_resize(img_1, img_2)
         elif img_2.shape[1] > img_1.shape[1]:
-            print(2)
+            # print(2)
             img_1 = horizontal_resize(img_2, img_1)
 
-    print(f'After {img_1.shape[0]} {img_1.shape[1]}\n{img_2.shape[0]} {img_2.shape[1]}')
+    # print(f'After {img_1.shape[0]} {img_1.shape[1]}\n{img_2.shape[0]} {img_2.shape[1]}')
     img_1 = cv.copyMakeBorder(img_1, 0, 1, 0, 0, cv.BORDER_CONSTANT,
                               value=[255, 255, 255])
     img_2 = cv.copyMakeBorder(img_2, 1, 0, 0, 0, cv.BORDER_CONSTANT,
                               value=[255, 255, 255])
-    slash = fraction_slash()
+    if fraction:
+        slash = fraction_slash()
 
-    if slash.shape[1] > img_1.shape[1]:
-        img_1 = horizontal_resize(slash, img_1)
-        img_2 = horizontal_resize(slash, img_2)
-    elif slash.shape[1] < img_1.shape[1]:
-        slash = horizontal_resize(img_1, slash)
+        if slash.shape[1] > img_1.shape[1]:
+            img_1 = horizontal_resize(slash, img_1)
+            img_2 = horizontal_resize(slash, img_2)
+        elif slash.shape[1] < img_1.shape[1]:
+            slash = horizontal_resize(img_1, slash)
 
-    return cv.vconcat([img_1, slash, img_2])
+        return cv.vconcat([img_1, slash, img_2])
+    else:
+        return cv.vconcat([img_1, img_2])
 
 
 def vertical_resize(bigger, smaller):
     scale = bigger.shape[0] / smaller.shape[0]
-    print(f'scale {scale}')
+    # print(f'scale {scale}')
     width = int(smaller.shape[1] * scale)
     height = int(smaller.shape[0] * scale)
     dim = (width, height)
     new_smaller = cv.resize(smaller, dim, interpolation=cv.INTER_AREA)
-    print(f'New smaller {new_smaller.shape[0]} {new_smaller.shape[1]}')
+    # print(f'New smaller {new_smaller.shape[0]} {new_smaller.shape[1]}')
 
     if bigger.shape[1] > new_smaller.shape[1]:
-        print(1)
+        # print(1)
         new_smaller = horizontal_resize(bigger, new_smaller)
     elif new_smaller.shape[1] > bigger.shape[1]:
-        print(2)
+        # print(2)
         bigger = horizontal_resize(new_smaller, bigger)
     return bigger, new_smaller
 
@@ -175,33 +178,46 @@ def fraction_slash():
 
 if __name__ == '__main__':
     fraction_slash()
-    img1 = getMNIST(random.randint(0, 9))
 
-    img2 = getMNIST(random.randint(0, 9))
+    number1 = random.randint(0, 9)
+    img1 = getMNIST(number1)
+    # print(f'whole number a: {number1}')
 
-    img3 = getMNIST(random.randint(0, 9))
+    number2 = random.randint(0, 9)
+    img2 = getMNIST(number2)
+    # print(f'whole number b: {number2}')
 
-    img4 = getMNIST(random.randint(0, 9))
+    number3 = random.randint(0, 9)
+    img3 = getMNIST(number3)
+    # print(f'frac a: {number3}')
 
-    fraction_type = 1  # random.getrandbits(1)
-    print(f'bool{fraction_type}')
+    number4 = random.randint(0, 9)
+    img4 = getMNIST(number4)
+    # print(f'frac b: {number4}')
+
+    #one represents whole number to the side, zero represents whole number above (moves left to right when above, up and down when at the side)
+    fraction_type = random.randint(0, 1)
+    print(f'fraction type: {fraction_type}')
     if fraction_type:
         # function calling
         whole_number = horizontal_concat(img1, img2)
-        whole_number = cv.copyMakeBorder(whole_number, 7, 7, 1, 1, cv.BORDER_CONSTANT, value=[255, 255, 255])
-        fraction = vertical_concat(img3, img4)
+
+        #TODO: tune the randint:
+        whole_number = cv.copyMakeBorder(whole_number, 7, random.randint(7,25), 1, 1, cv.BORDER_CONSTANT, value=[255, 255, 255])
+        fraction = vertical_concat(img3, img4, True)
         fraction = cv.copyMakeBorder(fraction, 1, 1, 1, 1, cv.BORDER_CONSTANT, value=[255, 255, 255])
         im_tile_resize = horizontal_concat(whole_number, fraction)
         # im_tile_resize = 255 * (im_tile_resize > 200).astype(np.uint8)  # To darken numbers
         cv.imwrite("img_inv_1.png", im_tile_resize)
 
-    # TODO Implement whole number above fraction
     else:
         # function calling
         whole_number = horizontal_concat(img1, img2)
-        whole_number = cv.copyMakeBorder(whole_number, 7, 7, 1, 1, cv.BORDER_CONSTANT, value=[255, 255, 255])
-        fraction = horizontal_concat(img3, img4)
+
+        # TODO: tune the randint:
+        whole_number = cv.copyMakeBorder(whole_number, 7, 7, 1, random.randint(1,40), cv.BORDER_CONSTANT, value=[255, 255, 255])
+        fraction = vertical_concat(img3, img4, True)
         fraction = cv.copyMakeBorder(fraction, 1, 1, 1, 1, cv.BORDER_CONSTANT, value=[255, 255, 255])
-        im_tile_resize = vertical_concat(whole_number, fraction)
+        im_tile_resize = vertical_concat(whole_number, fraction, False)
 
         cv.imwrite("img_inv_0.png", im_tile_resize)
