@@ -181,17 +181,18 @@ def create_image(file_name):
 
     # one represents whole number to the side, zero represents whole number above (moves left to right when above,
     # up and down when at the side)
-    fraction_type = 1  # random.randint(0, 1)
+    fraction_type = random.randint(1, 2)
     print(f'fraction type: {fraction_type}')
+    # function calling
+    if number1 == 0:
+        number5 = random.randint(1, 9)
+        text_num = str(number5)
+        whole_number = getMNIST(number5)
+    else:
+        text_num = f'{number1}{number2}'
+        whole_number = horizontal_concat(img1, img2, False)
+
     if fraction_type == 1:
-        # function calling
-        if number1 == 0:
-            number5 = random.randint(1, 9)
-            text_num = str(number5)
-            whole_number = getMNIST(number5)
-        else:
-            text_num = f'{number1}{number2}'
-            whole_number = horizontal_concat(img1, img2, False)
 
         # TODO: tune the randint:
         whole_number = cv.copyMakeBorder(whole_number, 7, random.randint(7, 25), 1, 1, cv.BORDER_CONSTANT,
@@ -200,7 +201,7 @@ def create_image(file_name):
         fraction = cv.copyMakeBorder(fraction, 1, 1, 1, 1, cv.BORDER_CONSTANT, value=[255, 255, 255])
         im_tile_resize = horizontal_concat(whole_number, fraction, False)
         # im_tile_resize = 255 * (im_tile_resize > 200).astype(np.uint8)  # To darken numbers
-        cv.imwrite(file_name, im_tile_resize)
+        cv.imwrite(image_file, im_tile_resize)
 
     elif fraction_type == 0:
         # function calling
@@ -213,7 +214,7 @@ def create_image(file_name):
         fraction = cv.copyMakeBorder(fraction, 1, 1, 1, 1, cv.BORDER_CONSTANT, value=[255, 255, 255])
         im_tile_resize = vertical_concat(whole_number, fraction, False)
 
-        cv.imwrite(file_name, im_tile_resize)
+        cv.imwrite(image_file, im_tile_resize)
     elif fraction_type == 2:
         # function calling
         whole_number = horizontal_concat(img1, img2, False)
@@ -233,7 +234,7 @@ def create_image(file_name):
 labeled_json = []
 synthetic_directory = "SyntheticData"
 if __name__ == '__main__':
-    for i in range(1000):
+    for i in range(10):
         create_image(f'{i}.jpg')
     labeled_data = json.dumps(labeled_json, indent=4)
 
