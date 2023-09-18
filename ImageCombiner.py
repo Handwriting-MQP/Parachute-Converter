@@ -122,7 +122,7 @@ def fraction_slash():
 
 
 def create_image(file_name):
-    file_name = f'{synthetic_directory}/{file_name}'
+    file_name = f'{synthetic_directory}/images/{file_name}'
     fraction_slash()
 
     number1 = random.randint(0, 9)
