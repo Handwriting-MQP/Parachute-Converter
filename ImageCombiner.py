@@ -27,63 +27,6 @@ def getMNIST(digit):
     return (~rect)
 
 
-"""
-# define a function for horizontally
-# concatenating images of different
-# heights
-def hconcat_resize(img_list,
-                   interpolation
-                   =cv.INTER_CUBIC):
-    # take minimum hights
-    h_min = min(img.shape[0]
-                for img in img_list)
-
-    # image resizing
-    im_list_resize = [cv.resize(img,
-                                (int(img.shape[1] * h_min / img.shape[0]),
-                                 h_min), interpolation
-                                =interpolation)
-                      for img in img_list]
-
-    # return final image
-    return cv.hconcat(im_list_resize)
-
-
-# define a function for vertically
-# concatenating images of different
-# widths
-def vconcat_resize(img_list, interpolation=cv.INTER_CUBIC):
-    # take minimum width
-    w_min = min(img.shape[1]
-                for img in img_list)
-
-    # resizing images
-    im_list_resize = [cv.resize(img,
-                                (w_min, int(img.shape[0] * w_min / img.shape[1])),
-                                interpolation=interpolation)
-                      for img in img_list]
-    # return final image
-    return cv.vconcat(im_list_resize)
-
-
-
-# define a function for concatenating
-# images of different sizes in
-# vertical and horizontal tiles
-def concat_tile_resize(list_2d,
-                       interpolation=cv.INTER_CUBIC):
-    # function calling for every
-    # list of images
-    img_list_v = [hconcat_resize(list_h,
-                                 interpolation=cv.INTER_CUBIC)
-                  for list_h in list_2d]
-
-    # return final image
-    return vconcat_resize(img_list_v, interpolation=cv.INTER_CUBIC)
-
-"""
-
-
 def horizontal_concat(img_1, img_2):
     # print(f'Before {img_1.shape[0]} {img_1.shape[1]}\n{img_2.shape[0]} {img_2.shape[1]}')
     if img_1.shape[0] > img_2.shape[0]:
@@ -176,6 +119,7 @@ def fraction_slash():
     cv.imwrite("img_slash.png", image)
     """
 
+
 if __name__ == '__main__':
     fraction_slash()
 
@@ -187,23 +131,28 @@ if __name__ == '__main__':
     img2 = getMNIST(number2)
     # print(f'whole number b: {number2}')
 
-    number3 = random.randint(0, 9)
+    number3 = random.randint(1, 8)
     img3 = getMNIST(number3)
     # print(f'frac a: {number3}')
 
-    number4 = random.randint(0, 9)
+    number4 = random.randint(number3+1, 9)
     img4 = getMNIST(number4)
     # print(f'frac b: {number4}')
 
-    #one represents whole number to the side, zero represents whole number above (moves left to right when above, up and down when at the side)
-    fraction_type = random.randint(0, 1)
+    # one represents whole number to the side, zero represents whole number above (moves left to right when above,
+    # up and down when at the side)
+    fraction_type = 1  # random.randint(0, 1)
     print(f'fraction type: {fraction_type}')
     if fraction_type:
         # function calling
-        whole_number = horizontal_concat(img1, img2)
+        if number1 == 0:
+            whole_number = getMNIST(random.randint(1, 9))
+        else:
+            whole_number = horizontal_concat(img1, img2)
 
-        #TODO: tune the randint:
-        whole_number = cv.copyMakeBorder(whole_number, 7, random.randint(7,25), 1, 1, cv.BORDER_CONSTANT, value=[255, 255, 255])
+        # TODO: tune the randint:
+        whole_number = cv.copyMakeBorder(whole_number, 7, random.randint(7, 25), 1, 1, cv.BORDER_CONSTANT,
+                                         value=[255, 255, 255])
         fraction = vertical_concat(img3, img4, True)
         fraction = cv.copyMakeBorder(fraction, 1, 1, 1, 1, cv.BORDER_CONSTANT, value=[255, 255, 255])
         im_tile_resize = horizontal_concat(whole_number, fraction)
@@ -215,7 +164,8 @@ if __name__ == '__main__':
         whole_number = horizontal_concat(img1, img2)
 
         # TODO: tune the randint:
-        whole_number = cv.copyMakeBorder(whole_number, 7, 7, 1, random.randint(1,40), cv.BORDER_CONSTANT, value=[255, 255, 255])
+        whole_number = cv.copyMakeBorder(whole_number, 7, 7, 1, random.randint(1, 40), cv.BORDER_CONSTANT,
+                                         value=[255, 255, 255])
         fraction = vertical_concat(img3, img4, True)
         fraction = cv.copyMakeBorder(fraction, 1, 1, 1, 1, cv.BORDER_CONSTANT, value=[255, 255, 255])
         im_tile_resize = vertical_concat(whole_number, fraction, False)
