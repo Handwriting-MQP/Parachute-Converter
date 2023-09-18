@@ -122,7 +122,7 @@ def fraction_slash():
 
 
 def create_image(file_name):
-    file_name = f'{synthetic_directory}/images/{file_name}'
+    image_file = f'{synthetic_directory}/images/{file_name}'
     fraction_slash()
 
     number1 = random.randint(0, 9)
@@ -162,7 +162,7 @@ def create_image(file_name):
         fraction = cv.copyMakeBorder(fraction, 1, 1, 1, 1, cv.BORDER_CONSTANT, value=[255, 255, 255])
         im_tile_resize = horizontal_concat(whole_number, fraction)
         # im_tile_resize = 255 * (im_tile_resize > 200).astype(np.uint8)  # To darken numbers
-        cv.imwrite(file_name, im_tile_resize)
+        cv.imwrite(image_file, im_tile_resize)
 
     else:
         # function calling
@@ -175,7 +175,7 @@ def create_image(file_name):
         fraction = cv.copyMakeBorder(fraction, 1, 1, 1, 1, cv.BORDER_CONSTANT, value=[255, 255, 255])
         im_tile_resize = vertical_concat(whole_number, fraction, False)
 
-        cv.imwrite(file_name, im_tile_resize)
+        cv.imwrite(image_file, im_tile_resize)
     text = f'{text_num} {number3}/{number4}'
     labeled_json.append({'filename': file_name, 'text': text})
 
@@ -183,7 +183,7 @@ def create_image(file_name):
 labeled_json = []
 synthetic_directory = "SyntheticData"
 if __name__ == '__main__':
-    for i in range(10):
+    for i in range(1000):
         create_image(f'{i}.jpg')
     labeled_data = json.dumps(labeled_json, indent=4)
 

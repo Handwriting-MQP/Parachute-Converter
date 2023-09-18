@@ -9,10 +9,10 @@ from transformers import Seq2SeqTrainer, Seq2SeqTrainingArguments
 from transformers import default_data_collator
 from datasets import load_metric
 
-file_path = "CalculusData/batch_1/JSON/kaggle_data_1.json"
+file_path = "SyntheticData/labels.json"
 processor_name = "microsoft/trocr-base-handwritten"
 model_name = "microsoft/trocr-base-stage1"
-image_dir = "CalculusData/batch_1/background_images/"
+image_dir = "SyntheticData/images/"
 
 processor = TrOCRProcessor.from_pretrained(processor_name)
 model = VisionEncoderDecoderModel.from_pretrained(model_name)
@@ -41,7 +41,7 @@ class CalculusDataset(Dataset):
     def __getitem__(self, idx):
         # get file name + text
         file_name = self.df['filename'][idx]
-        text = self.df['latex'][idx]
+        text = self.df['text'][idx]
         # prepare image (i.e. resize + normalize)
         image = Image.open(self.image_dir + file_name).convert("RGB")
         pixel_values = self.processor(image, return_tensors="pt").pixel_values
@@ -88,7 +88,7 @@ def train_model(train_dataset, eval_dataset):
         evaluation_strategy="steps",
         per_device_train_batch_size=8,
         per_device_eval_batch_size=8,
-        fp16=True,  # Can only be done on CUDA
+        fp16=False,  # Can only be done on CUDA
         output_dir="./",
         logging_steps=2,
         save_steps=1000,
