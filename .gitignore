@@ -2,3 +2,4 @@
 *.xml
 SyntheticData/labels.json
 .idea/workspace.xml.tmp
+*.jpg
