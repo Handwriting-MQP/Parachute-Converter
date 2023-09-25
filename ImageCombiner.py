@@ -182,7 +182,7 @@ def create_image(file_name):
     #this randint() determines the case of the mixed number to be generated
     #each case is explained before its elif block
     # ******randint() inclusive at both ends******
-    fraction_type = random.randint(0, 0)
+    fraction_type = random.randint(0, 2)
     print(f'fraction type: {fraction_type}')
 
     # if the first number is equal to zero, change it to a different digit, since
@@ -192,13 +192,19 @@ def create_image(file_name):
         text_num = str(number5)
         whole_number = getMNIST(number5)
     else:
-        text_num = f'{number1}{number2}'
-        whole_number = horizontal_concat(img1, img2, False)
+        singleDigit = random.randint(0,1)
+        if singleDigit == 1:
+            print("single digit whole number")
+            number5 = random.randint(1, 9)
+            text_num = str(number5)
+            whole_number = getMNIST(number5)
+        else:
+            text_num = f'{number1}{number2}'
+            whole_number = horizontal_concat(img1, img2, False)
 
     # In this case, the whole number is above the fraction.
     # The fraction is vertical.
     if fraction_type == 0:
-        whole_number = horizontal_concat(img1, img2, False)
 
         # this line shifts the whole number left by an amount in [1, 40].
         whole_number = cv.copyMakeBorder(whole_number, 7, 7, 1, random.randint(1, 40), cv.BORDER_CONSTANT,
@@ -225,7 +231,6 @@ def create_image(file_name):
     # The whole number has whitespace to the right and is above the fraction.
     # The fraction is horizontal.
     elif fraction_type == 2:
-        whole_number = horizontal_concat(img1, img2, False)
 
         whole_number = cv.copyMakeBorder(whole_number, 7, 7, 1, random.randint(1, 40), cv.BORDER_CONSTANT,
                                          value=[255, 255, 255])
