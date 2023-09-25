@@ -195,9 +195,16 @@ def create_image(file_name):
         singleDigit = random.randint(0,1)
         if singleDigit == 1:
             print("single digit whole number")
-            number5 = random.randint(1, 9)
-            text_num = str(number5)
-            whole_number = getMNIST(number5)
+            seven = random.randint(0, 1)
+            if seven == 1:
+                print("a seven")
+                number5 = random.randint(7, 7)
+                text_num = str(number5)
+                whole_number = getMNIST(number5)
+            else:
+                number5 = random.randint(1, 9)
+                text_num = str(number5)
+                whole_number = getMNIST(number5)
         else:
             text_num = f'{number1}{number2}'
             whole_number = horizontal_concat(img1, img2, False)
