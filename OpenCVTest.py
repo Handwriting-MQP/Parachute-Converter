@@ -2,6 +2,14 @@
 import cv2
 import pytesseract
 
+'''
+This file detects image objects based on
+all text, and uses the below tesseract "classifier"
+to determine what the text says. Tesseract can be replaced with our model,
+TrOCR, and detect all text should be replaced with an opencv function that
+detects only handwritten text (this is the call to cv2.getStructuringElement).
+'''
+
 # Mention the installed location of Tesseract-OCR in your system
 pytesseract.pytesseract.tesseract_cmd = 'C:/Program Files/Tesseract-OCR/tesseract.exe'
 
@@ -13,7 +21,7 @@ img = cv2.imread("img_3.png")
 # Convert the image to gray scale
 gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
 
-# Performing OTSU threshold
+# Performing OTSU threshold (filters noise)
 ret, thresh1 = cv2.threshold(gray, 0, 255, cv2.THRESH_OTSU | cv2.THRESH_BINARY_INV)
 
 # Specify structure shape and kernel size.
