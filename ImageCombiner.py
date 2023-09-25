@@ -9,7 +9,7 @@ import os
 
 from sympy import fraction
 
-
+# Gets an MNIST digit in the range 0 to 9.
 def getMNIST(digit):
     if not 0 <= digit <= 9:
         raise Exception("Digit must be between 0 - 9 inclusive")
@@ -179,11 +179,14 @@ def create_image(file_name):
     img4 = getMNIST(number4)
     # print(f'frac b: {number4}')
 
-    # one represents whole number to the side, zero represents whole number above (moves left to right when above,
-    # up and down when at the side)
-    fraction_type = random.randint(1, 2)
+    #this randint() determines the case of the mixed number to be generated
+    #each case is explained before its elif block
+    # ******randint() inclusive at both ends******
+    fraction_type = random.randint(0, 0)
     print(f'fraction type: {fraction_type}')
-    # function calling
+
+    # if the first number is equal to zero, change it to a different digit, since
+    # this is not likely to appear. Else, make a two-digit whole number (as usual).
     if number1 == 0:
         number5 = random.randint(1, 9)
         text_num = str(number5)
@@ -192,9 +195,25 @@ def create_image(file_name):
         text_num = f'{number1}{number2}'
         whole_number = horizontal_concat(img1, img2, False)
 
-    if fraction_type == 1:
+    # In this case, the whole number is above the fraction.
+    # The fraction is vertical.
+    if fraction_type == 0:
+        whole_number = horizontal_concat(img1, img2, False)
 
-        # TODO: tune the randint:
+        # this line shifts the whole number left by an amount in [1, 40].
+        whole_number = cv.copyMakeBorder(whole_number, 7, 7, 1, random.randint(1, 40), cv.BORDER_CONSTANT,
+                                         value=[255, 255, 255])
+
+        fraction = vertical_concat(img3, img4, True)
+        fraction = cv.copyMakeBorder(fraction, 1, 1, 1, 1, cv.BORDER_CONSTANT, value=[255, 255, 255])
+        im_tile_resize = vertical_concat(whole_number, fraction, False)
+
+        cv.imwrite(image_file, im_tile_resize)
+
+    # Whole number image is attached to the fraction at the left.
+    # The fraction is vertical (numerator above denominator).
+    elif fraction_type == 1:
+
         whole_number = cv.copyMakeBorder(whole_number, 7, random.randint(7, 25), 1, 1, cv.BORDER_CONSTANT,
                                          value=[255, 255, 255])
         fraction = vertical_concat(img3, img4, True)
@@ -203,23 +222,11 @@ def create_image(file_name):
         # im_tile_resize = 255 * (im_tile_resize > 200).astype(np.uint8)  # To darken numbers
         cv.imwrite(image_file, im_tile_resize)
 
-    elif fraction_type == 0:
-        # function calling
-        whole_number = horizontal_concat(img1, img2, False)
-
-        # TODO: tune the randint:
-        whole_number = cv.copyMakeBorder(whole_number, 7, 7, 1, random.randint(1, 40), cv.BORDER_CONSTANT,
-                                         value=[255, 255, 255])
-        fraction = vertical_concat(img3, img4, True)
-        fraction = cv.copyMakeBorder(fraction, 1, 1, 1, 1, cv.BORDER_CONSTANT, value=[255, 255, 255])
-        im_tile_resize = vertical_concat(whole_number, fraction, False)
-
-        cv.imwrite(image_file, im_tile_resize)
+    # The whole number has whitespace to the right and is above the fraction.
+    # The fraction is horizontal.
     elif fraction_type == 2:
-        # function calling
         whole_number = horizontal_concat(img1, img2, False)
 
-        # TODO: tune the randint:
         whole_number = cv.copyMakeBorder(whole_number, 7, 7, 1, random.randint(1, 40), cv.BORDER_CONSTANT,
                                          value=[255, 255, 255])
         fraction = horizontal_concat(img3, img4, True)
