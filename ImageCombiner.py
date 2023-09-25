@@ -29,7 +29,8 @@ def getMNIST(digit):
     rect = image[y:y + h, x:x + w]  # Crop the image - note we do this on the original image
     return (~rect)
 
-
+# Enlarges the smaller image to the big one to get the same height, by adding whitespace.
+# Then, cv2.hconcat() them together (which requires exactly same height).
 def horizontal_concat(img_1, img_2, fraction):
     # print(f'Before {img_1.shape[0]} {img_1.shape[1]}\n{img_2.shape[0]} {img_2.shape[1]}')
     if img_1.shape[0] > img_2.shape[0]:
@@ -77,7 +78,8 @@ def horizontal_concat(img_1, img_2, fraction):
     else:
         return cv.hconcat([img_1, img_2])
 
-
+#Vertical analog to custom horizontal_concat() function. See horizontal_concat()
+#description.
 def vertical_concat(img_1, img_2, fraction):
     # print(f'Before {img_1.shape[0]} {img_1.shape[1]}\n{img_2.shape[0]} {img_2.shape[1]}')
     if img_1.shape[0] > img_2.shape[0]:
