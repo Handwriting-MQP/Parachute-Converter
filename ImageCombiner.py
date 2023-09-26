@@ -9,6 +9,7 @@ import os
 
 from sympy import fraction
 
+
 # Gets an MNIST digit in the range 0 to 9.
 def getMNIST(digit):
     if not 0 <= digit <= 9:
@@ -28,6 +29,7 @@ def getMNIST(digit):
     x, y, w, h = cv.boundingRect(coords)  # Find minimum spanning bounding box
     rect = image[y:y + h, x:x + w]  # Crop the image - note we do this on the original image
     return (~rect)
+
 
 # Enlarges the smaller image to the big one to get the same height, by adding whitespace.
 # Then, cv2.hconcat() them together (which requires exactly same height).
@@ -55,12 +57,12 @@ def horizontal_concat(img_1, img_2, fraction):
         dim = (width, height)
         slash = cv.resize(slash, dim, interpolation=cv.INTER_AREA)
 
-        diff1 = (slash.shape[0]-img_1.shape[0]) / 2
+        diff1 = (slash.shape[0] - img_1.shape[0]) / 2
         img_1 = cv.copyMakeBorder(img_1, math.ceil(diff1), math.floor(diff1), 0, 0, cv.BORDER_CONSTANT,
-                                                             value=[255, 255, 255])
+                                  value=[255, 255, 255])
         diff2 = (slash.shape[0] - img_2.shape[0]) / 2
         img_2 = cv.copyMakeBorder(img_2, math.ceil(diff2), math.floor(diff2), 0, 0, cv.BORDER_CONSTANT,
-                                                             value=[255, 255, 255])
+                                  value=[255, 255, 255])
 
         # if slash.shape[0] > img_1.shape[0]:
         #     img_1 = vertical_resize(img_1, slash)[1]
@@ -78,8 +80,9 @@ def horizontal_concat(img_1, img_2, fraction):
     else:
         return cv.hconcat([img_1, img_2])
 
-#Vertical analog to custom horizontal_concat() function. See horizontal_concat()
-#description.
+
+# Vertical analog to custom horizontal_concat() function. See horizontal_concat()
+# description.
 def vertical_concat(img_1, img_2, fraction):
     # print(f'Before {img_1.shape[0]} {img_1.shape[1]}\n{img_2.shape[0]} {img_2.shape[1]}')
     if img_1.shape[0] > img_2.shape[0]:
@@ -145,6 +148,7 @@ def horiz_fraction_slash():
     image = cv.rotate(line, cv.ROTATE_90_CLOCKWISE)
     return image
 
+
 def vert_fraction_slash():
     line = getMNIST(1)
     # image = cv.rotate(line, cv.ROTATE_90_CLOCKWISE)
@@ -165,51 +169,43 @@ def create_image(file_name):
     image_file = f'{synthetic_directory}/images/{file_name}'
     horiz_fraction_slash()
 
-    number1 = random.randint(0, 9)
-    img1 = getMNIST(number1)
+    whole_digit1 = random.randint(1, 9)
+    whole_image1 = getMNIST(whole_digit1)
     # print(f'whole number a: {number1}')
 
-    number2 = random.randint(0, 9)
-    img2 = getMNIST(number2)
+    whole_digit2 = random.randint(0, 9)
+    whole_image2 = getMNIST(whole_digit2)
+
+    whole_digit3 = random.randint(0, 9)
+    whole_image3 = getMNIST(whole_digit3)
     # print(f'whole number b: {number2}')
 
-    number3 = random.randint(1, 8)
-    img3 = getMNIST(number3)
+    fraction_digit1 = random.randint(1, 8)
+    fraction_image1 = getMNIST(fraction_digit1)
     # print(f'frac a: {number3}')
 
-    number4 = random.randint(number3 + 1, 9)
-    img4 = getMNIST(number4)
+    fraction_digit2 = random.randint(fraction_digit1 + 1, 9)
+    fraction_image2 = getMNIST(fraction_digit2)
     # print(f'frac b: {number4}')
 
-    #this randint() determines the case of the mixed number to be generated
-    #each case is explained before its elif block
+    # this randint() determines the case of the mixed number to be generated
+    # each case is explained before its elif block
     # ******randint() inclusive at both ends******
-    fraction_type = random.randint(0, 2)
+    fraction_type = random.randint(1, 2)
     print(f'fraction type: {fraction_type}')
 
-    # if the first number is equal to zero, change it to a different digit, since
-    # this is not likely to appear. Else, make a two-digit whole number (as usual).
-    if number1 == 0:
-        number5 = random.randint(1, 9)
-        text_num = str(number5)
-        whole_number = getMNIST(number5)
+    whole_digit_count = random.randint(1,3)
+
+    if whole_digit_count == 1:
+        text_num = str(whole_digit1)
+        whole_number = whole_image1
+    elif whole_digit_count == 2:
+        text_num = f'{whole_digit1}{whole_digit2}'
+        whole_number = horizontal_concat(whole_image1, whole_image2, False)
     else:
-        singleDigit = random.randint(0,1)
-        if singleDigit == 1:
-            print("single digit whole number")
-            seven = random.randint(0, 1)
-            if seven == 1:
-                print("a seven")
-                number5 = random.randint(7, 7)
-                text_num = str(number5)
-                whole_number = getMNIST(number5)
-            else:
-                number5 = random.randint(1, 9)
-                text_num = str(number5)
-                whole_number = getMNIST(number5)
-        else:
-            text_num = f'{number1}{number2}'
-            whole_number = horizontal_concat(img1, img2, False)
+        text_num = f'{whole_digit1}{whole_digit2}{whole_digit3}'
+        number = horizontal_concat(whole_image1, whole_image2, False)
+        whole_number = horizontal_concat(number, whole_image3, False)
 
     # In this case, the whole number is above the fraction.
     # The fraction is vertical.
@@ -219,7 +215,7 @@ def create_image(file_name):
         whole_number = cv.copyMakeBorder(whole_number, 7, 7, 1, random.randint(1, 40), cv.BORDER_CONSTANT,
                                          value=[255, 255, 255])
 
-        fraction = vertical_concat(img3, img4, True)
+        fraction = vertical_concat(fraction_image1, fraction_image2, True)
         fraction = cv.copyMakeBorder(fraction, 1, 1, 1, 1, cv.BORDER_CONSTANT, value=[255, 255, 255])
         im_tile_resize = vertical_concat(whole_number, fraction, False)
 
@@ -231,7 +227,7 @@ def create_image(file_name):
 
         whole_number = cv.copyMakeBorder(whole_number, 7, random.randint(7, 25), 1, 1, cv.BORDER_CONSTANT,
                                          value=[255, 255, 255])
-        fraction = vertical_concat(img3, img4, True)
+        fraction = vertical_concat(fraction_image1, fraction_image2, True)
         fraction = cv.copyMakeBorder(fraction, 1, 1, 1, 1, cv.BORDER_CONSTANT, value=[255, 255, 255])
         im_tile_resize = horizontal_concat(whole_number, fraction, False)
         # im_tile_resize = 255 * (im_tile_resize > 200).astype(np.uint8)  # To darken numbers
@@ -243,19 +239,19 @@ def create_image(file_name):
 
         whole_number = cv.copyMakeBorder(whole_number, 7, 7, 1, random.randint(1, 40), cv.BORDER_CONSTANT,
                                          value=[255, 255, 255])
-        fraction = horizontal_concat(img3, img4, True)
+        fraction = horizontal_concat(fraction_image1, fraction_image2, True)
         fraction = cv.copyMakeBorder(fraction, 1, 1, 1, 1, cv.BORDER_CONSTANT, value=[255, 255, 255])
         im_tile_resize = vertical_concat(whole_number, fraction, False)
 
         cv.imwrite(image_file, im_tile_resize)
-    text = f'{text_num} {number3}/{number4}'
+    text = f'{text_num} {fraction_digit1}/{fraction_digit2}'
     labeled_json.append({'filename': file_name, 'text': text})
 
 
 labeled_json = []
 synthetic_directory = "SyntheticData"
 if __name__ == '__main__':
-    for i in range(10):
+    for i in range(3000):
         create_image(f'{i}.jpg')
     labeled_data = json.dumps(labeled_json, indent=4)
 
