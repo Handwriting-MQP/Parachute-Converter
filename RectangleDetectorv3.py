@@ -31,7 +31,7 @@ def detect_rectangles(image_path, output_path, min_area=48*48):
 
 
 def main():
-    input_folder = 'SampleDocument_PNG'
+    input_folder = 'DeskewedImages'
     output_folder = 'RectangleDetectorOutput'
 
     # Check if input folder exists
