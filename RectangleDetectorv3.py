@@ -2,7 +2,7 @@ import cv2
 import os
 
 
-def detect_rectangles(image_path, output_path, min_area=100):
+def detect_rectangles(image_path, output_path, min_area=48*48):
     # Load the image
     image = cv2.imread(image_path)
 
