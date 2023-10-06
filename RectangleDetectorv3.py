@@ -1,8 +1,9 @@
 import cv2
 import os
 
+min_box_side_length = 25
 
-def detect_rectangles(image_path, output_path, min_area=48*48):
+def detect_rectangles(image_path, output_path, min_area=min_box_side_length*min_box_side_length):
     # Load the image
     image = cv2.imread(image_path)
 
@@ -22,8 +23,8 @@ def detect_rectangles(image_path, output_path, min_area=48*48):
     # Filter contours based on area and draw bounding rectangles around them
     for contour in contours:
         area = cv2.contourArea(contour)
-        if area > min_area:
-            x, y, w, h = cv2.boundingRect(contour)
+        x, y, w, h = cv2.boundingRect(contour)
+        if area > min_area and w >= min_box_side_length and h >= min_box_side_length/2:
             cv2.rectangle(image, (x, y), (x + w, y + h), (0, 255, 0), 2)
 
     # Save the output image
