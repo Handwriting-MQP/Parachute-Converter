@@ -1,8 +1,13 @@
+import this
+
 import cv2
 import os
+import csv
+
+import pytesseract
 
 
-def detect_rectangles(image_path, output_path, min_area=48*48):
+def detect_rectangles(csv_num, image_path, output_path, min_area=48*48):
     # Load the image
     image = cv2.imread(image_path)
 
@@ -18,14 +23,25 @@ def detect_rectangles(image_path, output_path, min_area=48*48):
 
     # Find contours in the binary image
     contours, _ = cv2.findContours(binary, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
-
+    csv_path = "RectangleCSV"
+    row = []
     # Filter contours based on area and draw bounding rectangles around them
-    for contour in contours:
-        area = cv2.contourArea(contour)
-        if area > min_area:
-            x, y, w, h = cv2.boundingRect(contour)
-            cv2.rectangle(image, (x, y), (x + w, y + h), (0, 255, 0), 2)
+    current_y = -100
 
+    with open(f'{csv_path}/{csv_num}.csv', 'w', newline='') as file:
+        writer = csv.writer(file)
+        for contour in contours:
+            area = cv2.contourArea(contour)
+            if area > min_area:
+                x, y, w, h = cv2.boundingRect(contour)
+                if not (current_y - 10 < y < current_y + 10):
+                    writer.writerow(row)
+                    row = []
+                cropped = image[y:y + h, x:x + w]
+                text = pytesseract.image_to_string(cropped)
+                row.append(text)
+                cv2.rectangle(image, (x, y), (x + w, y + h), (0, 255, 0), 2)
+        #writer.close()
     # Save the output image
     cv2.imwrite(output_path, image)
 
@@ -33,6 +49,7 @@ def detect_rectangles(image_path, output_path, min_area=48*48):
 def main():
     input_folder = 'DeskewedImages'
     output_folder = 'RectangleDetectorOutput'
+    i = 1
 
     # Check if input folder exists
     if not os.path.exists(input_folder):
@@ -45,11 +62,13 @@ def main():
 
     # Loop through all images in the input folder
     for image_file in os.listdir(input_folder):
+        i = i + 1
         if image_file.endswith(('.png', '.jpg', '.jpeg')):
             input_path = os.path.join(input_folder, image_file)
             output_path = os.path.join(output_folder, image_file)
-            detect_rectangles(input_path, output_path)
+            detect_rectangles(i, input_path, output_path)
 
 
 if __name__ == "__main__":
+    pytesseract.pytesseract.tesseract_cmd = 'C:/Program Files/Tesseract-OCR/tesseract.exe'
     main()
