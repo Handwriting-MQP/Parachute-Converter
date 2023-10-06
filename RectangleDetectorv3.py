@@ -25,18 +25,21 @@ def detect_rectangles(csv_num, image_path, output_path, min_area=min_box_side_le
     csv_path = "RectangleCSV"
     row = []
     # Filter contours based on area and draw bounding rectangles around them
-    current_y = -100
+    current_y = -10000
 
     with open(f'{csv_path}/{csv_num}.csv', 'w', newline='') as file:
         writer = csv.writer(file)
         for contour in contours:
             area = cv2.contourArea(contour)
             x, y, w, h = cv2.boundingRect(contour)
+            print(f'y={y}')
             if area > min_area and w >= min_box_side_length and h >= min_box_side_length / 2:
                 cv2.rectangle(image, (x, y), (x + w, y + h), (0, 255, 0), 2)
-                if not (current_y - 10 < y < current_y + 10):
+                if not (y- 10 < current_y < y + 10):
+                    print(len(row))
                     writer.writerow(row)
                     row = []
+                    current_y = y
                 cropped = image[y:y + h, x:x + w]
                 text = pytesseract.image_to_string(cropped)
                 row.append(text)
@@ -59,6 +62,7 @@ def main():
     if not os.path.exists(output_folder):
         os.makedirs(output_folder)
 
+    i = 0
     # Loop through all images in the input folder
     for image_file in os.listdir(input_folder):
         i = i + 1
