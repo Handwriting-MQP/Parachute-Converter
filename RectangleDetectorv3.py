@@ -1,13 +1,12 @@
-import this
-
 import cv2
 import os
 import csv
 
 import pytesseract
+min_box_side_length = 25
 
 
-def detect_rectangles(csv_num, image_path, output_path, min_area=48*48):
+def detect_rectangles(csv_num, image_path, output_path, min_area=min_box_side_length*min_box_side_length):
     # Load the image
     image = cv2.imread(image_path)
 
@@ -32,8 +31,9 @@ def detect_rectangles(csv_num, image_path, output_path, min_area=48*48):
         writer = csv.writer(file)
         for contour in contours:
             area = cv2.contourArea(contour)
-            if area > min_area:
-                x, y, w, h = cv2.boundingRect(contour)
+            x, y, w, h = cv2.boundingRect(contour)
+            if area > min_area and w >= min_box_side_length and h >= min_box_side_length / 2:
+                cv2.rectangle(image, (x, y), (x + w, y + h), (0, 255, 0), 2)
                 if not (current_y - 10 < y < current_y + 10):
                     writer.writerow(row)
                     row = []
@@ -41,7 +41,7 @@ def detect_rectangles(csv_num, image_path, output_path, min_area=48*48):
                 text = pytesseract.image_to_string(cropped)
                 row.append(text)
                 cv2.rectangle(image, (x, y), (x + w, y + h), (0, 255, 0), 2)
-        #writer.close()
+            # writer.close()
     # Save the output image
     cv2.imwrite(output_path, image)
 
@@ -49,7 +49,6 @@ def detect_rectangles(csv_num, image_path, output_path, min_area=48*48):
 def main():
     input_folder = 'DeskewedImages'
     output_folder = 'RectangleDetectorOutput'
-    i = 1
 
     # Check if input folder exists
     if not os.path.exists(input_folder):
