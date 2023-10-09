@@ -251,7 +251,7 @@ def create_image(file_name):
 labeled_json = []
 synthetic_directory = "SyntheticData"
 if __name__ == '__main__':
-    for i in range(3000):
+    for i in range(10000):
         create_image(f'{i}.jpg')
     labeled_data = json.dumps(labeled_json, indent=4)
 
