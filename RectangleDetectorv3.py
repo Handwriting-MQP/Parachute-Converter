@@ -59,6 +59,7 @@ def main():
     if not os.path.exists(output_folder):
         os.makedirs(output_folder)
 
+    i = 0
     # Loop through all images in the input folder
     for image_file in os.listdir(input_folder):
         i = i + 1
