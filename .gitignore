@@ -5,3 +5,4 @@ SyntheticData/labels.json
 *.jpg
 RectangleDetectorOutput/
 *.csv
+*.png
