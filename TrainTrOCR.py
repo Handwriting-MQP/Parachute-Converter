@@ -8,7 +8,7 @@ from transformers import VisionEncoderDecoderModel
 from transformers import Seq2SeqTrainer, Seq2SeqTrainingArguments
 from transformers import default_data_collator
 from datasets import load_metric
-import jiwer
+# import jiwer
 
 file_path = "SyntheticData/labels.json"
 processor_name = "microsoft/trocr-base-handwritten"
