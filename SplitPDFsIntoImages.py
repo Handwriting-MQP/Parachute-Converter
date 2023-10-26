@@ -22,7 +22,7 @@ def split_pdf_into_images(pdf_filepath, image_dir):
 
 if __name__ == '__main__':
     # you can change this path to process different PDFs
-    pdf_filepath = './ParachuteData/PDFs/T-11 LAT (SEPT 2022).pdf'
+    pdf_filepath = './ParachuteData/PDFs/T-11 W911QY-19-D-0046 LOT 45_09282023.pdf'
 
     # set where you'd like to save the PDF pages as images
     image_dir = './ParachuteData/pdf-pages-as-images'

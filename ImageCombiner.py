@@ -9,6 +9,9 @@ import os
 
 from sympy import fraction
 
+# TODO: add tqdm progress bar (report fraction type on bar?)
+# TODO: make sure you have all proper directories for synthetic data so "cv.imwrite()" doesn't fail silently
+
 
 # Gets an MNIST digit in the range 0 to 9.
 def getMNIST(digit):
