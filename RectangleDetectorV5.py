@@ -1,7 +1,7 @@
 import os
 
 import cv2
-import numpy
+import numpy as np
 import pandas as pd
 from tqdm import tqdm
 from pprint import pprint
@@ -10,9 +10,11 @@ import pytesseract
 
 
 # set some global paramaters
+max_image_dimension = 4000
+
 # TODO: play with tuning these!
-min_box_width = 150
-min_box_height = 30
+min_box_width = 75
+min_box_height = 15
 max_area = 1000000
 
 
@@ -119,7 +121,7 @@ def generate_csv_with_detected_text(image, filtered_rectangles, csv_output_path)
             rows[i] += ['']*(max_num_cols - len(rows[i]))
     
     # convert "rows" from a 2d array to a dataframe
-    df = pd.DataFrame(numpy.array(rows, dtype='object'))
+    df = pd.DataFrame(np.array(rows, dtype='object'))
     df.to_csv(csv_output_path, index=False)
 
 
@@ -192,7 +194,7 @@ def generate_csv_with_detected_text_2(image, filtered_rectangles, csv_path):
         print(len(row))
         print(row)
     
-    num = numpy.array(data, dtype="object")
+    num = np.array(data, dtype="object")
 
     df = pd.DataFrame(num)
     df.to_csv(csv_path, index=False)
@@ -206,8 +208,11 @@ def detect_rectangles(image_input_path, image_output_path, csv_output_path):
         print(f'Unable to load image: {image_input_path}')
         return
     
-    # TODO: scale the image to have a constant max dimension
+    # scale the image to have a constant max dimension
     # for more info: https://ai.stackexchange.com/questions/24311/why-do-we-resize-images-before-using-them-for-object-detection
+    scale_factor = max_image_dimension/max(image.shape)
+    new_shape = (int(scale_factor*image.shape[1]), int(scale_factor*image.shape[0]))
+    image = cv2.resize(image, new_shape)
     
     # pre-process image for contour detection
     processed_image = preprocess_image(image)
