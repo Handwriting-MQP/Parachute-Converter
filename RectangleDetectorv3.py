@@ -1,6 +1,7 @@
 import cv2
 import os
 
+import numpy as np
 import pytesseract
 import xlsxwriter
 
@@ -14,10 +15,14 @@ values = []
 
 def addToRow(image, x, y, w, h):
     cropped = image[y:y + h, x:x + w]
+    median = np.median(cropped[2], axis = 0, overwrite_input=False)
     text = pytesseract.image_to_string(cropped)
+    # hex_color = cv2.cv.CV_RGB(average_color).tostring()
+    s = f'{hex(int(median[1]))}{hex(int(median[2]))}{hex(int(median[0]))}'
+    color = s.replace('0x', '')
     update_columns(x)
     update_rows(y)
-    values.append((x, y, w, h, text))
+    values.append((x, y, w, h, text, color))
 
 
 def update_columns(x):
@@ -73,35 +78,35 @@ def detect_rectangles(csv_num, image_path, output_path, min_area=min_box_side_le
         x, y, w, h = cv2.boundingRect(contour)
         # print(f'y={y}')
         if max_area > area > min_area and w >= min_box_side_length and h >= min_box_side_length / 2:
-            cv2.rectangle(image, (x, y), (x + w, y + h), (0, 255, 0), 2)
+            # green = cv2.rectangle(image, (x, y), (x + w, y + h), (0, 255, 0), 2)
             addToRow(image, x, y, w, h)
+
     print(columns)
     print(rows)
     workbook = xlsxwriter.Workbook(f'{csv_num}.xlsx')
     worksheet = workbook.add_worksheet()
-    ## FOR VISUALIZATION ##
-    merge_format = workbook.add_format(
-        {
-            "bold": 1,
-            "border": 1,
-            "align": "center",
-            "valign": "vcenter",
-            "fg_color": "yellow",
-        }
-    )
 
     for cell in values:
-        x,y,w,h,text = cell
+        x, y, w, h, text, color = cell
         low_xindex = get_closest_xval(x)
         high_xindex = get_closest_xval(x + w)
         low_yindex = get_closest_yval(y)
         high_yindex = get_closest_yval(y + h)
+        cell_format = workbook.add_format(
+            {
+                "bold": 1,
+                "border": 1,
+                "align": "center",
+                "valign": "vcenter",
+                "fg_color": f'#{color}',
+            }
+        )
         try:
             if high_xindex - low_xindex == 1 and high_yindex - low_yindex == 1:
-                worksheet.write(low_yindex, low_xindex, text)
+                worksheet.write(low_yindex, low_xindex, text, cell_format)
             else:
-                worksheet.merge_range(first_row=low_yindex, first_col=low_xindex, last_row=high_yindex-1,
-                                      last_col=high_xindex - 1, data=text, cell_format=merge_format)
+                worksheet.merge_range(first_row=low_yindex, first_col=low_xindex, last_row=high_yindex - 1,
+                                      last_col=high_xindex - 1, data=text, cell_format=cell_format)
         except:
             print(f"An exception occurred{cell}")
 
@@ -135,7 +140,7 @@ def main():
 if __name__ == "__main__":
     pytesseract.pytesseract.tesseract_cmd = 'C:/Program Files/Tesseract-OCR/tesseract.exe'
     i = -1
-    input_path = "img_4.png"
+    input_path = "img.png"
     # input_path = "ParachuteData/pdf-pages-as-images/T-11 LAT (SEPT 2022)-014.png"
     output_path = "coords_with_boxes.jpg"
     detect_rectangles(i, input_path, output_path)
