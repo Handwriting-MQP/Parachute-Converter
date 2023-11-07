@@ -278,7 +278,7 @@ if __name__ == "__main__":
 
     # main()
 
-    image_input_path = './ParachuteData/pdf-pages-as-images-deskewed/T-11 W911QY-19-D-0046 LOT 45_09282023-031.png'
+    image_input_path = '../ParachuteData/pdf-pages-as-images-deskewed/T-11 W911QY-19-D-0046 LOT 45_09282023-031.png'
     image_output_path = './ParachuteData/RectangleDetectorOutputImages/test.png'
-    csv_output_path = './ParachuteData/RectangleDetectorOutputCSVs/test.csv'
+    csv_output_path = '../ParachuteData/RectangleDetectorOutputCSVs/test.csv'
     detect_rectangles(image_input_path, image_output_path, csv_output_path)
