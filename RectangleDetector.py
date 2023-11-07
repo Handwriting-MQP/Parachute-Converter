@@ -75,6 +75,7 @@ def detect_rectangles(csv_num, image_path, output_path, min_area=min_box_side_le
         if max_area > area > min_area and w >= min_box_side_length and h >= min_box_side_length / 2:
             cv2.rectangle(image, (x, y), (x + w, y + h), (0, 255, 0), 2)
             addToRow(image, x, y, w, h)
+    cv2.imwrite("RectangleDetectorV3Out.png", image)
     print(columns)
     print(rows)
     workbook = xlsxwriter.Workbook(f'{csv_num}.xlsx')
