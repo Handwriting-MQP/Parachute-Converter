@@ -164,13 +164,24 @@ def generate_xlsx_with_detected_text(image, filtered_rectangles, xlsx_path):
         median_color_str = s.replace('0x', '')
         
         data_tuples.append((x, y, w, h, text, median_color_str))
-    
+
     print(f'column start x values: {list(enumerate(columns))}')
     print(f'row start y values: {list(enumerate(rows))}')
 
     workbook = xlsxwriter.Workbook(xlsx_path)
     worksheet = workbook.add_worksheet()
 
+    ## Update Width and Height for spreadsheet ##
+    for index, x_val in enumerate(columns):
+        if index > 0:
+            width = x_val - columns[index-1]
+            worksheet.set_column(first_col=index, last_col =index, width=width/20)
+
+    for index, y_val in enumerate(rows):
+        if index > 0:
+            height = y_val - rows[index-1]
+            worksheet.set_row(row=index, height=height/4)
+    
     for x, y, w, h, text, median_color_str in data_tuples:
         low_xindex = get_index_of_closest_xval(x)
         high_xindex = get_index_of_closest_xval(x + w)
@@ -182,9 +193,10 @@ def generate_xlsx_with_detected_text(image, filtered_rectangles, xlsx_path):
             "border": 1,
             "align": "center",
             "valign": "vcenter",
+            "text_wrap": True,
             "fg_color": f'#{median_color_str}',
         })
-
+        text = text.strip()
         # try to add the cell to excel
         if high_xindex - low_xindex == 1 and high_yindex - low_yindex == 1:
             worksheet.write(low_yindex + 1, low_xindex + 1, text, cell_format)
