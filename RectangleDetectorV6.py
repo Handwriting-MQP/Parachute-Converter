@@ -8,41 +8,44 @@ import xlsxwriter
 from tqdm import tqdm
 
 
-# TODO: add this in
-# def extract_image_bounded_by_contour(image, contour):
-#     # get the bounding rectangle for the contour
-#     x, y, w, h = cv2.boundingRect(contour)
+def extract_image_bounded_by_contour(full_image, contour):
+    # replace the contour with it's convex hull
+    # NOTE: this helps fix cases where the contour contains points inside of it's convex hull
+    #       this can happen when text ends up touching cell lines
+    contour = cv2.convexHull(contour)
 
-#     # overlay the filled in contour in green, then crop to the bounding rectangle
-#     cropped_green = image.copy()
-#     cv2.drawContours(cropped_green, [contour], 0, color=(0, 255, 0), thickness=cv2.FILLED)
-#     cropped_green = cropped_green[y:y + h, x:x + w]
+    # get the bounding rectangle for the contour
+    x, y, w, h = cv2.boundingRect(contour)
 
-#     # crop the bounding rectangle from the original (non-green) image
-#     cropped = image.copy()[y:y + h, x:x + w]
+    # generate a mask for the contour on the image
+    contour_mask = cv2.drawContours(np.zeros_like(full_image, dtype='uint8'), [contour], 0, color=(255, 255, 255), thickness=cv2.FILLED) != (255, 255, 255)
+    # crop this mask to only toe bounding rectangle of the contour
+    cropped_contour_mask = contour_mask[y:y + h, x:x + w]
 
-#     # set the non-green areas of the corpped image to be white
-#     cropped[cropped_green != (0, 255, 0)] = 255
+    # crop the bounding rectangle from the original image
+    cropped = full_image.copy()[y:y + h, x:x + w]
 
-#     return cropped
+    # set the areas outside of the contour in the cropped image (that is, the bounding rectangle) to be white
+    cropped[cropped_contour_mask] = 255
 
-
-def convert_image_to_binary(image):
-    # convert to grayscale
-    gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
-
-    # apply Gaussian blur
-    blurred = cv2.GaussianBlur(gray, (5, 5), 0)
-
-    # convert to binary
-    binary = cv2.adaptiveThreshold(blurred, maxValue=255, adaptiveMethod=cv2.ADAPTIVE_THRESH_MEAN_C,
-                                   thresholdType=cv2.THRESH_BINARY_INV, blockSize=5, C=2)
-    
-    return binary
+    return cropped
 
 
 def extract_cell_lines_from_image(image):
-    # doc info
+    def convert_image_to_binary(image):
+        # convert to grayscale
+        gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
+
+        # apply Gaussian blur
+        blurred = cv2.GaussianBlur(gray, (5, 5), 0)
+
+        # convert to binary
+        binary = cv2.adaptiveThreshold(blurred, maxValue=255, adaptiveMethod=cv2.ADAPTIVE_THRESH_MEAN_C,
+                                    thresholdType=cv2.THRESH_BINARY_INV, blockSize=5, C=2)
+        
+        return binary
+    
+    # documentation on morphological transformations:
     # graphics: https://docs.opencv.org/3.4/dd/dd7/tutorial_morph_lines_detection.html
     # examples: https://docs.opencv.org/4.x/d9/d61/tutorial_py_morphological_ops.html
 
@@ -78,11 +81,13 @@ def extract_cell_lines_from_image(image):
     return all_lines_2
 
 
-def rotate_image_using_aspect_ratio(image, filtered_rectangles):
+def determine_if_image_should_be_rotated(filtered_contours):
     # set a threshold for figuring out if we need to rotate an image
     threshold_aspect_raio = 1
     # NOTE: from a few tests, it seems like the average aspect ratio of normal pages is around 5,
     #       while rotated pages are around 0.6
+
+    filtered_rectangles = [cv2.boundingRect(contour) for contour in filtered_contours]
 
     # calculate mean aspect ratio
     aspect_ratios = [w/h for x, y, w, h in filtered_rectangles]
@@ -90,27 +95,24 @@ def rotate_image_using_aspect_ratio(image, filtered_rectangles):
 
     # if we think the image is rotate, rotate both the image and the rectangle points
     if mean_aspect_ratio <= threshold_aspect_raio:
-        # rotate points on rectangle
-        for i in range(len(filtered_rectangles)):
-            c = filtered_rectangles[i]
-            x, y, w, h = c[0], c[1], c[2], c[3]
-            c[0], c[1], c[2], c[3] = image.shape[0] - (y + h), x, h, w
-        
-        # rotate image
-        image = cv2.rotate(image, cv2.ROTATE_90_CLOCKWISE)
-    
-    return image, filtered_rectangles
+        return True
+    return False
 
 
-def generate_image_with_rectangle_overlays(image, filtered_rectangles, image_output_path):
+def generate_image_with_rectangle_overlays(image, filtered_contours, image_output_path):
+    # copy the image so we aren't writing on the image we passed into the function
+    image = image.copy()
+
+    filtered_rectangles = [cv2.boundingRect(contour) for contour in filtered_contours]
+
     for x, y, w, h in filtered_rectangles:
         # add a green rectangle to the image
         cv2.rectangle(image, (x, y), (x + w, y + h), color=(0, 255, 0), thickness=2)
         # add little circles to the corners of the rectangle
-        cv2.circle(image, (x, y), radius=5, color=(0, 0, 255), thickness=2)
-        cv2.circle(image, (x + w, y), radius=5, color=(0, 0, 255), thickness=2)
-        cv2.circle(image, (x, y + h), radius=5, color=(0, 0, 255), thickness=2)
-        cv2.circle(image, (x + w, y + h), radius=5, color=(0, 0, 255), thickness=2)
+        cv2.circle(image, (x, y), radius=5, color=(0, 0, 255), thickness=5)
+        cv2.circle(image, (x + w, y), radius=5, color=(255, 0, 0), thickness=5)
+        cv2.circle(image, (x, y + h), radius=5, color=(255, 0, 255), thickness=5)
+        cv2.circle(image, (x + w, y + h), radius=5, color=(0, 165, 255), thickness=5)
     
     # save image with green rectangles
     cv2.imwrite(image_output_path, image)
@@ -121,7 +123,7 @@ def do_OCR_on_cell(cropped_image):
     return text
 
 
-def generate_xlsx_with_detected_text(image, filtered_rectangles, xlsx_path):
+def generate_xlsx_with_detected_text(image, filtered_contours, xlsx_path):
     vertical_tolernce = 50
     horizontal_tolerance = 50
 
@@ -147,22 +149,31 @@ def generate_xlsx_with_detected_text(image, filtered_rectangles, xlsx_path):
         for i, val in enumerate(columns):
             if val - horizontal_tolerance <= x <= val + horizontal_tolerance:
                 return i
-        return len(columns) # TODO: remember you changed this
+        return len(columns)
 
     def get_index_of_closest_yval(y):
         for i, val in enumerate(rows):
             if val - vertical_tolernce <= y <= val + vertical_tolernce:
                 return i
-        return len(rows) # TODO: remember you changed this
+        return len(rows)
     
-    # generate data tuples from filtered rectangles
-    for x, y, w, h in tqdm(filtered_rectangles):
+    # generate data tuples from filtered contours
+    counter = 0
+    for contour in tqdm(filtered_contours):
+        x, y, w, h = cv2.boundingRect(contour)
+
         # update rows and cols
         update_columns(x)
         update_rows(y)
 
-        # extract cell from image
+        # extract cell from image        
         cropped = image[y:y + h, x:x + w]
+
+        # TODO: remove this debugging code at some point
+        # cropped_new = extract_image_bounded_by_contour(image, contour)
+        # cv2.imwrite(f'./tmp/{counter:03}-new.png', cropped_new)
+        # cv2.imwrite(f'./tmp/{counter:03}-old.png', cropped)
+        # counter += 1
 
         # generate text for cell
         text = do_OCR_on_cell(cropped)
@@ -176,7 +187,7 @@ def generate_xlsx_with_detected_text(image, filtered_rectangles, xlsx_path):
 
     print(f'column start x values: {list(enumerate(columns))}')
     print(f'row start y values: {list(enumerate(rows))}')
-    
+
     
     # generate XLSX file
     workbook = xlsxwriter.Workbook(xlsx_path)
@@ -229,12 +240,28 @@ def generate_xlsx_with_detected_text(image, filtered_rectangles, xlsx_path):
     workbook.close()
 
 
-def detect_rectangles(image_input_path, image_output_path, xlsx_output_path):
+def find_filtered_contours(binary_image):
     # set box size paramaters
     min_box_width = 75
     min_box_height = 15
     max_area = 1000000
 
+    # find contours in the binary image
+    contours, hierarchy = cv2.findContours(binary_image, mode=cv2.RETR_TREE, method=cv2.CHAIN_APPROX_SIMPLE)
+
+    # produce listing of filtered contours within size thresholds
+    filtered_contours = []
+    for contour in contours:
+        x, y, w, h = cv2.boundingRect(contour)
+        if w*h <= max_area and w >= min_box_width and h >= min_box_height:
+            filtered_contours.append(contour)
+    
+    # TODO: remove contours inside of other contours
+    
+    return filtered_contours
+
+
+def process_image(image_input_path, image_output_path, xlsx_output_path):
     # load the image
     image = cv2.imread(image_input_path)
     # check if the image didn't load correctly (most likely because the path didn't exist)
@@ -244,21 +271,17 @@ def detect_rectangles(image_input_path, image_output_path, xlsx_output_path):
     
     # extract lines for contour detection
     cell_lines = extract_cell_lines_from_image(image)
+    filtered_contours = find_filtered_contours(cell_lines)
 
-    # find contours in the binary image
-    contours, _ = cv2.findContours(cell_lines, mode=cv2.RETR_TREE, method=cv2.CHAIN_APPROX_SIMPLE)
-
-    # produce listing of bounding rectangles within size thresholds
-    filtered_rectangles = []
-    for contour in contours:
-        x, y, w, h = cv2.boundingRect(contour)
-        if w*h <= max_area and w >= min_box_width and h >= min_box_height:
-            filtered_rectangles.append([x, y, w, h])
+    # determine if the image should be rotated
+    # if it should, we'll need to recalculate the contours
+    if determine_if_image_should_be_rotated(filtered_contours) is True:
+        image = cv2.rotate(image, cv2.ROTATE_90_CLOCKWISE)
+        cell_lines = extract_cell_lines_from_image(image)
+        filtered_contours = find_filtered_contours(cell_lines)
     
-    image, filtered_rectangles = rotate_image_using_aspect_ratio(image, filtered_rectangles)
-    
-    generate_image_with_rectangle_overlays(image, filtered_rectangles, image_output_path)
-    generate_xlsx_with_detected_text(image, filtered_rectangles, xlsx_output_path)
+    generate_image_with_rectangle_overlays(image, filtered_contours, image_output_path)
+    generate_xlsx_with_detected_text(image, filtered_contours, xlsx_output_path)
 
 
 def main():
@@ -283,7 +306,7 @@ def main():
         xlsx_output_path = os.path.join(output_folder, xlsx_filename)
 
         print(f'{image_input_path} started')
-        detect_rectangles(image_input_path, image_output_path, xlsx_output_path)
+        process_image(image_input_path, image_output_path, xlsx_output_path)
 
 
 if __name__ == "__main__":
@@ -293,6 +316,7 @@ if __name__ == "__main__":
     # main()
 
     image_input_path = './ParachuteData/pdf-pages-as-images-preprocessed/T-11 LAT (SEPT 2022)-019.png'
+    # image_input_path = './ParachuteData/pdf-pages-as-images-preprocessed/T-11 LAT (SEPT 2022)-001.png'
     image_output_path = './RectangleDetectorOutput/test.png'
     xlsx_output_path = './RectangleDetectorOutput/test.xlsx'
-    detect_rectangles(image_input_path, image_output_path, xlsx_output_path)
+    process_image(image_input_path, image_output_path, xlsx_output_path)
