@@ -172,8 +172,8 @@ def main():
 
 
 if __name__ == '__main__':
-    input_image = 'deskewer-WIP/input1.png'
-    input_image = 'ParachuteData/pdf-pages-as-images/T-11 LAT (SEPT 2022)-030.png' # 53
+    input_image = 'deskewer-WIP/i1.png'
+    # input_image = 'ParachuteData/pdf-pages-as-images/T-11 LAT (SEPT 2022)-030.png'
     # input_image = 'ParachuteData/pdf-pages-as-images/T-11 W911QY-19-D-0046 LOT 45_09282023-008.png'
     output_image = 'deskewer-WIP/output.png'
     deskew_image(input_image, output_image)

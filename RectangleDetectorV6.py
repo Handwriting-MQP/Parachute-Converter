@@ -116,13 +116,18 @@ def generate_image_with_rectangle_overlays(image, filtered_rectangles, image_out
     cv2.imwrite(image_output_path, image)
 
 
+def do_OCR_on_cell(cropped_image):
+    text = pytesseract.image_to_string(cropped_image)
+    return text
+
+
 def generate_xlsx_with_detected_text(image, filtered_rectangles, xlsx_path):
     vertical_tolernce = 50
     horizontal_tolerance = 50
 
     columns = [] # stores the x values each column starts at
     rows = [] # stores the y values each row starts at
-    data_tuples = []
+    data_tuples = [] # stores data in the form (x, y, w, h, text, median_color_str)
 
     def update_columns(x):
         for val in columns:
@@ -150,13 +155,17 @@ def generate_xlsx_with_detected_text(image, filtered_rectangles, xlsx_path):
                 return i
         return len(rows) # TODO: remember you changed this
     
-
+    # generate data tuples from filtered rectangles
     for x, y, w, h in tqdm(filtered_rectangles):
-        cropped = image[y:y + h, x:x + w]
-        text = pytesseract.image_to_string(cropped)
-        # text = 'blah'
+        # update rows and cols
         update_columns(x)
         update_rows(y)
+
+        # extract cell from image
+        cropped = image[y:y + h, x:x + w]
+
+        # generate text for cell
+        text = do_OCR_on_cell(cropped)
 
         # calculate the median pixel color
         median_pixel_value = np.median(cropped.reshape((-1, 3)), axis=0, overwrite_input=False).astype('uint8')
@@ -167,27 +176,35 @@ def generate_xlsx_with_detected_text(image, filtered_rectangles, xlsx_path):
 
     print(f'column start x values: {list(enumerate(columns))}')
     print(f'row start y values: {list(enumerate(rows))}')
-
+    
+    
+    # generate XLSX file
     workbook = xlsxwriter.Workbook(xlsx_path)
     worksheet = workbook.add_worksheet()
 
-    ## Update Width and Height for spreadsheet ##
-    for index, x_val in enumerate(columns):
-        if index > 0:
-            width = x_val - columns[index-1]
-            worksheet.set_column(first_col=index, last_col =index, width=width/20)
+    # update column/row width/height in spreadsheet
+    column_px_to_width_ratio = 1/20
+    row_px_to_width_ratio = 1/4
 
-    for index, y_val in enumerate(rows):
-        if index > 0:
-            height = y_val - rows[index-1]
-            worksheet.set_row(row=index, height=height/4)
+    for index in range(1, len(columns)):
+        width_px = columns[index] - columns[index-1]
+        worksheet.set_column(first_col=index, last_col=index, width=width_px*column_px_to_width_ratio)
     
+    for index in range(1, len(rows)):
+        height_px = rows[index] - rows[index-1]
+        worksheet.set_row(row=index, height=height_px*row_px_to_width_ratio)
+    
+    # generate XLSX file from data tuples
     for x, y, w, h, text, median_color_str in data_tuples:
+        # clean up the text
+        text = text.strip()
+
         low_xindex = get_index_of_closest_xval(x)
         high_xindex = get_index_of_closest_xval(x + w)
         low_yindex = get_index_of_closest_yval(y)
         high_yindex = get_index_of_closest_yval(y + h)
 
+        # set cell formatting
         cell_format = workbook.add_format({
             "bold": 1,
             "border": 1,
@@ -196,7 +213,7 @@ def generate_xlsx_with_detected_text(image, filtered_rectangles, xlsx_path):
             "text_wrap": True,
             "fg_color": f'#{median_color_str}',
         })
-        text = text.strip()
+
         # try to add the cell to excel
         if high_xindex - low_xindex == 1 and high_yindex - low_yindex == 1:
             worksheet.write(low_yindex + 1, low_xindex + 1, text, cell_format)
