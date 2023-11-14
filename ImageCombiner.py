@@ -189,8 +189,12 @@ def create_image(file_name):
         fraction_digit2 = np.random.choice([2, 4, 8])
         fraction_image2 = getMNIST(fraction_digit2)
         #Numerator is always odd, so pick a random odd number between 1 and the denominator
-        fraction_digit1 = random.randrange(1, fraction_digit2, 2)
-        fraction_image1 = getMNIST(fraction_digit1)
+        if fraction_digit2 == 2:
+            fraction_digit1 = 1
+            fraction_image1 = getMNIST(fraction_digit1)
+        else:
+            fraction_digit1 = random.randrange(1, fraction_digit2, 2)
+            fraction_image1 = getMNIST(fraction_digit1)
     # print(f'frac a: {number3}')
     # print(f'frac b: {number4}')
     elif fraction_digit_count == 3:
