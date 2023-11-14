@@ -288,7 +288,7 @@ def create_image(file_name):
 
 
 labeled_json = []
-synthetic_directory = "SyntheticData"
+synthetic_directory = "SyntheticMixedNumberData"
 if __name__ == '__main__':
     for i in range(1000):
         create_image(f'{i}.jpg')
