@@ -185,15 +185,15 @@ def create_image(file_name):
     fraction_digit_count = random.randint(2, 4)
     if fraction_digit_count == 2:
 
-        fraction_digit1 = random.randint(1, 8)
+        fraction_digit2 = np.random.choice([2, 4, 8])
+        fraction_image2 = getMNIST(fraction_digit2)
+
+        fraction_digit1 = random.randrange(1, fraction_digit2, 2)
         fraction_image1 = getMNIST(fraction_digit1)
     # print(f'frac a: {number3}')
-
-        fraction_digit2 = random.randint(fraction_digit1 + 1, 9)
-        fraction_image2 = getMNIST(fraction_digit2)
     # print(f'frac b: {number4}')
     elif fraction_digit_count == 3:
-        fraction_digit1 = random.randint(1, 8)
+        fraction_digit1 = np.random.choice([1, 3, 5, 7, 9])
         fraction_image1 = getMNIST(fraction_digit1)
 
         fraction_denom1 = 1
@@ -207,7 +207,7 @@ def create_image(file_name):
         fraction_num1 = 1
         fraction_num_im1 = getMNIST(fraction_num1)
 
-        fraction_num2 = random.randint(0, 5)
+        fraction_num2 = np.random.choice([1, 3, 5])
         fraction_num_im2 = getMNIST(fraction_num2)
         fraction_image1 = horizontal_concat(fraction_num_im1, fraction_num_im2, False)
         fraction_digit1 = 10 + fraction_num2
