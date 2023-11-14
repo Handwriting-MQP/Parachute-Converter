@@ -182,12 +182,13 @@ def create_image(file_name):
     whole_image3 = getMNIST(whole_digit3)
     # print(f'whole number b: {number2}')
 
+    #Determine how many digits make up the fraction
     fraction_digit_count = random.randint(2, 4)
     if fraction_digit_count == 2:
-
+        #The denominator is a power of 2, so it is either 2, 4, or 8
         fraction_digit2 = np.random.choice([2, 4, 8])
         fraction_image2 = getMNIST(fraction_digit2)
-
+        #Numerator is always odd, so pick a random odd number between 1 and the denominator
         fraction_digit1 = random.randrange(1, fraction_digit2, 2)
         fraction_image1 = getMNIST(fraction_digit1)
     # print(f'frac a: {number3}')
@@ -195,7 +196,7 @@ def create_image(file_name):
     elif fraction_digit_count == 3:
         fraction_digit1 = np.random.choice([1, 3, 5, 7, 9])
         fraction_image1 = getMNIST(fraction_digit1)
-
+        #Two digit denominator is always 16
         fraction_denom1 = 1
         fraction_denom_im1 = getMNIST(fraction_denom1)
 
