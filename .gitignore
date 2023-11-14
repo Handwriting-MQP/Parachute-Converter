@@ -1,5 +1,8 @@
 *.xml
 .idea/workspace.xml.tmp
-*.jpg
-*.csv
-*.png
+*.iml
+
+RectangleDetectorOutput/*
+!RectangleDetectorOutput/.gitkeep
+
+deskwer-WIP/output-images/*
