@@ -170,7 +170,6 @@ def vert_fraction_slash():
 
 def create_image(file_name):
     image_file = f'{synthetic_directory}/images/{file_name}'
-    horiz_fraction_slash()
 
     whole_digit1 = random.randint(1, 9)
     whole_image1 = getMNIST(whole_digit1)
@@ -183,21 +182,51 @@ def create_image(file_name):
     whole_image3 = getMNIST(whole_digit3)
     # print(f'whole number b: {number2}')
 
-    fraction_digit1 = random.randint(1, 8)
-    fraction_image1 = getMNIST(fraction_digit1)
+    fraction_digit_count = random.randint(2, 4)
+    if fraction_digit_count == 2:
+
+        fraction_digit1 = random.randint(1, 8)
+        fraction_image1 = getMNIST(fraction_digit1)
     # print(f'frac a: {number3}')
 
-    fraction_digit2 = random.randint(fraction_digit1 + 1, 9)
-    fraction_image2 = getMNIST(fraction_digit2)
+        fraction_digit2 = random.randint(fraction_digit1 + 1, 9)
+        fraction_image2 = getMNIST(fraction_digit2)
     # print(f'frac b: {number4}')
+    elif fraction_digit_count == 3:
+        fraction_digit1 = random.randint(1, 8)
+        fraction_image1 = getMNIST(fraction_digit1)
+
+        fraction_denom1 = 1
+        fraction_denom_im1 = getMNIST(fraction_denom1)
+
+        fraction_denom2 = 6
+        fraction_denom_im2 = getMNIST(fraction_denom2)
+        fraction_digit2 = f'{fraction_denom1}{fraction_denom2}'
+        fraction_image2 = horizontal_concat(fraction_denom_im1, fraction_denom_im2, False)
+    else:
+        fraction_num1 = 1
+        fraction_num_im1 = getMNIST(fraction_num1)
+
+        fraction_num2 = random.randint(0, 5)
+        fraction_num_im2 = getMNIST(fraction_num2)
+        fraction_image1 = horizontal_concat(fraction_num_im1, fraction_num_im2, False)
+        fraction_digit1 = 10 + fraction_num2
+
+        fraction_denom1 = 1
+        fraction_denom_im1 = getMNIST(fraction_denom1)
+
+        fraction_denom2 = 6
+        fraction_denom_im2 = getMNIST(fraction_denom2)
+        fraction_digit2 = 16
+        fraction_image2 = horizontal_concat(fraction_denom_im1, fraction_denom_im2, False)
 
     # this randint() determines the case of the mixed number to be generated
     # each case is explained before its elif block
     # ******randint() inclusive at both ends******
-    fraction_type = random.randint(1, 2)
-    print(f'fraction type: {fraction_type}')
+    fraction_type = random.randint(0, 3)
+    #print(f'fraction type: {fraction_type}')
 
-    whole_digit_count = random.randint(1,3)
+    whole_digit_count = random.randint(1, 3)
 
     if whole_digit_count == 1:
         text_num = str(whole_digit1)
@@ -223,6 +252,7 @@ def create_image(file_name):
         im_tile_resize = vertical_concat(whole_number, fraction, False)
 
         cv.imwrite(image_file, im_tile_resize)
+        text = f'{text_num} {fraction_digit1}/{fraction_digit2}'
 
     # Whole number image is attached to the fraction at the left.
     # The fraction is vertical (numerator above denominator).
@@ -235,6 +265,7 @@ def create_image(file_name):
         im_tile_resize = horizontal_concat(whole_number, fraction, False)
         # im_tile_resize = 255 * (im_tile_resize > 200).astype(np.uint8)  # To darken numbers
         cv.imwrite(image_file, im_tile_resize)
+        text = f'{text_num} {fraction_digit1}/{fraction_digit2}'
 
     # The whole number has whitespace to the right and is above the fraction.
     # The fraction is horizontal.
@@ -247,7 +278,11 @@ def create_image(file_name):
         im_tile_resize = vertical_concat(whole_number, fraction, False)
 
         cv.imwrite(image_file, im_tile_resize)
-    text = f'{text_num} {fraction_digit1}/{fraction_digit2}'
+        text = f'{text_num} {fraction_digit1}/{fraction_digit2}'
+    else:
+        cv.imwrite(image_file, whole_number)
+        text = text_num
+    print(text)
     labeled_json.append({'filename': file_name, 'text': text})
 
 
