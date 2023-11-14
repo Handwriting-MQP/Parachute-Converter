@@ -6,6 +6,15 @@ import numpy as np
 import pytesseract
 import xlsxwriter
 from tqdm import tqdm
+import re
+from transformers import DonutProcessor, VisionEncoderDecoderModel
+from transformers import TrOCRProcessor, VisionEncoderDecoderModel
+
+from datasets import load_dataset
+import torch
+
+processor = TrOCRProcessor.from_pretrained('microsoft/trocr-base-printed')
+model = VisionEncoderDecoderModel.from_pretrained('microsoft/trocr-base-printed')
 
 
 def extract_image_bounded_by_contour(full_image, contour):
@@ -36,7 +45,7 @@ def extract_image_bounded_by_contour(full_image, contour):
     # with white, and outside the contour in black.
     contour_mask = cv2.drawContours(np.zeros_like(full_image, dtype='uint8'), [contour], 0, color=(255, 255, 255),
                                     thickness=cv2.FILLED) != (255, 255, 255)
-    
+
     # crop this mask to only toe bounding rectangle of the contour
     cropped_contour_mask = contour_mask[y:y + h, x:x + w]
     # cv2.imshow("Cropped Contour Mask", cropped_contour_mask)
@@ -62,6 +71,7 @@ def extract_cell_lines_from_image(image):
     Returns:
     numpy.ndarray: A binary image with cell lines highlighted.
     """
+
     def convert_image_to_binary(image):
         # convert to grayscale
         gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
@@ -176,7 +186,11 @@ def do_OCR_on_cell(cropped_image):
     Returns:
     str: The text extracted from the cropped image.
     """
-    text = pytesseract.image_to_string(cropped_image)
+    pixel_values = processor(images=cropped_image, return_tensors="pt").pixel_values
+    generated_ids = model.generate(pixel_values)
+    generated_text = processor.batch_decode(generated_ids, skip_special_tokens=True)[0]
+    print(generated_text)
+    return generated_text
     return text
 
 
@@ -223,7 +237,7 @@ def generate_xlsx_with_detected_text(image, filtered_contours, xlsx_path):
                 return i
         return len(rows)
 
-    # generate data tuples from filtered contours
+    # generate  data tuples from filtered contours
     counter = 0
     for contour in tqdm(filtered_contours):
         x, y, w, h = cv2.boundingRect(contour)
