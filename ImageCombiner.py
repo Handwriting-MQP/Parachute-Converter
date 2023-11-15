@@ -284,6 +284,8 @@ def create_image(file_name):
 
         cv.imwrite(image_file, im_tile_resize)
         text = f'{text_num} {fraction_digit1}/{fraction_digit2}'
+
+    #There is no fraction at all, just a whole number
     else:
         cv.imwrite(image_file, whole_number)
         text = text_num
