@@ -228,7 +228,7 @@ def create_image(file_name):
     # this randint() determines the case of the mixed number to be generated
     # each case is explained before its elif block
     # ******randint() inclusive at both ends******
-    fraction_type = random.randint(0, 3)
+    fraction_type = random.randint(0, 4)
     #print(f'fraction type: {fraction_type}')
 
     whole_digit_count = random.randint(1, 3)
@@ -286,9 +286,13 @@ def create_image(file_name):
         text = f'{text_num} {fraction_digit1}/{fraction_digit2}'
 
     #There is no fraction at all, just a whole number
-    else:
+    elif fraction_type == 3:
         cv.imwrite(image_file, whole_number)
         text = text_num
+    else:
+        fraction = vertical_concat(fraction_image1, fraction_image2, True)
+        text = f'{fraction_digit1}/{fraction_digit2}'
+        cv.imwrite(image_file, fraction)
     print(text)
     labeled_json.append({'filename': file_name, 'text': text})
 
