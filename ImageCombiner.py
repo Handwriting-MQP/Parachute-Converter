@@ -289,10 +289,13 @@ def create_image(file_name):
     elif fraction_type == 3:
         cv.imwrite(image_file, whole_number)
         text = text_num
+
+    #There is no whole number at all, just a fraction
     else:
         fraction = vertical_concat(fraction_image1, fraction_image2, True)
         text = f'{fraction_digit1}/{fraction_digit2}'
         cv.imwrite(image_file, fraction)
+
     print(text)
     labeled_json.append({'filename': file_name, 'text': text})
 
