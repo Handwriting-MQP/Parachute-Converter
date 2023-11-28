@@ -7,3 +7,4 @@ RectangleDetectorOutput/*
 
 *.jpg
 *.png
+SyntheticMixedNumberDataWithBoxLines/labels.json
