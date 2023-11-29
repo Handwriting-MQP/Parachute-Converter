@@ -356,25 +356,27 @@ def generate_fraction():
 
     :return: Tuple (Tuple of numerator and denominator images, text representation of the fraction).
     """
-    numerator, numerator_image = generate_fraction_part(odd_only=True)
     denominator, denominator_image = generate_fraction_part(odd_only=False, power_of_two=True)
-    while numerator > denominator:
-        numerator, numerator_image = generate_fraction_part(odd_only=True)
+    numerator, numerator_image = generate_fraction_part(odd_only=True, num_cap=denominator)
     return (numerator_image, denominator_image), f'{numerator}/{denominator}'
 
 
-def generate_fraction_part(odd_only=False, power_of_two=False):
+def generate_fraction_part(odd_only=False, power_of_two=False, num_cap=16):
     """
     Generates a random fraction part image and its corresponding number.
 
     :param odd_only: Boolean, whether to generate only odd numbers.
     :param power_of_two: Boolean, whether to generate a power of two number.
+    :param num_cap: Integer, the largest value the numerator of a given fraction can be
     :return: Tuple (Integer representation of the fraction part, Image array of the fraction part).
     """
     if power_of_two:
         number = random.choice([2, 4, 8, 16])
     elif odd_only:
-        number = random.choice([1, 3, 5, 7, 9, 11, 13, 15])
+        if num_cap == 2:
+            number = 1
+        else:
+            number = random.randrange(1, num_cap, 2)
     else:
         number = random.randint(1, 9)
 
