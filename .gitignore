@@ -1,6 +1,7 @@
 *.xml
 .idea/workspace.xml.tmp
 *.iml
+*.idea
 
 RectangleDetectorOutput/*
 !RectangleDetectorOutput/.gitkeep

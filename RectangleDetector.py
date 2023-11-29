@@ -104,12 +104,12 @@ def extract_cell_lines_from_image(image):
 
     # combine lines
     all_lines = vertical_lines | horizontal_lines
-    # cv2.imwrite('test04.png', all_lines)
+    # cv2.imwrite('tmp/test04.png', all_lines)
 
     # run kernel over image to close up gaps
     cross_kernel = cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (15, 15))
     all_lines_2 = cv2.morphologyEx(all_lines, cv2.MORPH_CLOSE, cross_kernel)
-    # cv2.imwrite('test05.png', all_lines_2)
+    # cv2.imwrite('tmp/test05.png', all_lines_2)
 
     return all_lines_2
 
@@ -197,8 +197,10 @@ def generate_xlsx_with_detected_text(image, filtered_contours, xlsx_path):
     xlsx_path (str): Path to save the generated Excel file.
 
     """
-    vertical_tolernce = 50
-    horizontal_tolerance = 50
+    # TODO: think about tuning these values in some way
+    # NOTE: a value of 50 was too big!
+    vertical_tolernce = 30
+    horizontal_tolerance = 30
 
     columns = []  # stores the x values each column starts at
     rows = []  # stores the y values each row starts at
@@ -311,7 +313,7 @@ def generate_xlsx_with_detected_text(image, filtered_contours, xlsx_path):
     workbook.close()
 
 
-def find_filtered_contours(binary_image):
+def find_filtered_contours(binary_image, image):
     """
     Finds contours in a binary image that meet certain size criteria.
 
@@ -321,32 +323,58 @@ def find_filtered_contours(binary_image):
     Returns:
     list of numpy.ndarray: A list of contours filtered based on size criteria.
     """
-    # set box size paramaters
-    min_box_width = 75
-    min_box_height = 15
-    max_box_area = 800000 # NOTE: 1,000,000 was just a little too big and skipped some legitimate boxes
+    overlap_fraction_threshold = 0.9
 
     # find contours in the binary image
     contours, hierarchy = cv2.findContours(binary_image, mode=cv2.RETR_TREE, method=cv2.CHAIN_APPROX_SIMPLE)
 
-    # produce listing of filtered contours within size thresholds
     filtered_contours = []
-    for contour in contours:
-        x, y, w, h = cv2.boundingRect(contour)
-        if w * h <= max_box_area and w >= min_box_width and h >= min_box_height:
+
+    # we want to only keep contours if they have a parent but not a grandparent
+    # that is, they are one level down from the outermost level
+    for contour, hierarchy_info in zip(contours, hierarchy[0]):
+        next_contour, previous_contour, first_child_contour, parent_contour = hierarchy_info
+        if parent_contour != -1 and hierarchy[0][parent_contour][3] == -1:
             filtered_contours.append(contour)
     
-    # remove any contours that have bounding rectangles compleatly within the bounding rectangle of any other contour
-    filtered_rectangles = [cv2.boundingRect(contour) for contour in filtered_contours]
-    # for each contour, check if its bounding rectangle is compleatly within the bounding rectangles of any other contour
+    # remove any contours that have bounding rectangles that mostly overlap the bounding rectangle of any other contour
+    # for each contour, check if its bounding rectangle is mostly within the bounding rectangles of any other contour
     # if it is, we should remove it!
     indices_to_remove = []
-    for i, (x1, y1, w1, h1) in enumerate(filtered_rectangles):
-        for x2, y2, w2, h2 in filtered_rectangles:
-            if x2 < x1 < x2 + w2 and y2 < y1 < y2 + h2 and x2 < x1 + w1 < x2 + w2 and y2 < y1 + h1 < y2 + h2:
+    for i, contour1 in enumerate(filtered_contours):
+        x1, y1, w1, h1 = cv2.boundingRect(contour1)
+        for j, contour2 in enumerate(filtered_contours):
+            # ignore that a contour will overlap itself
+            if i == j:
+                continue
+
+            x2, y2, w2, h2 = cv2.boundingRect(contour2)
+
+            # get edges of overlapping area
+            left = max(x1, x2)
+            right = min(x1 + w1, x2 + w2)
+            top = max(y1, y2)
+            bottom = min(y1 + h1, y2 + h2)
+
+            # check for the case of no overlap
+            if left >= right or top >= bottom:
+                continue
+
+            # calculate overlapping area
+            overlap_area = (right - left) * (bottom - top)
+
+            # check if the overlapping area is more then a certain fraction of the area of the contour being chcked
+            if overlap_area/(w1*h1) > overlap_fraction_threshold:
                 indices_to_remove.append(i)
+    
+    # TODO: remove this debugging code
+    # bad_contours = [contour for i, contour in enumerate(filtered_contours) if i in indices_to_remove]
+    # cv2.drawContours(image, bad_contours, -1, (0, 0, 255), thickness=10)
+    # if len(indices_to_remove) > 0:
+    #     print('found bad contours!')
+
     # remove the offending contours
-    filtered_contours = [fc for i, fc in enumerate(filtered_contours) if i not in indices_to_remove]
+    filtered_contours = [contour for i, contour in enumerate(filtered_contours) if i not in indices_to_remove]
 
     return filtered_contours
 
@@ -374,19 +402,20 @@ def process_image(image_input_path, image_output_path, xlsx_output_path):
 
     # extract lines for contour detection
     cell_lines = extract_cell_lines_from_image(image)
-    filtered_contours = find_filtered_contours(cell_lines)
+    filtered_contours = find_filtered_contours(cell_lines, image)
 
     # determine if the image should be rotated
     # if it should, we'll need to recalculate the contours
-    if determine_if_image_should_be_rotated(filtered_contours) is True:
+    if len(filtered_contours) > 0 and determine_if_image_should_be_rotated(filtered_contours) is True:
         image = cv2.rotate(image, cv2.ROTATE_90_CLOCKWISE)
         cell_lines = extract_cell_lines_from_image(image)
-        filtered_contours = find_filtered_contours(cell_lines)
+        filtered_contours = find_filtered_contours(cell_lines, image)
     
     generate_image_with_rectangle_overlays(image, filtered_contours, image_output_path)
 
     # if there are less then the minium number of contours, don't try to produce an XLSX file
     if len(filtered_contours) < min_num_cells_threshold:
+        print('there are less then the minium number of contours')
         # make a placeholder file to have a clear record of what happened
         with open(xlsx_output_path + '.txt', 'w') as f:
             f.write("this file is a placeholder. we didn't think this page had cells on it.")
@@ -429,7 +458,7 @@ if __name__ == "__main__":
     main()
 
     # # image_input_path = 'ParachuteData/pdf-pages-as-images-preprocessed-deskewed/T-11 W911QY-19-D-0046 LOT 45_09282023-014.png'
-    # image_input_path = './ParachuteData/pdf-pages-as-images-preprocessed-deskewed/T-11 LAT (SEPT 2022)-009.png'
+    # image_input_path = './ParachuteData/pdf-pages-as-images-preprocessed-deskewed/T-11 LAT (SEPT 2022)-020.png'
     # image_output_path = './RectangleDetectorOutput/test.png'
     # xlsx_output_path = './RectangleDetectorOutput/test.xlsx'
     # process_image(image_input_path, image_output_path, xlsx_output_path)
