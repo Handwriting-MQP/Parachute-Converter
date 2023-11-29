@@ -372,7 +372,7 @@ def generate_fraction_part(odd_only=False, power_of_two=False):
     if power_of_two:
         number = random.choice([2, 4, 8, 16])
     elif odd_only:
-        number = random.choice([1, 3, 5, 7, 9])
+        number = random.choice([1, 3, 5, 7, 9, 11, 13, 15])
     else:
         number = random.randint(1, 9)
 
