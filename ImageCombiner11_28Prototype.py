@@ -358,6 +358,8 @@ def generate_fraction():
     """
     numerator, numerator_image = generate_fraction_part(odd_only=True)
     denominator, denominator_image = generate_fraction_part(odd_only=False, power_of_two=True)
+    while numerator > denominator:
+        numerator, numerator_image = generate_fraction_part(odd_only=True)
     return (numerator_image, denominator_image), f'{numerator}/{denominator}'
 
 
