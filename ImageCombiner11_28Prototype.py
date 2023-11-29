@@ -337,7 +337,10 @@ def generate_whole_number():
     whole_number_text_parts = []
 
     for _ in range(digits_count):
-        digit = random.randint(0, 9)
+        if _ == 0:
+            digit = random.randint(1, 9)
+        else:
+            digit = random.randint(0, 9)
         whole_number_images.append(get_mnist_digit_image(digit))
         whole_number_text_parts.append(str(digit))
 
