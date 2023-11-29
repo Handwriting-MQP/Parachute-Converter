@@ -313,7 +313,7 @@ def generate_xlsx_with_detected_text(image, filtered_contours, xlsx_path):
     workbook.close()
 
 
-def find_filtered_contours(binary_image, image):
+def find_filtered_contours(binary_image):
     """
     Finds contours in a binary image that meet certain size criteria.
 
@@ -402,14 +402,14 @@ def process_image(image_input_path, image_output_path, xlsx_output_path):
 
     # extract lines for contour detection
     cell_lines = extract_cell_lines_from_image(image)
-    filtered_contours = find_filtered_contours(cell_lines, image)
+    filtered_contours = find_filtered_contours(cell_lines)
 
     # determine if the image should be rotated
     # if it should, we'll need to recalculate the contours
     if len(filtered_contours) > 0 and determine_if_image_should_be_rotated(filtered_contours) is True:
         image = cv2.rotate(image, cv2.ROTATE_90_CLOCKWISE)
         cell_lines = extract_cell_lines_from_image(image)
-        filtered_contours = find_filtered_contours(cell_lines, image)
+        filtered_contours = find_filtered_contours(cell_lines)
     
     generate_image_with_rectangle_overlays(image, filtered_contours, image_output_path)
 
