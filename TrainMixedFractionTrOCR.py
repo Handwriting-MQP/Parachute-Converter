@@ -10,10 +10,10 @@ from transformers import default_data_collator
 from datasets import load_metric
 # import jiwer
 
-file_path = "SyntheticData/labels.json"
+file_path = "SyntheticMixedNumberDataWithBoxLines/labels.json"
 processor_name = "microsoft/trocr-base-handwritten"
 model_name = "microsoft/trocr-base-stage1"
-image_dir = "SyntheticData/images/"
+image_dir = "SyntheticMixedNumberDataWithBoxLines/images/"
 
 processor = TrOCRProcessor.from_pretrained(processor_name)
 model = VisionEncoderDecoderModel.from_pretrained(model_name)
