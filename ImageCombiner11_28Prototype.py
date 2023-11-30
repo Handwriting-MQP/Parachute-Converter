@@ -222,7 +222,7 @@ def create_synthetic_image(file_name, add_box_lines=0):
     fraction, fraction_text = generate_fraction()
 
     # Decide the layout type of the mixed number
-    layout_type = random.randint(0, 3)
+    layout_type = random.randint(0, 4)
 
     # Generate image based on layout type
 
@@ -265,6 +265,23 @@ def create_synthetic_image(file_name, add_box_lines=0):
         mixed_number_image = whole_number
         # The textual representation is just the whole number text
         mixed_number_text = whole_number_text
+
+    #Layout Type 4: Image consists of just a fraction
+    elif layout_type == 4:
+        #Determine if fraction is horizontal or vertical orientation
+        fraction_style = random.randint(0, 1)
+        #Create a vertical fraction
+        if fraction_style == 0:
+            #Mixed Number image is just the fraction image
+            mixed_number_image = concatenate_vertically(fraction[0], fraction[1], make_fraction=True)
+            #Mixed Number Text is just the fraction text
+            mixed_number_text = fraction_text
+        #Create a horizontal fraction
+        else:
+            #Mixed Number image is just the fraction image
+            mixed_number_image = concatenate_horizontally(fraction[0], fraction[1], make_fraction=True)
+            #Mixed Number Text is just the fraction text
+            mixed_number_text = fraction_text
 
     # # Default case: Layout Type not recognized
     # else:
@@ -367,7 +384,7 @@ def generate_fraction_part(odd_only=False, power_of_two=False, num_cap=16):
 
     :param odd_only: Boolean, whether to generate only odd numbers.
     :param power_of_two: Boolean, whether to generate a power of two number.
-    :param num_cap: Integer, the largest value the numerator of a given fraction can be
+    :param num_cap: Integer, the largest value the numerator of a given fraction can be +1 since randrange is exclusive on the upper bound
     :return: Tuple (Integer representation of the fraction part, Image array of the fraction part).
     """
     if power_of_two:
