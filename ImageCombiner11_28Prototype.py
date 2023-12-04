@@ -209,11 +209,10 @@ def resize_image_by_width(image, target_width):
     return cv.resize(image, (target_width, new_height), interpolation=cv.INTER_AREA)
 
 
-def create_synthetic_image(file_name, add_box_lines=0):
+def generate_synthetic_image(add_box_lines=0):
     """
     Creates a synthetic image of a mixed number with an optional box line.
-
-    :param file_name: String, the name of the file to save the image as.
+    
     :param add_box_lines: Boolean, whether to add box lines to the image.
     :return: None, but saves the image to a file and prints the number.
     """
@@ -295,13 +294,8 @@ def create_synthetic_image(file_name, add_box_lines=0):
     # Optionally add box lines
     for i in range(add_box_lines):
         add_box_line_to_image(mixed_number_image)
-
-    # Save the image and append the label to the data list
-    cv.imwrite(os.path.join(SYNTHETIC_DATA_DIR, 'images', file_name), mixed_number_image)
-    print("file_name: " + file_name + ", "
-          + "text: " + mixed_number_text + ", "
-          + "layout_type: " + str(layout_type))
-    labeled_data_list.append({'filename': file_name, 'text': mixed_number_text, 'layout_type': str(layout_type)})
+    
+    return mixed_number_image, mixed_number_text
 
 
 def add_whitespace_to_image(image, vertical=True, amount=None):
@@ -434,7 +428,15 @@ if __name__ == '__main__':
         file_name = f'image_{i}.png'
         # Randomly decide to add box lines
         add_box_lines = random.choice([True, False])
-        create_synthetic_image(file_name, add_box_lines=random.randint(0,4))
+        # generate a synthetic image
+        mixed_number_image, mixed_number_text = generate_synthetic_image(add_box_lines=random.randint(0,4))
+        # save the image
+        cv.imwrite(os.path.join(SYNTHETIC_DATA_DIR, 'images', file_name), mixed_number_image)
+        print("file_name: " + file_name + ", "
+            + "text: " + mixed_number_text + ", "
+            + "layout_type: " + str(layout_type))
+        # add the image to the list of labeled data
+        labeled_data_list.append({'filename': file_name, 'text': mixed_number_text, 'layout_type': str(layout_type)})
 
     # Saving the labeled data list in a JSON file
     with open(os.path.join(SYNTHETIC_DATA_DIR, 'labels.json'), 'w') as json_file:

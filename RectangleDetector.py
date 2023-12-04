@@ -15,45 +15,6 @@ from tqdm import tqdm
 # model = VisionEncoderDecoderModel.from_pretrained('microsoft/trocr-base-printed')
 
 
-def extract_image_bounded_by_contour(full_image, contour):
-    """
-    Extracts a sub-image from a larger image, bound by a specified contour.
-
-    Parameters:
-    full_image (numpy.ndarray): The original image from which a sub-image is to be extracted.
-    contour (numpy.ndarray): A contour defining the boundary of the sub-image.
-
-    Returns:
-    numpy.ndarray: A cropped image which is the portion of the full_image inside the contour.
-    """
-
-    # replace the contour with it's convex hull
-    # definition of convex hull: the smallest convex shape that completely encloses the contour.
-    # NOTE: this helps fix cases where the contour contains points inside of it's convex hull
-    #       this can happen when text ends up touching cell lines
-    contour = cv2.convexHull(contour)
-
-    # get the bounding rectangle for the contour
-    # definition of bounding rectangle: the smallest non-rotated rectangle that can completely enclose the contour.
-    x, y, w, h = cv2.boundingRect(contour)
-
-    # generate a mask for the contour on the image
-    # here 'contour_mask' is a mask that is true inside the contour and false outside
-    contour_mask = cv2.drawContours(np.zeros_like(full_image, dtype='uint8'), [contour], 0, color=(255, 255, 255),
-                                    thickness=cv2.FILLED) == (255, 255, 255)
-    
-    # crop this mask to only the bounding rectangle of the contour
-    cropped_contour_mask = contour_mask[y:y + h, x:x + w]
-
-    # crop the bounding rectangle from the original image
-    cropped = full_image.copy()[y:y + h, x:x + w]
-
-    # set the areas outside of the contour in the cropped image to be white
-    cropped[~cropped_contour_mask] = 255
-
-    return cropped
-
-
 def extract_cell_lines_from_image(image):
     """
     Extracts horizontal and vertical lines from an image, typically used for identifying cell boundaries in tables.

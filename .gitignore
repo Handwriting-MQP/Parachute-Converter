@@ -2,6 +2,7 @@
 .idea/workspace.xml.tmp
 *.iml
 *.idea
+*__pycache__/*
 
 RectangleDetectorOutput/*
 !RectangleDetectorOutput/.gitkeep
@@ -9,3 +10,5 @@ RectangleDetectorOutput/*
 *.jpg
 *.png
 SyntheticMixedNumberDataWithBoxLines/labels.json
+
+*.ipynb
