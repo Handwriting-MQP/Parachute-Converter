@@ -166,7 +166,47 @@ def generate_image_with_rectangle_overlays(image, filtered_contours, image_outpu
         cv2.circle(image, (x + w, y + h), radius=5, color=(0, 165, 255), thickness=5)
 
     # save image with green rectangles
+    for contour in filtered_contours:
+        x, y, w, h = cv2.boundingRect(contour)
+        cropped = image[y:y + h, x:x + w]
+        if len(do_OCR_on_cell(cropped).split()) > 2:
+            text = detect_words_in_cell(cropped)
     cv2.imwrite(image_output_path, image)
+
+
+def detect_words_in_cell(image):
+    gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
+
+    # Performing OTSU threshold
+    ret, thresh1 = cv2.threshold(gray, 0, 255, cv2.THRESH_OTSU | cv2.THRESH_BINARY_INV)
+
+    # Specify structure shape and kernel size.
+    # Kernel size increases or decreases the area
+    # of the rectangle to be detected.
+    # A smaller value like (10, 10) will detect
+    # each word instead of a sentence.
+    rect_kernel = cv2.getStructuringElement(cv2.MORPH_RECT, (10, 10))
+
+    # Applying dilation on the threshold image
+    dilation = cv2.dilate(thresh1, rect_kernel, iterations=1)
+
+    # Finding contours
+    contours, hierarchy = cv2.findContours(dilation, cv2.RETR_EXTERNAL,
+                                           cv2.CHAIN_APPROX_NONE)
+    text = []
+    for cnt in contours:
+        x, y, w, h = cv2.boundingRect(cnt)
+
+        # Drawing a rectangle on copied image
+        rect = cv2.rectangle(image, (x, y), (x + w, y + h), (0, 255, 0), 2)
+
+        # Cropping the text block for giving input to OCR
+        cropped = image[y:y + h, x:x + w]
+
+        # Apply OCR on the cropped image
+        text.append(do_OCR_on_cell(cropped))
+
+    return text
 
 
 def do_OCR_on_cell(cropped_image):
@@ -251,6 +291,10 @@ def generate_xlsx_with_detected_text(image, filtered_contours, xlsx_path):
 
         # generate text for cell
         text = do_OCR_on_cell(cropped)
+
+        if len(text.split()) >= 2:
+            text = detect_words_in_cell(cropped)
+            text = ' '.join(text)
 
         # calculate the median pixel color
         median_pixel_value = np.median(cropped.reshape((-1, 3)), axis=0, overwrite_input=False).astype('uint8')
