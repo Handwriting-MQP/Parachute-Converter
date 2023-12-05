@@ -295,7 +295,7 @@ def generate_synthetic_image(add_box_lines=0):
     for i in range(add_box_lines):
         add_box_line_to_image(mixed_number_image)
     
-    return mixed_number_image, mixed_number_text
+    return mixed_number_image, mixed_number_text, layout_type
 
 
 def add_whitespace_to_image(image, vertical=True, amount=None):
@@ -429,7 +429,7 @@ if __name__ == '__main__':
         # Randomly decide to add box lines
         add_box_lines = random.choice([True, False])
         # generate a synthetic image
-        mixed_number_image, mixed_number_text = generate_synthetic_image(add_box_lines=random.randint(0,4))
+        mixed_number_image, mixed_number_text, layout_type = generate_synthetic_image(add_box_lines=random.randint(0,4))
         # save the image
         cv.imwrite(os.path.join(SYNTHETIC_DATA_DIR, 'images', file_name), mixed_number_image)
         print("file_name: " + file_name + ", "

@@ -1,19 +1,23 @@
 import os
 import random
+import json
 
 import numpy as np
 import cv2
 
 from trdg.generators import GeneratorFromStrings
 
-from ImageCombiner11_28Prototype import generate_synthetic_image
+# import generate_synthetic_image from parent directory (a bit of trickery is needed to do this)
+import sys
+sys.path.insert(1, os.path.join(sys.path[0], '..'))
+from ImageCombinerV2 import generate_synthetic_image
 
 #----------------------------------------------------------------------------------------------------
 
 minimum_word_length = 3
 maximum_word_length = 12
 
-IAM_data_base_path = './IAM-data/'
+IAM_data_base_path = './CellClassifier/IAM-data/'
 
 # read in lines from words.txt
 with open(os.path.join(IAM_data_base_path, 'words.txt'), 'r') as f:
@@ -55,6 +59,23 @@ for i, line in enumerate(words_lines):
 
 #----------------------------------------------------------------------------------------------------
 
+# read in lines from most_common_words.txt
+most_common_words = []
+with open('./CellClassifier/1000-most-common-words.txt', 'r') as f:
+    word_lines = f.readlines()
+
+# process the lines into a list of words
+for line in word_lines:
+    word = line.strip()
+
+    # we don't need to keep words that are too short or too long
+    if len(word) < minimum_word_length or len(word) > maximum_word_length:
+        continue
+    
+    most_common_words.append(word)
+
+#----------------------------------------------------------------------------------------------------
+
 def generate_blank_data(height=30, width=80, central_brightness=200):
     """generate a blank image (with noise) of the given size and brightness"""
 
@@ -72,7 +93,7 @@ def generate_printed_text(text, height=30):
     """generate a printed image of the given text and of the given height"""
 
     # NOTE: GeneratorFromStrings has a number of paramaters we can mess with if we would like
-    generator = GeneratorFromStrings([text], size=height, fonts=['./fonts/Roboto-Regular.ttf'],
+    generator = GeneratorFromStrings([text], size=height, fonts=['./CellClassifier/fonts/Roboto-Regular.ttf'],
                                      skewing_angle=3, random_skew=True)
     image = next(generator)[0]
     gray_image = np.array(image)[:, :, 0]
@@ -115,10 +136,60 @@ def generate_written_text():
     word_image = get_IAM_word_image(IAM_word['word_id'])
 
     # return the word and the image
-    return IAM_word['word'], word_image
+    return word_image, IAM_word['word']
 
 
-def generate_written_fraction(text):
+def generate_written_fraction():
     # make call to image combiner to generate an appropraite image
-    mixed_number_image, mixed_number_text = generate_synthetic_image()
+    mixed_number_image, mixed_number_text, layout_type = generate_synthetic_image()
     return mixed_number_image, mixed_number_text
+
+
+def main():
+    image_output_folder = './CellClassifier/SyntheticCellData/images'
+
+    # create output folder if it doesn't exist
+    if not os.path.exists(image_output_folder):
+        os.makedirs(image_output_folder)
+    
+    # number of synthetic images to generate
+    number_of_images = 100
+    
+    # generate a bunch of synthetic images of each type
+    data_list = []
+    for i in range(number_of_images):
+        # generate a blank cell image
+        image = generate_blank_data(height=random.randint(30, 50),
+                                    width=random.randint(80, 100),
+                                    central_brightness=random.randint(150, 250))
+        fpath = os.path.join(image_output_folder, str(i) + '_blank.png')
+        cv2.imwrite(fpath, image)
+        data_list.append({'path': fpath, 'label': 'blank'})
+
+        # generate a printed cell image
+        image = generate_printed_text(random.choice(most_common_words), height=random.randint(30, 50))
+        fpath = os.path.join(image_output_folder, str(i) + '_printed.png')
+        cv2.imwrite(fpath, image)
+        data_list.append({'path': fpath, 'label': 'printed'})
+
+        # generate a written cell image
+        image, word = generate_written_text()
+        fpath = os.path.join(image_output_folder, str(i) + '_written.png')
+        cv2.imwrite(fpath, image)
+        data_list.append({'path': fpath, 'label': 'written'})
+
+        # generate a fraction cell image
+        image, mixed_number = generate_written_fraction()
+        fpath = os.path.join(image_output_folder, str(i) + '_fraction.png')
+        cv2.imwrite(fpath, image)
+        data_list.append({'path': fpath, 'label': 'fraction'})
+    
+    # save the labels to a json file
+    with open('./CellClassifier/SyntheticCellData/labels.json', 'w') as f:
+        json.dump(data_list, f, indent=4)
+
+
+if __name__ == '__main__':
+    print('started')
+    main()
+    print('done')
