@@ -76,15 +76,15 @@ for line in word_lines:
 
 #----------------------------------------------------------------------------------------------------
 
-def generate_blank_data(height=30, width=80, central_brightness=200):
+def generate_blank_data(height=30, width=80, central_brightness=200, noise_standard_deviation=5):
     """generate a blank image (with noise) of the given size and brightness"""
 
     shape = (height, width)
 
-    base_image = np.ones(shape, dtype=np.uint8)*central_brightness
-    noise = np.int8(np.random.normal(0, 5, shape))
+    base_image = np.ones(shape)*central_brightness
+    noise = np.random.normal(0, noise_standard_deviation, shape)
 
-    image = base_image + noise
+    image = np.clip(base_image + noise, 0, 255).astype(np.uint8)
 
     return image
 
@@ -95,9 +95,10 @@ def generate_printed_text(text, height=30):
     # NOTE: GeneratorFromStrings has a number of paramaters we can mess with if we would like
     generator = GeneratorFromStrings([text], size=height, fonts=['./CellClassifier/fonts/Roboto-Regular.ttf'],
                                      skewing_angle=3, random_skew=True)
+    # pull out one channel of the image (they're all the same value)
     image = next(generator)[0]
-    gray_image = np.array(image)[:, :, 0]
-
+    gray_image = np.array(image, dtype=np.uint8)[:, :, 0]
+    
     return gray_image
 
 
@@ -161,7 +162,7 @@ def main():
         # generate a blank cell image
         image = generate_blank_data(height=random.randint(30, 50),
                                     width=random.randint(80, 100),
-                                    central_brightness=random.randint(150, 250))
+                                    central_brightness=random.randint(200, 250))
         fpath = os.path.join(image_output_folder, str(i) + '_blank.png')
         cv2.imwrite(fpath, image)
         data_list.append({'path': fpath, 'label': 'blank'})
