@@ -1,0 +1,1602 @@
+[
+    {
+        "path": "./CellClassifier/SyntheticCellData/images\\0_blank.png",
+        "label": "blank"
+    },
+    {
+        "path": "./CellClassifier/SyntheticCellData/images\\0_printed.png",
+        "label": "printed"
+    },
+    {
+        "path": "./CellClassifier/SyntheticCellData/images\\0_written.png",
+        "label": "written"
+    },
+    {
+        "path": "./CellClassifier/SyntheticCellData/images\\0_fraction.png",
+        "label": "fraction"
+    },
+    {
+        "path": "./CellClassifier/SyntheticCellData/images\\1_blank.png",
+        "label": "blank"
+    },
+    {
+        "path": "./CellClassifier/SyntheticCellData/images\\1_printed.png",
+        "label": "printed"
+    },
+    {
+        "path": "./CellClassifier/SyntheticCellData/images\\1_written.png",
+        "label": "written"
+    },
+    {
+        "path": "./CellClassifier/SyntheticCellData/images\\1_fraction.png",
+        "label": "fraction"
+    },
+    {
+        "path": "./CellClassifier/SyntheticCellData/images\\2_blank.png",
+        "label": "blank"
+    },
+    {
+        "path": "./CellClassifier/SyntheticCellData/images\\2_printed.png",
+        "label": "printed"
+    },
+    {
+        "path": "./CellClassifier/SyntheticCellData/images\\2_written.png",
+        "label": "written"
+    },
+    {
+        "path": "./CellClassifier/SyntheticCellData/images\\2_fraction.png",
+        "label": "fraction"
+    },
+    {
+        "path": "./CellClassifier/SyntheticCellData/images\\3_blank.png",
+        "label": "blank"
+    },
+    {
+        "path": "./CellClassifier/SyntheticCellData/images\\3_printed.png",
+        "label": "printed"
+    },
+    {
+        "path": "./CellClassifier/SyntheticCellData/images\\3_written.png",
+        "label": "written"
+    },
+    {
+        "path": "./CellClassifier/SyntheticCellData/images\\3_fraction.png",
+        "label": "fraction"
+    },
+    {
+        "path": "./CellClassifier/SyntheticCellData/images\\4_blank.png",
+        "label": "blank"
+    },
+    {
+        "path": "./CellClassifier/SyntheticCellData/images\\4_printed.png",
+        "label": "printed"
+    },
+    {
+        "path": "./CellClassifier/SyntheticCellData/images\\4_written.png",
+        "label": "written"
+    },
+    {
+        "path": "./CellClassifier/SyntheticCellData/images\\4_fraction.png",
+        "label": "fraction"
+    },
+    {
+        "path": "./CellClassifier/SyntheticCellData/images\\5_blank.png",
+        "label": "blank"
+    },
+    {
+        "path": "./CellClassifier/SyntheticCellData/images\\5_printed.png",
+        "label": "printed"
+    },
+    {
+        "path": "./CellClassifier/SyntheticCellData/images\\5_written.png",
+        "label": "written"
+    },
+    {
+        "path": "./CellClassifier/SyntheticCellData/images\\5_fraction.png",
+        "label": "fraction"
+    },
+    {
+        "path": "./CellClassifier/SyntheticCellData/images\\6_blank.png",
+        "label": "blank"
+    },
+    {
+        "path": "./CellClassifier/SyntheticCellData/images\\6_printed.png",
+        "label": "printed"
+    },
+    {
+        "path": "./CellClassifier/SyntheticCellData/images\\6_written.png",
+        "label": "written"
+    },
+    {
+        "path": "./CellClassifier/SyntheticCellData/images\\6_fraction.png",
+        "label": "fraction"
+    },
+    {
+        "path": "./CellClassifier/SyntheticCellData/images\\7_blank.png",
+        "label": "blank"
+    },
+    {
+        "path": "./CellClassifier/SyntheticCellData/images\\7_printed.png",
+        "label": "printed"
+    },
+    {
+        "path": "./CellClassifier/SyntheticCellData/images\\7_written.png",
+        "label": "written"
+    },
+    {
+        "path": "./CellClassifier/SyntheticCellData/images\\7_fraction.png",
+        "label": "fraction"
+    },
+    {
+        "path": "./CellClassifier/SyntheticCellData/images\\8_blank.png",
+        "label": "blank"
+    },
+    {
+        "path": "./CellClassifier/SyntheticCellData/images\\8_printed.png",
+        "label": "printed"
+    },
+    {
+        "path": "./CellClassifier/SyntheticCellData/images\\8_written.png",
+        "label": "written"
+    },
+    {
+        "path": "./CellClassifier/SyntheticCellData/images\\8_fraction.png",
+        "label": "fraction"
+    },
+    {
+        "path": "./CellClassifier/SyntheticCellData/images\\9_blank.png",
+        "label": "blank"
+    },
+    {
+        "path": "./CellClassifier/SyntheticCellData/images\\9_printed.png",
+        "label": "printed"
+    },
+    {
+        "path": "./CellClassifier/SyntheticCellData/images\\9_written.png",
+        "label": "written"
+    },
+    {
+        "path": "./CellClassifier/SyntheticCellData/images\\9_fraction.png",
+        "label": "fraction"
+    },
+    {
+        "path": "./CellClassifier/SyntheticCellData/images\\10_blank.png",
+        "label": "blank"
+    },
+    {
+        "path": "./CellClassifier/SyntheticCellData/images\\10_printed.png",
+        "label": "printed"
+    },
+    {
+        "path": "./CellClassifier/SyntheticCellData/images\\10_written.png",
+        "label": "written"
+    },
+    {
+        "path": "./CellClassifier/SyntheticCellData/images\\10_fraction.png",
+        "label": "fraction"
+    },
+    {
+        "path": "./CellClassifier/SyntheticCellData/images\\11_blank.png",
+        "label": "blank"
+    },
+    {
+        "path": "./CellClassifier/SyntheticCellData/images\\11_printed.png",
+        "label": "printed"
+    },
+    {
+        "path": "./CellClassifier/SyntheticCellData/images\\11_written.png",
+        "label": "written"
+    },
+    {
+        "path": "./CellClassifier/SyntheticCellData/images\\11_fraction.png",
+        "label": "fraction"
+    },
+    {
+        "path": "./CellClassifier/SyntheticCellData/images\\12_blank.png",
+        "label": "blank"
+    },
+    {
+        "path": "./CellClassifier/SyntheticCellData/images\\12_printed.png",
+        "label": "printed"
+    },
+    {
+        "path": "./CellClassifier/SyntheticCellData/images\\12_written.png",
+        "label": "written"
+    },
+    {
+        "path": "./CellClassifier/SyntheticCellData/images\\12_fraction.png",
+        "label": "fraction"
+    },
+    {
+        "path": "./CellClassifier/SyntheticCellData/images\\13_blank.png",
+        "label": "blank"
+    },
+    {
+        "path": "./CellClassifier/SyntheticCellData/images\\13_printed.png",
+        "label": "printed"
+    },
+    {
+        "path": "./CellClassifier/SyntheticCellData/images\\13_written.png",
+        "label": "written"
+    },
+    {
+        "path": "./CellClassifier/SyntheticCellData/images\\13_fraction.png",
+        "label": "fraction"
+    },
+    {
+        "path": "./CellClassifier/SyntheticCellData/images\\14_blank.png",
+        "label": "blank"
+    },
+    {
+        "path": "./CellClassifier/SyntheticCellData/images\\14_printed.png",
+        "label": "printed"
+    },
+    {
+        "path": "./CellClassifier/SyntheticCellData/images\\14_written.png",
+        "label": "written"
+    },
+    {
+        "path": "./CellClassifier/SyntheticCellData/images\\14_fraction.png",
+        "label": "fraction"
+    },
+    {
+        "path": "./CellClassifier/SyntheticCellData/images\\15_blank.png",
+        "label": "blank"
+    },
+    {
+        "path": "./CellClassifier/SyntheticCellData/images\\15_printed.png",
+        "label": "printed"
+    },
+    {
+        "path": "./CellClassifier/SyntheticCellData/images\\15_written.png",
+        "label": "written"
+    },
+    {
+        "path": "./CellClassifier/SyntheticCellData/images\\15_fraction.png",
+        "label": "fraction"
+    },
+    {
+        "path": "./CellClassifier/SyntheticCellData/images\\16_blank.png",
+        "label": "blank"
+    },
+    {
+        "path": "./CellClassifier/SyntheticCellData/images\\16_printed.png",
+        "label": "printed"
+    },
+    {
+        "path": "./CellClassifier/SyntheticCellData/images\\16_written.png",
+        "label": "written"
+    },
+    {
+        "path": "./CellClassifier/SyntheticCellData/images\\16_fraction.png",
+        "label": "fraction"
+    },
+    {
+        "path": "./CellClassifier/SyntheticCellData/images\\17_blank.png",
+        "label": "blank"
+    },
+    {
+        "path": "./CellClassifier/SyntheticCellData/images\\17_printed.png",
+        "label": "printed"
+    },
+    {
+        "path": "./CellClassifier/SyntheticCellData/images\\17_written.png",
+        "label": "written"
+    },
+    {
+        "path": "./CellClassifier/SyntheticCellData/images\\17_fraction.png",
+        "label": "fraction"
+    },
+    {
+        "path": "./CellClassifier/SyntheticCellData/images\\18_blank.png",
+        "label": "blank"
+    },
+    {
+        "path": "./CellClassifier/SyntheticCellData/images\\18_printed.png",
+        "label": "printed"
+    },
+    {
+        "path": "./CellClassifier/SyntheticCellData/images\\18_written.png",
+        "label": "written"
+    },
+    {
+        "path": "./CellClassifier/SyntheticCellData/images\\18_fraction.png",
+        "label": "fraction"
+    },
+    {
+        "path": "./CellClassifier/SyntheticCellData/images\\19_blank.png",
+        "label": "blank"
+    },
+    {
+        "path": "./CellClassifier/SyntheticCellData/images\\19_printed.png",
+        "label": "printed"
+    },
+    {
+        "path": "./CellClassifier/SyntheticCellData/images\\19_written.png",
+        "label": "written"
+    },
+    {
+        "path": "./CellClassifier/SyntheticCellData/images\\19_fraction.png",
+        "label": "fraction"
+    },
+    {
+        "path": "./CellClassifier/SyntheticCellData/images\\20_blank.png",
+        "label": "blank"
+    },
+    {
+        "path": "./CellClassifier/SyntheticCellData/images\\20_printed.png",
+        "label": "printed"
+    },
+    {
+        "path": "./CellClassifier/SyntheticCellData/images\\20_written.png",
+        "label": "written"
+    },
+    {
+        "path": "./CellClassifier/SyntheticCellData/images\\20_fraction.png",
+        "label": "fraction"
+    },
+    {
+        "path": "./CellClassifier/SyntheticCellData/images\\21_blank.png",
+        "label": "blank"
+    },
+    {
+        "path": "./CellClassifier/SyntheticCellData/images\\21_printed.png",
+        "label": "printed"
+    },
+    {
+        "path": "./CellClassifier/SyntheticCellData/images\\21_written.png",
+        "label": "written"
+    },
+    {
+        "path": "./CellClassifier/SyntheticCellData/images\\21_fraction.png",
+        "label": "fraction"
+    },
+    {
+        "path": "./CellClassifier/SyntheticCellData/images\\22_blank.png",
+        "label": "blank"
+    },
+    {
+        "path": "./CellClassifier/SyntheticCellData/images\\22_printed.png",
+        "label": "printed"
+    },
+    {
+        "path": "./CellClassifier/SyntheticCellData/images\\22_written.png",
+        "label": "written"
+    },
+    {
+        "path": "./CellClassifier/SyntheticCellData/images\\22_fraction.png",
+        "label": "fraction"
+    },
+    {
+        "path": "./CellClassifier/SyntheticCellData/images\\23_blank.png",
+        "label": "blank"
+    },
+    {
+        "path": "./CellClassifier/SyntheticCellData/images\\23_printed.png",
+        "label": "printed"
+    },
+    {
+        "path": "./CellClassifier/SyntheticCellData/images\\23_written.png",
+        "label": "written"
+    },
+    {
+        "path": "./CellClassifier/SyntheticCellData/images\\23_fraction.png",
+        "label": "fraction"
+    },
+    {
+        "path": "./CellClassifier/SyntheticCellData/images\\24_blank.png",
+        "label": "blank"
+    },
+    {
+        "path": "./CellClassifier/SyntheticCellData/images\\24_printed.png",
+        "label": "printed"
+    },
+    {
+        "path": "./CellClassifier/SyntheticCellData/images\\24_written.png",
+        "label": "written"
+    },
+    {
+        "path": "./CellClassifier/SyntheticCellData/images\\24_fraction.png",
+        "label": "fraction"
+    },
+    {
+        "path": "./CellClassifier/SyntheticCellData/images\\25_blank.png",
+        "label": "blank"
+    },
+    {
+        "path": "./CellClassifier/SyntheticCellData/images\\25_printed.png",
+        "label": "printed"
+    },
+    {
+        "path": "./CellClassifier/SyntheticCellData/images\\25_written.png",
+        "label": "written"
+    },
+    {
+        "path": "./CellClassifier/SyntheticCellData/images\\25_fraction.png",
+        "label": "fraction"
+    },
+    {
+        "path": "./CellClassifier/SyntheticCellData/images\\26_blank.png",
+        "label": "blank"
+    },
+    {
+        "path": "./CellClassifier/SyntheticCellData/images\\26_printed.png",
+        "label": "printed"
+    },
+    {
+        "path": "./CellClassifier/SyntheticCellData/images\\26_written.png",
+        "label": "written"
+    },
+    {
+        "path": "./CellClassifier/SyntheticCellData/images\\26_fraction.png",
+        "label": "fraction"
+    },
+    {
+        "path": "./CellClassifier/SyntheticCellData/images\\27_blank.png",
+        "label": "blank"
+    },
+    {
+        "path": "./CellClassifier/SyntheticCellData/images\\27_printed.png",
+        "label": "printed"
+    },
+    {
+        "path": "./CellClassifier/SyntheticCellData/images\\27_written.png",
+        "label": "written"
+    },
+    {
+        "path": "./CellClassifier/SyntheticCellData/images\\27_fraction.png",
+        "label": "fraction"
+    },
+    {
+        "path": "./CellClassifier/SyntheticCellData/images\\28_blank.png",
+        "label": "blank"
+    },
+    {
+        "path": "./CellClassifier/SyntheticCellData/images\\28_printed.png",
+        "label": "printed"
+    },
+    {
+        "path": "./CellClassifier/SyntheticCellData/images\\28_written.png",
+        "label": "written"
+    },
+    {
+        "path": "./CellClassifier/SyntheticCellData/images\\28_fraction.png",
+        "label": "fraction"
+    },
+    {
+        "path": "./CellClassifier/SyntheticCellData/images\\29_blank.png",
+        "label": "blank"
+    },
+    {
+        "path": "./CellClassifier/SyntheticCellData/images\\29_printed.png",
+        "label": "printed"
+    },
+    {
+        "path": "./CellClassifier/SyntheticCellData/images\\29_written.png",
+        "label": "written"
+    },
+    {
+        "path": "./CellClassifier/SyntheticCellData/images\\29_fraction.png",
+        "label": "fraction"
+    },
+    {
+        "path": "./CellClassifier/SyntheticCellData/images\\30_blank.png",
+        "label": "blank"
+    },
+    {
+        "path": "./CellClassifier/SyntheticCellData/images\\30_printed.png",
+        "label": "printed"
+    },
+    {
+        "path": "./CellClassifier/SyntheticCellData/images\\30_written.png",
+        "label": "written"
+    },
+    {
+        "path": "./CellClassifier/SyntheticCellData/images\\30_fraction.png",
+        "label": "fraction"
+    },
+    {
+        "path": "./CellClassifier/SyntheticCellData/images\\31_blank.png",
+        "label": "blank"
+    },
+    {
+        "path": "./CellClassifier/SyntheticCellData/images\\31_printed.png",
+        "label": "printed"
+    },
+    {
+        "path": "./CellClassifier/SyntheticCellData/images\\31_written.png",
+        "label": "written"
+    },
+    {
+        "path": "./CellClassifier/SyntheticCellData/images\\31_fraction.png",
+        "label": "fraction"
+    },
+    {
+        "path": "./CellClassifier/SyntheticCellData/images\\32_blank.png",
+        "label": "blank"
+    },
+    {
+        "path": "./CellClassifier/SyntheticCellData/images\\32_printed.png",
+        "label": "printed"
+    },
+    {
+        "path": "./CellClassifier/SyntheticCellData/images\\32_written.png",
+        "label": "written"
+    },
+    {
+        "path": "./CellClassifier/SyntheticCellData/images\\32_fraction.png",
+        "label": "fraction"
+    },
+    {
+        "path": "./CellClassifier/SyntheticCellData/images\\33_blank.png",
+        "label": "blank"
+    },
+    {
+        "path": "./CellClassifier/SyntheticCellData/images\\33_printed.png",
+        "label": "printed"
+    },
+    {
+        "path": "./CellClassifier/SyntheticCellData/images\\33_written.png",
+        "label": "written"
+    },
+    {
+        "path": "./CellClassifier/SyntheticCellData/images\\33_fraction.png",
+        "label": "fraction"
+    },
+    {
+        "path": "./CellClassifier/SyntheticCellData/images\\34_blank.png",
+        "label": "blank"
+    },
+    {
+        "path": "./CellClassifier/SyntheticCellData/images\\34_printed.png",
+        "label": "printed"
+    },
+    {
+        "path": "./CellClassifier/SyntheticCellData/images\\34_written.png",
+        "label": "written"
+    },
+    {
+        "path": "./CellClassifier/SyntheticCellData/images\\34_fraction.png",
+        "label": "fraction"
+    },
+    {
+        "path": "./CellClassifier/SyntheticCellData/images\\35_blank.png",
+        "label": "blank"
+    },
+    {
+        "path": "./CellClassifier/SyntheticCellData/images\\35_printed.png",
+        "label": "printed"
+    },
+    {
+        "path": "./CellClassifier/SyntheticCellData/images\\35_written.png",
+        "label": "written"
+    },
+    {
+        "path": "./CellClassifier/SyntheticCellData/images\\35_fraction.png",
+        "label": "fraction"
+    },
+    {
+        "path": "./CellClassifier/SyntheticCellData/images\\36_blank.png",
+        "label": "blank"
+    },
+    {
+        "path": "./CellClassifier/SyntheticCellData/images\\36_printed.png",
+        "label": "printed"
+    },
+    {
+        "path": "./CellClassifier/SyntheticCellData/images\\36_written.png",
+        "label": "written"
+    },
+    {
+        "path": "./CellClassifier/SyntheticCellData/images\\36_fraction.png",
+        "label": "fraction"
+    },
+    {
+        "path": "./CellClassifier/SyntheticCellData/images\\37_blank.png",
+        "label": "blank"
+    },
+    {
+        "path": "./CellClassifier/SyntheticCellData/images\\37_printed.png",
+        "label": "printed"
+    },
+    {
+        "path": "./CellClassifier/SyntheticCellData/images\\37_written.png",
+        "label": "written"
+    },
+    {
+        "path": "./CellClassifier/SyntheticCellData/images\\37_fraction.png",
+        "label": "fraction"
+    },
+    {
+        "path": "./CellClassifier/SyntheticCellData/images\\38_blank.png",
+        "label": "blank"
+    },
+    {
+        "path": "./CellClassifier/SyntheticCellData/images\\38_printed.png",
+        "label": "printed"
+    },
+    {
+        "path": "./CellClassifier/SyntheticCellData/images\\38_written.png",
+        "label": "written"
+    },
+    {
+        "path": "./CellClassifier/SyntheticCellData/images\\38_fraction.png",
+        "label": "fraction"
+    },
+    {
+        "path": "./CellClassifier/SyntheticCellData/images\\39_blank.png",
+        "label": "blank"
+    },
+    {
+        "path": "./CellClassifier/SyntheticCellData/images\\39_printed.png",
+        "label": "printed"
+    },
+    {
+        "path": "./CellClassifier/SyntheticCellData/images\\39_written.png",
+        "label": "written"
+    },
+    {
+        "path": "./CellClassifier/SyntheticCellData/images\\39_fraction.png",
+        "label": "fraction"
+    },
+    {
+        "path": "./CellClassifier/SyntheticCellData/images\\40_blank.png",
+        "label": "blank"
+    },
+    {
+        "path": "./CellClassifier/SyntheticCellData/images\\40_printed.png",
+        "label": "printed"
+    },
+    {
+        "path": "./CellClassifier/SyntheticCellData/images\\40_written.png",
+        "label": "written"
+    },
+    {
+        "path": "./CellClassifier/SyntheticCellData/images\\40_fraction.png",
+        "label": "fraction"
+    },
+    {
+        "path": "./CellClassifier/SyntheticCellData/images\\41_blank.png",
+        "label": "blank"
+    },
+    {
+        "path": "./CellClassifier/SyntheticCellData/images\\41_printed.png",
+        "label": "printed"
+    },
+    {
+        "path": "./CellClassifier/SyntheticCellData/images\\41_written.png",
+        "label": "written"
+    },
+    {
+        "path": "./CellClassifier/SyntheticCellData/images\\41_fraction.png",
+        "label": "fraction"
+    },
+    {
+        "path": "./CellClassifier/SyntheticCellData/images\\42_blank.png",
+        "label": "blank"
+    },
+    {
+        "path": "./CellClassifier/SyntheticCellData/images\\42_printed.png",
+        "label": "printed"
+    },
+    {
+        "path": "./CellClassifier/SyntheticCellData/images\\42_written.png",
+        "label": "written"
+    },
+    {
+        "path": "./CellClassifier/SyntheticCellData/images\\42_fraction.png",
+        "label": "fraction"
+    },
+    {
+        "path": "./CellClassifier/SyntheticCellData/images\\43_blank.png",
+        "label": "blank"
+    },
+    {
+        "path": "./CellClassifier/SyntheticCellData/images\\43_printed.png",
+        "label": "printed"
+    },
+    {
+        "path": "./CellClassifier/SyntheticCellData/images\\43_written.png",
+        "label": "written"
+    },
+    {
+        "path": "./CellClassifier/SyntheticCellData/images\\43_fraction.png",
+        "label": "fraction"
+    },
+    {
+        "path": "./CellClassifier/SyntheticCellData/images\\44_blank.png",
+        "label": "blank"
+    },
+    {
+        "path": "./CellClassifier/SyntheticCellData/images\\44_printed.png",
+        "label": "printed"
+    },
+    {
+        "path": "./CellClassifier/SyntheticCellData/images\\44_written.png",
+        "label": "written"
+    },
+    {
+        "path": "./CellClassifier/SyntheticCellData/images\\44_fraction.png",
+        "label": "fraction"
+    },
+    {
+        "path": "./CellClassifier/SyntheticCellData/images\\45_blank.png",
+        "label": "blank"
+    },
+    {
+        "path": "./CellClassifier/SyntheticCellData/images\\45_printed.png",
+        "label": "printed"
+    },
+    {
+        "path": "./CellClassifier/SyntheticCellData/images\\45_written.png",
+        "label": "written"
+    },
+    {
+        "path": "./CellClassifier/SyntheticCellData/images\\45_fraction.png",
+        "label": "fraction"
+    },
+    {
+        "path": "./CellClassifier/SyntheticCellData/images\\46_blank.png",
+        "label": "blank"
+    },
+    {
+        "path": "./CellClassifier/SyntheticCellData/images\\46_printed.png",
+        "label": "printed"
+    },
+    {
+        "path": "./CellClassifier/SyntheticCellData/images\\46_written.png",
+        "label": "written"
+    },
+    {
+        "path": "./CellClassifier/SyntheticCellData/images\\46_fraction.png",
+        "label": "fraction"
+    },
+    {
+        "path": "./CellClassifier/SyntheticCellData/images\\47_blank.png",
+        "label": "blank"
+    },
+    {
+        "path": "./CellClassifier/SyntheticCellData/images\\47_printed.png",
+        "label": "printed"
+    },
+    {
+        "path": "./CellClassifier/SyntheticCellData/images\\47_written.png",
+        "label": "written"
+    },
+    {
+        "path": "./CellClassifier/SyntheticCellData/images\\47_fraction.png",
+        "label": "fraction"
+    },
+    {
+        "path": "./CellClassifier/SyntheticCellData/images\\48_blank.png",
+        "label": "blank"
+    },
+    {
+        "path": "./CellClassifier/SyntheticCellData/images\\48_printed.png",
+        "label": "printed"
+    },
+    {
+        "path": "./CellClassifier/SyntheticCellData/images\\48_written.png",
+        "label": "written"
+    },
+    {
+        "path": "./CellClassifier/SyntheticCellData/images\\48_fraction.png",
+        "label": "fraction"
+    },
+    {
+        "path": "./CellClassifier/SyntheticCellData/images\\49_blank.png",
+        "label": "blank"
+    },
+    {
+        "path": "./CellClassifier/SyntheticCellData/images\\49_printed.png",
+        "label": "printed"
+    },
+    {
+        "path": "./CellClassifier/SyntheticCellData/images\\49_written.png",
+        "label": "written"
+    },
+    {
+        "path": "./CellClassifier/SyntheticCellData/images\\49_fraction.png",
+        "label": "fraction"
+    },
+    {
+        "path": "./CellClassifier/SyntheticCellData/images\\50_blank.png",
+        "label": "blank"
+    },
+    {
+        "path": "./CellClassifier/SyntheticCellData/images\\50_printed.png",
+        "label": "printed"
+    },
+    {
+        "path": "./CellClassifier/SyntheticCellData/images\\50_written.png",
+        "label": "written"
+    },
+    {
+        "path": "./CellClassifier/SyntheticCellData/images\\50_fraction.png",
+        "label": "fraction"
+    },
+    {
+        "path": "./CellClassifier/SyntheticCellData/images\\51_blank.png",
+        "label": "blank"
+    },
+    {
+        "path": "./CellClassifier/SyntheticCellData/images\\51_printed.png",
+        "label": "printed"
+    },
+    {
+        "path": "./CellClassifier/SyntheticCellData/images\\51_written.png",
+        "label": "written"
+    },
+    {
+        "path": "./CellClassifier/SyntheticCellData/images\\51_fraction.png",
+        "label": "fraction"
+    },
+    {
+        "path": "./CellClassifier/SyntheticCellData/images\\52_blank.png",
+        "label": "blank"
+    },
+    {
+        "path": "./CellClassifier/SyntheticCellData/images\\52_printed.png",
+        "label": "printed"
+    },
+    {
+        "path": "./CellClassifier/SyntheticCellData/images\\52_written.png",
+        "label": "written"
+    },
+    {
+        "path": "./CellClassifier/SyntheticCellData/images\\52_fraction.png",
+        "label": "fraction"
+    },
+    {
+        "path": "./CellClassifier/SyntheticCellData/images\\53_blank.png",
+        "label": "blank"
+    },
+    {
+        "path": "./CellClassifier/SyntheticCellData/images\\53_printed.png",
+        "label": "printed"
+    },
+    {
+        "path": "./CellClassifier/SyntheticCellData/images\\53_written.png",
+        "label": "written"
+    },
+    {
+        "path": "./CellClassifier/SyntheticCellData/images\\53_fraction.png",
+        "label": "fraction"
+    },
+    {
+        "path": "./CellClassifier/SyntheticCellData/images\\54_blank.png",
+        "label": "blank"
+    },
+    {
+        "path": "./CellClassifier/SyntheticCellData/images\\54_printed.png",
+        "label": "printed"
+    },
+    {
+        "path": "./CellClassifier/SyntheticCellData/images\\54_written.png",
+        "label": "written"
+    },
+    {
+        "path": "./CellClassifier/SyntheticCellData/images\\54_fraction.png",
+        "label": "fraction"
+    },
+    {
+        "path": "./CellClassifier/SyntheticCellData/images\\55_blank.png",
+        "label": "blank"
+    },
+    {
+        "path": "./CellClassifier/SyntheticCellData/images\\55_printed.png",
+        "label": "printed"
+    },
+    {
+        "path": "./CellClassifier/SyntheticCellData/images\\55_written.png",
+        "label": "written"
+    },
+    {
+        "path": "./CellClassifier/SyntheticCellData/images\\55_fraction.png",
+        "label": "fraction"
+    },
+    {
+        "path": "./CellClassifier/SyntheticCellData/images\\56_blank.png",
+        "label": "blank"
+    },
+    {
+        "path": "./CellClassifier/SyntheticCellData/images\\56_printed.png",
+        "label": "printed"
+    },
+    {
+        "path": "./CellClassifier/SyntheticCellData/images\\56_written.png",
+        "label": "written"
+    },
+    {
+        "path": "./CellClassifier/SyntheticCellData/images\\56_fraction.png",
+        "label": "fraction"
+    },
+    {
+        "path": "./CellClassifier/SyntheticCellData/images\\57_blank.png",
+        "label": "blank"
+    },
+    {
+        "path": "./CellClassifier/SyntheticCellData/images\\57_printed.png",
+        "label": "printed"
+    },
+    {
+        "path": "./CellClassifier/SyntheticCellData/images\\57_written.png",
+        "label": "written"
+    },
+    {
+        "path": "./CellClassifier/SyntheticCellData/images\\57_fraction.png",
+        "label": "fraction"
+    },
+    {
+        "path": "./CellClassifier/SyntheticCellData/images\\58_blank.png",
+        "label": "blank"
+    },
+    {
+        "path": "./CellClassifier/SyntheticCellData/images\\58_printed.png",
+        "label": "printed"
+    },
+    {
+        "path": "./CellClassifier/SyntheticCellData/images\\58_written.png",
+        "label": "written"
+    },
+    {
+        "path": "./CellClassifier/SyntheticCellData/images\\58_fraction.png",
+        "label": "fraction"
+    },
+    {
+        "path": "./CellClassifier/SyntheticCellData/images\\59_blank.png",
+        "label": "blank"
+    },
+    {
+        "path": "./CellClassifier/SyntheticCellData/images\\59_printed.png",
+        "label": "printed"
+    },
+    {
+        "path": "./CellClassifier/SyntheticCellData/images\\59_written.png",
+        "label": "written"
+    },
+    {
+        "path": "./CellClassifier/SyntheticCellData/images\\59_fraction.png",
+        "label": "fraction"
+    },
+    {
+        "path": "./CellClassifier/SyntheticCellData/images\\60_blank.png",
+        "label": "blank"
+    },
+    {
+        "path": "./CellClassifier/SyntheticCellData/images\\60_printed.png",
+        "label": "printed"
+    },
+    {
+        "path": "./CellClassifier/SyntheticCellData/images\\60_written.png",
+        "label": "written"
+    },
+    {
+        "path": "./CellClassifier/SyntheticCellData/images\\60_fraction.png",
+        "label": "fraction"
+    },
+    {
+        "path": "./CellClassifier/SyntheticCellData/images\\61_blank.png",
+        "label": "blank"
+    },
+    {
+        "path": "./CellClassifier/SyntheticCellData/images\\61_printed.png",
+        "label": "printed"
+    },
+    {
+        "path": "./CellClassifier/SyntheticCellData/images\\61_written.png",
+        "label": "written"
+    },
+    {
+        "path": "./CellClassifier/SyntheticCellData/images\\61_fraction.png",
+        "label": "fraction"
+    },
+    {
+        "path": "./CellClassifier/SyntheticCellData/images\\62_blank.png",
+        "label": "blank"
+    },
+    {
+        "path": "./CellClassifier/SyntheticCellData/images\\62_printed.png",
+        "label": "printed"
+    },
+    {
+        "path": "./CellClassifier/SyntheticCellData/images\\62_written.png",
+        "label": "written"
+    },
+    {
+        "path": "./CellClassifier/SyntheticCellData/images\\62_fraction.png",
+        "label": "fraction"
+    },
+    {
+        "path": "./CellClassifier/SyntheticCellData/images\\63_blank.png",
+        "label": "blank"
+    },
+    {
+        "path": "./CellClassifier/SyntheticCellData/images\\63_printed.png",
+        "label": "printed"
+    },
+    {
+        "path": "./CellClassifier/SyntheticCellData/images\\63_written.png",
+        "label": "written"
+    },
+    {
+        "path": "./CellClassifier/SyntheticCellData/images\\63_fraction.png",
+        "label": "fraction"
+    },
+    {
+        "path": "./CellClassifier/SyntheticCellData/images\\64_blank.png",
+        "label": "blank"
+    },
+    {
+        "path": "./CellClassifier/SyntheticCellData/images\\64_printed.png",
+        "label": "printed"
+    },
+    {
+        "path": "./CellClassifier/SyntheticCellData/images\\64_written.png",
+        "label": "written"
+    },
+    {
+        "path": "./CellClassifier/SyntheticCellData/images\\64_fraction.png",
+        "label": "fraction"
+    },
+    {
+        "path": "./CellClassifier/SyntheticCellData/images\\65_blank.png",
+        "label": "blank"
+    },
+    {
+        "path": "./CellClassifier/SyntheticCellData/images\\65_printed.png",
+        "label": "printed"
+    },
+    {
+        "path": "./CellClassifier/SyntheticCellData/images\\65_written.png",
+        "label": "written"
+    },
+    {
+        "path": "./CellClassifier/SyntheticCellData/images\\65_fraction.png",
+        "label": "fraction"
+    },
+    {
+        "path": "./CellClassifier/SyntheticCellData/images\\66_blank.png",
+        "label": "blank"
+    },
+    {
+        "path": "./CellClassifier/SyntheticCellData/images\\66_printed.png",
+        "label": "printed"
+    },
+    {
+        "path": "./CellClassifier/SyntheticCellData/images\\66_written.png",
+        "label": "written"
+    },
+    {
+        "path": "./CellClassifier/SyntheticCellData/images\\66_fraction.png",
+        "label": "fraction"
+    },
+    {
+        "path": "./CellClassifier/SyntheticCellData/images\\67_blank.png",
+        "label": "blank"
+    },
+    {
+        "path": "./CellClassifier/SyntheticCellData/images\\67_printed.png",
+        "label": "printed"
+    },
+    {
+        "path": "./CellClassifier/SyntheticCellData/images\\67_written.png",
+        "label": "written"
+    },
+    {
+        "path": "./CellClassifier/SyntheticCellData/images\\67_fraction.png",
+        "label": "fraction"
+    },
+    {
+        "path": "./CellClassifier/SyntheticCellData/images\\68_blank.png",
+        "label": "blank"
+    },
+    {
+        "path": "./CellClassifier/SyntheticCellData/images\\68_printed.png",
+        "label": "printed"
+    },
+    {
+        "path": "./CellClassifier/SyntheticCellData/images\\68_written.png",
+        "label": "written"
+    },
+    {
+        "path": "./CellClassifier/SyntheticCellData/images\\68_fraction.png",
+        "label": "fraction"
+    },
+    {
+        "path": "./CellClassifier/SyntheticCellData/images\\69_blank.png",
+        "label": "blank"
+    },
+    {
+        "path": "./CellClassifier/SyntheticCellData/images\\69_printed.png",
+        "label": "printed"
+    },
+    {
+        "path": "./CellClassifier/SyntheticCellData/images\\69_written.png",
+        "label": "written"
+    },
+    {
+        "path": "./CellClassifier/SyntheticCellData/images\\69_fraction.png",
+        "label": "fraction"
+    },
+    {
+        "path": "./CellClassifier/SyntheticCellData/images\\70_blank.png",
+        "label": "blank"
+    },
+    {
+        "path": "./CellClassifier/SyntheticCellData/images\\70_printed.png",
+        "label": "printed"
+    },
+    {
+        "path": "./CellClassifier/SyntheticCellData/images\\70_written.png",
+        "label": "written"
+    },
+    {
+        "path": "./CellClassifier/SyntheticCellData/images\\70_fraction.png",
+        "label": "fraction"
+    },
+    {
+        "path": "./CellClassifier/SyntheticCellData/images\\71_blank.png",
+        "label": "blank"
+    },
+    {
+        "path": "./CellClassifier/SyntheticCellData/images\\71_printed.png",
+        "label": "printed"
+    },
+    {
+        "path": "./CellClassifier/SyntheticCellData/images\\71_written.png",
+        "label": "written"
+    },
+    {
+        "path": "./CellClassifier/SyntheticCellData/images\\71_fraction.png",
+        "label": "fraction"
+    },
+    {
+        "path": "./CellClassifier/SyntheticCellData/images\\72_blank.png",
+        "label": "blank"
+    },
+    {
+        "path": "./CellClassifier/SyntheticCellData/images\\72_printed.png",
+        "label": "printed"
+    },
+    {
+        "path": "./CellClassifier/SyntheticCellData/images\\72_written.png",
+        "label": "written"
+    },
+    {
+        "path": "./CellClassifier/SyntheticCellData/images\\72_fraction.png",
+        "label": "fraction"
+    },
+    {
+        "path": "./CellClassifier/SyntheticCellData/images\\73_blank.png",
+        "label": "blank"
+    },
+    {
+        "path": "./CellClassifier/SyntheticCellData/images\\73_printed.png",
+        "label": "printed"
+    },
+    {
+        "path": "./CellClassifier/SyntheticCellData/images\\73_written.png",
+        "label": "written"
+    },
+    {
+        "path": "./CellClassifier/SyntheticCellData/images\\73_fraction.png",
+        "label": "fraction"
+    },
+    {
+        "path": "./CellClassifier/SyntheticCellData/images\\74_blank.png",
+        "label": "blank"
+    },
+    {
+        "path": "./CellClassifier/SyntheticCellData/images\\74_printed.png",
+        "label": "printed"
+    },
+    {
+        "path": "./CellClassifier/SyntheticCellData/images\\74_written.png",
+        "label": "written"
+    },
+    {
+        "path": "./CellClassifier/SyntheticCellData/images\\74_fraction.png",
+        "label": "fraction"
+    },
+    {
+        "path": "./CellClassifier/SyntheticCellData/images\\75_blank.png",
+        "label": "blank"
+    },
+    {
+        "path": "./CellClassifier/SyntheticCellData/images\\75_printed.png",
+        "label": "printed"
+    },
+    {
+        "path": "./CellClassifier/SyntheticCellData/images\\75_written.png",
+        "label": "written"
+    },
+    {
+        "path": "./CellClassifier/SyntheticCellData/images\\75_fraction.png",
+        "label": "fraction"
+    },
+    {
+        "path": "./CellClassifier/SyntheticCellData/images\\76_blank.png",
+        "label": "blank"
+    },
+    {
+        "path": "./CellClassifier/SyntheticCellData/images\\76_printed.png",
+        "label": "printed"
+    },
+    {
+        "path": "./CellClassifier/SyntheticCellData/images\\76_written.png",
+        "label": "written"
+    },
+    {
+        "path": "./CellClassifier/SyntheticCellData/images\\76_fraction.png",
+        "label": "fraction"
+    },
+    {
+        "path": "./CellClassifier/SyntheticCellData/images\\77_blank.png",
+        "label": "blank"
+    },
+    {
+        "path": "./CellClassifier/SyntheticCellData/images\\77_printed.png",
+        "label": "printed"
+    },
+    {
+        "path": "./CellClassifier/SyntheticCellData/images\\77_written.png",
+        "label": "written"
+    },
+    {
+        "path": "./CellClassifier/SyntheticCellData/images\\77_fraction.png",
+        "label": "fraction"
+    },
+    {
+        "path": "./CellClassifier/SyntheticCellData/images\\78_blank.png",
+        "label": "blank"
+    },
+    {
+        "path": "./CellClassifier/SyntheticCellData/images\\78_printed.png",
+        "label": "printed"
+    },
+    {
+        "path": "./CellClassifier/SyntheticCellData/images\\78_written.png",
+        "label": "written"
+    },
+    {
+        "path": "./CellClassifier/SyntheticCellData/images\\78_fraction.png",
+        "label": "fraction"
+    },
+    {
+        "path": "./CellClassifier/SyntheticCellData/images\\79_blank.png",
+        "label": "blank"
+    },
+    {
+        "path": "./CellClassifier/SyntheticCellData/images\\79_printed.png",
+        "label": "printed"
+    },
+    {
+        "path": "./CellClassifier/SyntheticCellData/images\\79_written.png",
+        "label": "written"
+    },
+    {
+        "path": "./CellClassifier/SyntheticCellData/images\\79_fraction.png",
+        "label": "fraction"
+    },
+    {
+        "path": "./CellClassifier/SyntheticCellData/images\\80_blank.png",
+        "label": "blank"
+    },
+    {
+        "path": "./CellClassifier/SyntheticCellData/images\\80_printed.png",
+        "label": "printed"
+    },
+    {
+        "path": "./CellClassifier/SyntheticCellData/images\\80_written.png",
+        "label": "written"
+    },
+    {
+        "path": "./CellClassifier/SyntheticCellData/images\\80_fraction.png",
+        "label": "fraction"
+    },
+    {
+        "path": "./CellClassifier/SyntheticCellData/images\\81_blank.png",
+        "label": "blank"
+    },
+    {
+        "path": "./CellClassifier/SyntheticCellData/images\\81_printed.png",
+        "label": "printed"
+    },
+    {
+        "path": "./CellClassifier/SyntheticCellData/images\\81_written.png",
+        "label": "written"
+    },
+    {
+        "path": "./CellClassifier/SyntheticCellData/images\\81_fraction.png",
+        "label": "fraction"
+    },
+    {
+        "path": "./CellClassifier/SyntheticCellData/images\\82_blank.png",
+        "label": "blank"
+    },
+    {
+        "path": "./CellClassifier/SyntheticCellData/images\\82_printed.png",
+        "label": "printed"
+    },
+    {
+        "path": "./CellClassifier/SyntheticCellData/images\\82_written.png",
+        "label": "written"
+    },
+    {
+        "path": "./CellClassifier/SyntheticCellData/images\\82_fraction.png",
+        "label": "fraction"
+    },
+    {
+        "path": "./CellClassifier/SyntheticCellData/images\\83_blank.png",
+        "label": "blank"
+    },
+    {
+        "path": "./CellClassifier/SyntheticCellData/images\\83_printed.png",
+        "label": "printed"
+    },
+    {
+        "path": "./CellClassifier/SyntheticCellData/images\\83_written.png",
+        "label": "written"
+    },
+    {
+        "path": "./CellClassifier/SyntheticCellData/images\\83_fraction.png",
+        "label": "fraction"
+    },
+    {
+        "path": "./CellClassifier/SyntheticCellData/images\\84_blank.png",
+        "label": "blank"
+    },
+    {
+        "path": "./CellClassifier/SyntheticCellData/images\\84_printed.png",
+        "label": "printed"
+    },
+    {
+        "path": "./CellClassifier/SyntheticCellData/images\\84_written.png",
+        "label": "written"
+    },
+    {
+        "path": "./CellClassifier/SyntheticCellData/images\\84_fraction.png",
+        "label": "fraction"
+    },
+    {
+        "path": "./CellClassifier/SyntheticCellData/images\\85_blank.png",
+        "label": "blank"
+    },
+    {
+        "path": "./CellClassifier/SyntheticCellData/images\\85_printed.png",
+        "label": "printed"
+    },
+    {
+        "path": "./CellClassifier/SyntheticCellData/images\\85_written.png",
+        "label": "written"
+    },
+    {
+        "path": "./CellClassifier/SyntheticCellData/images\\85_fraction.png",
+        "label": "fraction"
+    },
+    {
+        "path": "./CellClassifier/SyntheticCellData/images\\86_blank.png",
+        "label": "blank"
+    },
+    {
+        "path": "./CellClassifier/SyntheticCellData/images\\86_printed.png",
+        "label": "printed"
+    },
+    {
+        "path": "./CellClassifier/SyntheticCellData/images\\86_written.png",
+        "label": "written"
+    },
+    {
+        "path": "./CellClassifier/SyntheticCellData/images\\86_fraction.png",
+        "label": "fraction"
+    },
+    {
+        "path": "./CellClassifier/SyntheticCellData/images\\87_blank.png",
+        "label": "blank"
+    },
+    {
+        "path": "./CellClassifier/SyntheticCellData/images\\87_printed.png",
+        "label": "printed"
+    },
+    {
+        "path": "./CellClassifier/SyntheticCellData/images\\87_written.png",
+        "label": "written"
+    },
+    {
+        "path": "./CellClassifier/SyntheticCellData/images\\87_fraction.png",
+        "label": "fraction"
+    },
+    {
+        "path": "./CellClassifier/SyntheticCellData/images\\88_blank.png",
+        "label": "blank"
+    },
+    {
+        "path": "./CellClassifier/SyntheticCellData/images\\88_printed.png",
+        "label": "printed"
+    },
+    {
+        "path": "./CellClassifier/SyntheticCellData/images\\88_written.png",
+        "label": "written"
+    },
+    {
+        "path": "./CellClassifier/SyntheticCellData/images\\88_fraction.png",
+        "label": "fraction"
+    },
+    {
+        "path": "./CellClassifier/SyntheticCellData/images\\89_blank.png",
+        "label": "blank"
+    },
+    {
+        "path": "./CellClassifier/SyntheticCellData/images\\89_printed.png",
+        "label": "printed"
+    },
+    {
+        "path": "./CellClassifier/SyntheticCellData/images\\89_written.png",
+        "label": "written"
+    },
+    {
+        "path": "./CellClassifier/SyntheticCellData/images\\89_fraction.png",
+        "label": "fraction"
+    },
+    {
+        "path": "./CellClassifier/SyntheticCellData/images\\90_blank.png",
+        "label": "blank"
+    },
+    {
+        "path": "./CellClassifier/SyntheticCellData/images\\90_printed.png",
+        "label": "printed"
+    },
+    {
+        "path": "./CellClassifier/SyntheticCellData/images\\90_written.png",
+        "label": "written"
+    },
+    {
+        "path": "./CellClassifier/SyntheticCellData/images\\90_fraction.png",
+        "label": "fraction"
+    },
+    {
+        "path": "./CellClassifier/SyntheticCellData/images\\91_blank.png",
+        "label": "blank"
+    },
+    {
+        "path": "./CellClassifier/SyntheticCellData/images\\91_printed.png",
+        "label": "printed"
+    },
+    {
+        "path": "./CellClassifier/SyntheticCellData/images\\91_written.png",
+        "label": "written"
+    },
+    {
+        "path": "./CellClassifier/SyntheticCellData/images\\91_fraction.png",
+        "label": "fraction"
+    },
+    {
+        "path": "./CellClassifier/SyntheticCellData/images\\92_blank.png",
+        "label": "blank"
+    },
+    {
+        "path": "./CellClassifier/SyntheticCellData/images\\92_printed.png",
+        "label": "printed"
+    },
+    {
+        "path": "./CellClassifier/SyntheticCellData/images\\92_written.png",
+        "label": "written"
+    },
+    {
+        "path": "./CellClassifier/SyntheticCellData/images\\92_fraction.png",
+        "label": "fraction"
+    },
+    {
+        "path": "./CellClassifier/SyntheticCellData/images\\93_blank.png",
+        "label": "blank"
+    },
+    {
+        "path": "./CellClassifier/SyntheticCellData/images\\93_printed.png",
+        "label": "printed"
+    },
+    {
+        "path": "./CellClassifier/SyntheticCellData/images\\93_written.png",
+        "label": "written"
+    },
+    {
+        "path": "./CellClassifier/SyntheticCellData/images\\93_fraction.png",
+        "label": "fraction"
+    },
+    {
+        "path": "./CellClassifier/SyntheticCellData/images\\94_blank.png",
+        "label": "blank"
+    },
+    {
+        "path": "./CellClassifier/SyntheticCellData/images\\94_printed.png",
+        "label": "printed"
+    },
+    {
+        "path": "./CellClassifier/SyntheticCellData/images\\94_written.png",
+        "label": "written"
+    },
+    {
+        "path": "./CellClassifier/SyntheticCellData/images\\94_fraction.png",
+        "label": "fraction"
+    },
+    {
+        "path": "./CellClassifier/SyntheticCellData/images\\95_blank.png",
+        "label": "blank"
+    },
+    {
+        "path": "./CellClassifier/SyntheticCellData/images\\95_printed.png",
+        "label": "printed"
+    },
+    {
+        "path": "./CellClassifier/SyntheticCellData/images\\95_written.png",
+        "label": "written"
+    },
+    {
+        "path": "./CellClassifier/SyntheticCellData/images\\95_fraction.png",
+        "label": "fraction"
+    },
+    {
+        "path": "./CellClassifier/SyntheticCellData/images\\96_blank.png",
+        "label": "blank"
+    },
+    {
+        "path": "./CellClassifier/SyntheticCellData/images\\96_printed.png",
+        "label": "printed"
+    },
+    {
+        "path": "./CellClassifier/SyntheticCellData/images\\96_written.png",
+        "label": "written"
+    },
+    {
+        "path": "./CellClassifier/SyntheticCellData/images\\96_fraction.png",
+        "label": "fraction"
+    },
+    {
+        "path": "./CellClassifier/SyntheticCellData/images\\97_blank.png",
+        "label": "blank"
+    },
+    {
+        "path": "./CellClassifier/SyntheticCellData/images\\97_printed.png",
+        "label": "printed"
+    },
+    {
+        "path": "./CellClassifier/SyntheticCellData/images\\97_written.png",
+        "label": "written"
+    },
+    {
+        "path": "./CellClassifier/SyntheticCellData/images\\97_fraction.png",
+        "label": "fraction"
+    },
+    {
+        "path": "./CellClassifier/SyntheticCellData/images\\98_blank.png",
+        "label": "blank"
+    },
+    {
+        "path": "./CellClassifier/SyntheticCellData/images\\98_printed.png",
+        "label": "printed"
+    },
+    {
+        "path": "./CellClassifier/SyntheticCellData/images\\98_written.png",
+        "label": "written"
+    },
+    {
+        "path": "./CellClassifier/SyntheticCellData/images\\98_fraction.png",
+        "label": "fraction"
+    },
+    {
+        "path": "./CellClassifier/SyntheticCellData/images\\99_blank.png",
+        "label": "blank"
+    },
+    {
+        "path": "./CellClassifier/SyntheticCellData/images\\99_printed.png",
+        "label": "printed"
+    },
+    {
+        "path": "./CellClassifier/SyntheticCellData/images\\99_written.png",
+        "label": "written"
+    },
+    {
+        "path": "./CellClassifier/SyntheticCellData/images\\99_fraction.png",
+        "label": "fraction"
+    }
+]
