@@ -15,15 +15,15 @@ from tqdm import tqdm
 # model = VisionEncoderDecoderModel.from_pretrained('microsoft/trocr-base-printed')
 
 
-def extract_cell_lines_from_image(image):
+def extract_cell_edges_from_image(image):
     """
-    Extracts horizontal and vertical lines from an image, typically used for identifying cell boundaries in tables.
+    Extracts horizontal and vertical cell edges from an image
 
     Parameters:
-    image (numpy.ndarray): The image from which cell lines are to be extracted.
+    image (numpy.ndarray): The image from which cell edges are to be extracted.
 
     Returns:
-    numpy.ndarray: A binary image with cell lines highlighted.
+    numpy.ndarray: A binary image with cell edges highlighted.
     """
 
     def convert_image_to_binary(image):
@@ -53,34 +53,89 @@ def extract_cell_lines_from_image(image):
     binary = convert_image_to_binary(image)
     # cv2.imwrite('test01.png', binary)
 
-    # detect horizontal lines
+    # detect horizontal edges
     horizontal_kernel = cv2.getStructuringElement(cv2.MORPH_RECT, (20, 1))
-    horizontal_lines = cv2.morphologyEx(binary, cv2.MORPH_OPEN, horizontal_kernel, iterations=2)
-    # cv2.imwrite('test02.png', horizontal_lines)
+    horizontal_edges = cv2.morphologyEx(binary, cv2.MORPH_OPEN, horizontal_kernel, iterations=2)
+    # cv2.imwrite('test02.png', horizontal_edges)
 
-    # detect vertical lines
+    # detect vertical edges
     vertical_kernel = cv2.getStructuringElement(cv2.MORPH_RECT, (1, 20))
-    vertical_lines = cv2.morphologyEx(binary, cv2.MORPH_OPEN, vertical_kernel, iterations=2)
-    # cv2.imwrite('test03.png', vertical_lines)
+    vertical_edges = cv2.morphologyEx(binary, cv2.MORPH_OPEN, vertical_kernel, iterations=2)
+    # cv2.imwrite('test03.png', vertical_edges)
 
-    # combine lines
-    all_lines = vertical_lines | horizontal_lines
-    # cv2.imwrite('tmp/test04.png', all_lines)
+    # combine edges
+    all_edges = vertical_edges | horizontal_edges
+    # cv2.imwrite('tmp/test04.png', all_edges)
 
     # run kernel over image to close up gaps
     cross_kernel = cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (15, 15))
-    all_lines_2 = cv2.morphologyEx(all_lines, cv2.MORPH_CLOSE, cross_kernel)
-    # cv2.imwrite('tmp/test05.png', all_lines_2)
+    all_edges_2 = cv2.morphologyEx(all_edges, cv2.MORPH_CLOSE, cross_kernel)
+    # cv2.imwrite('tmp/test05.png', all_edges_2)
 
-    return all_lines_2
+    return all_edges_2
 
 
-def determine_if_image_should_be_rotated(filtered_contours):
+def find_cell_contours(image):
+    """find cell contours in an image and filter them"""
+    overlap_fraction_threshold = 0.9
+
+    # extract edges for contour detection
+    cell_edges_image = extract_cell_edges_from_image(image)
+
+    # find contours in the binary image
+    contours, hierarchy = cv2.findContours(cell_edges_image, mode=cv2.RETR_TREE, method=cv2.CHAIN_APPROX_SIMPLE)
+
+    cell_contours = []
+
+    # we want to only keep contours if they have a parent but not a grandparent
+    # that is, they are one level down from the outermost level
+    for contour, hierarchy_info in zip(contours, hierarchy[0]):
+        next_contour, previous_contour, first_child_contour, parent_contour = hierarchy_info
+        if parent_contour != -1 and hierarchy[0][parent_contour][3] == -1:
+            cell_contours.append(contour)
+    
+    # remove any contours that have bounding rectangles that mostly overlap the bounding rectangle of any other contour
+    # for each contour, check if its bounding rectangle is mostly within the bounding rectangles of any other contour
+    # if it is, we should remove it!
+    indices_to_remove = []
+    for i, contour1 in enumerate(cell_contours):
+        x1, y1, w1, h1 = cv2.boundingRect(contour1)
+        for j, contour2 in enumerate(cell_contours):
+            # ignore that a contour will overlap itself
+            if i == j:
+                continue
+
+            x2, y2, w2, h2 = cv2.boundingRect(contour2)
+
+            # get edges of overlapping area
+            left = max(x1, x2)
+            right = min(x1 + w1, x2 + w2)
+            top = max(y1, y2)
+            bottom = min(y1 + h1, y2 + h2)
+
+            # check for the case of no overlap
+            if left >= right or top >= bottom:
+                continue
+
+            # calculate overlapping area
+            overlap_area = (right - left) * (bottom - top)
+
+            # check if the overlapping area is more then a certain fraction of the area of the contour being chcked
+            if overlap_area/(w1*h1) > overlap_fraction_threshold:
+                indices_to_remove.append(i)
+
+    # remove the offending contours
+    cell_contours = [contour for i, contour in enumerate(cell_contours) if i not in indices_to_remove]
+
+    return cell_contours
+
+
+def determine_if_image_should_be_rotated(cell_contours):
     """
     Determines if an image should be rotated based on the aspect ratio of the detected contours.
 
     Parameters:
-    filtered_contours (list of numpy.ndarray): Contours filtered from the image.
+    cell_contours (list of numpy.ndarray): Contours filtered from the image.
 
     Returns:
     bool: True if the image should be rotated, False otherwise.
@@ -90,7 +145,11 @@ def determine_if_image_should_be_rotated(filtered_contours):
     # NOTE: from a few tests, it seems like the average aspect ratio of normal pages is around 5,
     #       while rotated pages are around 0.6
 
-    filtered_rectangles = [cv2.boundingRect(contour) for contour in filtered_contours]
+    # check if there are any contours
+    if len(cell_contours) == 0:
+        raise ValueError('cell_contours must have at least one contour')
+
+    filtered_rectangles = [cv2.boundingRect(contour) for contour in cell_contours]
 
     # calculate mean aspect ratio
     aspect_ratios = [w / h for x, y, w, h in filtered_rectangles]
@@ -102,75 +161,66 @@ def determine_if_image_should_be_rotated(filtered_contours):
     return False
 
 
-def generate_image_with_rectangle_overlays(image, filtered_contours, image_output_path):
+def find_word_contours_in_cell(cell_image):
+    """generate a list of contours around words in a cell"""
+
+    # convert to grayscale
+    gray_image = cv2.cvtColor(cell_image, cv2.COLOR_BGR2GRAY)
+    # perform OTSU threshold
+    _, binary_image = cv2.threshold(gray_image, 0, 255, cv2.THRESH_OTSU | cv2.THRESH_BINARY_INV)
+
+    # set the edges of the binary image to be 0
+    # this removes cell lines that are part of the image border
+    zero_border_size = 10 # NOTE: this can safely be at least as large as the kernal size used in the next step
+    binary_image[:zero_border_size, :] = 0
+    binary_image[-zero_border_size:, :] = 0
+    binary_image[:, :zero_border_size] = 0
+    binary_image[:, -zero_border_size:] = 0
+
+    # dialte the image using a rectangular kernel
+    rect_kernel = cv2.getStructuringElement(cv2.MORPH_RECT, (10, 10))
+    dilated_image = cv2.dilate(binary_image, rect_kernel, iterations=2)
+
+    # finding contours
+    word_contours, _ = cv2.findContours(dilated_image, cv2.RETR_TREE, cv2.CHAIN_APPROX_NONE)
+
+    return word_contours
+
+
+def generate_image_with_rectangle_overlays(image, cell_contours, image_output_path):
     """
     Overlays rectangles on an image at positions defined by contours and saves the modified image.
 
     Parameters:
     image (numpy.ndarray): The original image to be modified.
-    filtered_contours (list of numpy.ndarray): Contours to be used for drawing rectangles.
+    cell_contours (list of numpy.ndarray): Contours to be used for drawing rectangles.
     image_output_path (str): Path to save the modified image.
 
     """
     # copy the image so we aren't writing on the image we passed into the function
     image = image.copy()
 
-    filtered_rectangles = [cv2.boundingRect(contour) for contour in filtered_contours]
-
-    for x, y, w, h in filtered_rectangles:
+    for contour in cell_contours:
+        # get the bounding rectangle for the contour
+        x, y, w, h = cv2.boundingRect(contour)
         # add a green rectangle to the image
-        cv2.rectangle(image, (x, y), (x + w, y + h), color=(0, 255, 0), thickness=2)
+        cv2.rectangle(image, (x, y), (x + w, y + h), color=(0, 255, 0), thickness=1)
         # add little circles to the corners of the rectangle
         cv2.circle(image, (x, y), radius=5, color=(0, 0, 255), thickness=5)
         cv2.circle(image, (x + w, y), radius=5, color=(255, 0, 0), thickness=5)
         cv2.circle(image, (x, y + h), radius=5, color=(255, 0, 255), thickness=5)
         cv2.circle(image, (x + w, y + h), radius=5, color=(0, 165, 255), thickness=5)
 
-    # save image with green rectangles
-    for contour in filtered_contours:
-        x, y, w, h = cv2.boundingRect(contour)
-        cropped = image[y:y + h, x:x + w]
-        if len(do_OCR_on_cell(cropped).split()) > 2:
-            text = detect_words_in_cell(cropped)
+        # draw word contours
+        cell_image = image[y:y + h, x:x + w]
+        word_contours = find_word_contours_in_cell(cell_image)
+        for word_contour in word_contours:
+            cv2.drawContours(image, [word_contour + np.array([x, y])], -1, (0, 0, 255), thickness=1)
+    
     cv2.imwrite(image_output_path, image)
 
 
-def detect_words_in_cell(image):
-    gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
-
-    # Performing OTSU threshold
-    ret, thresh1 = cv2.threshold(gray, 0, 255, cv2.THRESH_OTSU | cv2.THRESH_BINARY_INV)
-
-    # Specify structure shape and kernel size.
-    # Kernel size increases or decreases the area
-    # of the rectangle to be detected.
-    # A smaller value like (10, 10) will detect
-    # each word instead of a sentence.
-    rect_kernel = cv2.getStructuringElement(cv2.MORPH_RECT, (10, 10))
-
-    # Applying dilation on the threshold image
-    dilation = cv2.dilate(thresh1, rect_kernel, iterations=1)
-
-    # Finding contours
-    contours, hierarchy = cv2.findContours(dilation, cv2.RETR_EXTERNAL,
-                                           cv2.CHAIN_APPROX_NONE)
-    text = []
-    for cnt in contours:
-        x, y, w, h = cv2.boundingRect(cnt)
-
-        # Drawing a rectangle on copied image
-        rect = cv2.rectangle(image, (x, y), (x + w, y + h), (0, 255, 0), 2)
-
-        # Cropping the text block for giving input to OCR
-        cropped = image[y:y + h, x:x + w]
-
-        # Apply OCR on the cropped image
-        text.append(do_OCR_on_cell(cropped))
-
-    return text
-
-
-def do_OCR_on_cell(cropped_image):
+def do_OCR_on_word_group(word_group_image):
     """
     Performs Optical Character Recognition (OCR) on a cropped image.
 
@@ -180,7 +230,8 @@ def do_OCR_on_cell(cropped_image):
     Returns:
     str: The text extracted from the cropped image.
     """
-    return pytesseract.image_to_string(cropped_image)
+    return pytesseract.image_to_string(word_group_image).strip()
+
     # pixel_values = processor(images=cropped_image, return_tensors="pt").pixel_values
     # generated_ids = model.generate(pixel_values)
     # generated_text = processor.batch_decode(generated_ids, skip_special_tokens=True)[0]
@@ -188,13 +239,33 @@ def do_OCR_on_cell(cropped_image):
     # return generated_text
 
 
-def generate_xlsx_with_detected_text(image, filtered_contours, xlsx_path):
+def do_OCR_on_cell(cell_image):
+    word_contours = find_word_contours_in_cell(cell_image)
+    # sort contours by y value (helps get words in correct order)
+    word_contours = sorted(word_contours, key=lambda c: cv2.boundingRect(c)[1])
+
+    cell_text = []
+    for word_contour in word_contours:
+        x, y, w, h = cv2.boundingRect(word_contour)
+
+        # crop out the word group from the cell
+        word_group_image = cell_image[y:y + h, x:x + w]
+
+        # do OCR on the cropped word group
+        word_group_text = do_OCR_on_word_group(word_group_image)
+
+        cell_text.append(word_group_text)
+
+    return ' '.join(cell_text)
+
+
+def generate_xlsx_with_detected_text(image, cell_contours, xlsx_path):
     """
     Generates an Excel file with text detected in various sections of an image.
 
     Parameters:
     image (numpy.ndarray): The original image from which text is to be extracted.
-    filtered_contours (list of numpy.ndarray): Contours used to define sections for text extraction.
+    cell_contours (list of numpy.ndarray): Contours used to define sections for text extraction.
     xlsx_path (str): Path to save the generated Excel file.
 
     """
@@ -205,7 +276,7 @@ def generate_xlsx_with_detected_text(image, filtered_contours, xlsx_path):
 
     columns = []  # stores the x values each column starts at
     rows = []  # stores the y values each row starts at
-    data_tuples = []  # stores data in the form (x, y, w, h, text, median_color_str)
+    data_tuples = []  # stores data in the form (x, y, w, h, cell_text, median_color_str)
 
     def update_columns(x):
         for val in columns:
@@ -232,37 +303,29 @@ def generate_xlsx_with_detected_text(image, filtered_contours, xlsx_path):
             if val - vertical_tolernce <= y <= val + vertical_tolernce:
                 return i
         return len(rows)
-
+    
     # generate  data tuples from filtered contours
-    for contour in tqdm(filtered_contours):
-        x, y, w, h = cv2.boundingRect(contour)
+    for cell_contour in tqdm(cell_contours):
+        # get the bounding rectangle for the contour
+        x, y, w, h = cv2.boundingRect(cell_contour)
 
         # update rows and cols
         update_columns(x)
         update_rows(y)
 
         # extract cell from image
-        cropped = image[y:y + h, x:x + w]
-
-        # TODO: remove this debugging code at some point
-        # cropped_new = extract_image_bounded_by_contour(image, contour)
-        # cv2.imwrite(f'./tmp/{counter:03}-new.png', cropped_new)
-        # cv2.imwrite(f'./tmp/{counter:03}-old.png', cropped)
-        # counter += 1
+        cell_image = image[y:y + h, x:x + w]
 
         # generate text for cell
-        text = do_OCR_on_cell(cropped)
-
-        if len(text.split()) >= 2:
-            text = detect_words_in_cell(cropped)
-            text = ' '.join(text)
+        cell_text = do_OCR_on_cell(cell_image)
 
         # calculate the median pixel color
-        median_pixel_value = np.median(cropped.reshape((-1, 3)), axis=0, overwrite_input=False).astype('uint8')
+        median_pixel_value = np.median(cell_image.reshape((-1, 3)), axis=0, overwrite_input=False).astype('uint8')
         s = f'{hex(median_pixel_value[1])}{hex(median_pixel_value[2])}{hex(median_pixel_value[0])}'
         median_color_str = s.replace('0x', '')
 
-        data_tuples.append((x, y, w, h, text, median_color_str))
+        # add cell data to data tuples
+        data_tuples.append((x, y, w, h, cell_text, median_color_str))
 
     print(f'column start x values: {list(enumerate(columns))}')
     print(f'row start y values: {list(enumerate(rows))}')
@@ -274,20 +337,18 @@ def generate_xlsx_with_detected_text(image, filtered_contours, xlsx_path):
     # update column/row width/height in spreadsheet
     column_px_to_width_ratio = 1 / 20
     row_px_to_width_ratio = 1 / 4
-
+    # set column widths
     for index in range(1, len(columns)):
         width_px = columns[index] - columns[index - 1]
         worksheet.set_column(first_col=index, last_col=index, width=width_px * column_px_to_width_ratio)
-
+    # set row heights
     for index in range(1, len(rows)):
         height_px = rows[index] - rows[index - 1]
         worksheet.set_row(row=index, height=height_px * row_px_to_width_ratio)
 
-    # generate XLSX file from data tuples
+    # populate XLSX file from data tuples
     for x, y, w, h, text, median_color_str in data_tuples:
-        # clean up the text
-        text = text.strip()
-
+        # get the index of the cell in the spreadsheet
         low_xindex = get_index_of_closest_xval(x)
         high_xindex = get_index_of_closest_xval(x + w)
         low_yindex = get_index_of_closest_yval(y)
@@ -318,72 +379,6 @@ def generate_xlsx_with_detected_text(image, filtered_contours, xlsx_path):
     workbook.close()
 
 
-def find_filtered_contours(binary_image):
-    """
-    Finds contours in a binary image that meet certain size criteria.
-
-    Parameters:
-    binary_image (numpy.ndarray): The binary image from which contours are to be found.
-
-    Returns:
-    list of numpy.ndarray: A list of contours filtered based on size criteria.
-    """
-    overlap_fraction_threshold = 0.9
-
-    # find contours in the binary image
-    contours, hierarchy = cv2.findContours(binary_image, mode=cv2.RETR_TREE, method=cv2.CHAIN_APPROX_SIMPLE)
-
-    filtered_contours = []
-
-    # we want to only keep contours if they have a parent but not a grandparent
-    # that is, they are one level down from the outermost level
-    for contour, hierarchy_info in zip(contours, hierarchy[0]):
-        next_contour, previous_contour, first_child_contour, parent_contour = hierarchy_info
-        if parent_contour != -1 and hierarchy[0][parent_contour][3] == -1:
-            filtered_contours.append(contour)
-    
-    # remove any contours that have bounding rectangles that mostly overlap the bounding rectangle of any other contour
-    # for each contour, check if its bounding rectangle is mostly within the bounding rectangles of any other contour
-    # if it is, we should remove it!
-    indices_to_remove = []
-    for i, contour1 in enumerate(filtered_contours):
-        x1, y1, w1, h1 = cv2.boundingRect(contour1)
-        for j, contour2 in enumerate(filtered_contours):
-            # ignore that a contour will overlap itself
-            if i == j:
-                continue
-
-            x2, y2, w2, h2 = cv2.boundingRect(contour2)
-
-            # get edges of overlapping area
-            left = max(x1, x2)
-            right = min(x1 + w1, x2 + w2)
-            top = max(y1, y2)
-            bottom = min(y1 + h1, y2 + h2)
-
-            # check for the case of no overlap
-            if left >= right or top >= bottom:
-                continue
-
-            # calculate overlapping area
-            overlap_area = (right - left) * (bottom - top)
-
-            # check if the overlapping area is more then a certain fraction of the area of the contour being chcked
-            if overlap_area/(w1*h1) > overlap_fraction_threshold:
-                indices_to_remove.append(i)
-    
-    # TODO: remove this debugging code
-    # bad_contours = [contour for i, contour in enumerate(filtered_contours) if i in indices_to_remove]
-    # cv2.drawContours(image, bad_contours, -1, (0, 0, 255), thickness=10)
-    # if len(indices_to_remove) > 0:
-    #     print('found bad contours!')
-
-    # remove the offending contours
-    filtered_contours = [contour for i, contour in enumerate(filtered_contours) if i not in indices_to_remove]
-
-    return filtered_contours
-
-
 def process_image(image_input_path, image_output_path, xlsx_output_path):
     """
     Processes an image to detect text regions, performs OCR, and generates an Excel file with the extracted data.
@@ -405,27 +400,25 @@ def process_image(image_input_path, image_output_path, xlsx_output_path):
         print(f'Unable to load image: {image_input_path}')
         return
 
-    # extract lines for contour detection
-    cell_lines = extract_cell_lines_from_image(image)
-    filtered_contours = find_filtered_contours(cell_lines)
+    # get cell contours
+    cell_contours = find_cell_contours(image)
 
     # determine if the image should be rotated
     # if it should, we'll need to recalculate the contours
-    if len(filtered_contours) > 0 and determine_if_image_should_be_rotated(filtered_contours) is True:
+    if len(cell_contours) > 0 and determine_if_image_should_be_rotated(cell_contours) is True:
         image = cv2.rotate(image, cv2.ROTATE_90_CLOCKWISE)
-        cell_lines = extract_cell_lines_from_image(image)
-        filtered_contours = find_filtered_contours(cell_lines)
+        cell_contours = find_cell_contours(image)
     
-    generate_image_with_rectangle_overlays(image, filtered_contours, image_output_path)
+    generate_image_with_rectangle_overlays(image, cell_contours, image_output_path)
 
     # if there are less then the minium number of contours, don't try to produce an XLSX file
-    if len(filtered_contours) < min_num_cells_threshold:
+    if len(cell_contours) < min_num_cells_threshold:
         print('there are less then the minium number of contours')
         # make a placeholder file to have a clear record of what happened
         with open(xlsx_output_path + '.txt', 'w') as f:
             f.write("this file is a placeholder. we didn't think this page had cells on it.")
     else:
-        generate_xlsx_with_detected_text(image, filtered_contours, xlsx_output_path)
+        generate_xlsx_with_detected_text(image, cell_contours, xlsx_output_path)
 
 
 def main():
@@ -460,10 +453,10 @@ if __name__ == "__main__":
     # NOTE: if tesseract isn't already installed, you can install it here: https://github.com/UB-Mannheim/tesseract/wiki
     pytesseract.pytesseract.tesseract_cmd = 'C:/Program Files/Tesseract-OCR/tesseract.exe'
 
-    main()
+    # main()
 
-    # # image_input_path = 'ParachuteData/pdf-pages-as-images-preprocessed-deskewed/T-11 W911QY-19-D-0046 LOT 45_09282023-014.png'
-    # image_input_path = './ParachuteData/pdf-pages-as-images-preprocessed-deskewed/T-11 LAT (SEPT 2022)-020.png'
-    # image_output_path = './RectangleDetectorOutput/test.png'
-    # xlsx_output_path = './RectangleDetectorOutput/test.xlsx'
-    # process_image(image_input_path, image_output_path, xlsx_output_path)
+    # image_input_path = 'ParachuteData/pdf-pages-as-images-preprocessed-deskewed/T-11 W911QY-19-D-0046 LOT 45_09282023-014.png'
+    image_input_path = './ParachuteData/pdf-pages-as-images-preprocessed-deskewed/T-11 LAT (SEPT 2022)-020.png'
+    image_output_path = './RectangleDetectorOutput/test.png'
+    xlsx_output_path = './RectangleDetectorOutput/test.xlsx'
+    process_image(image_input_path, image_output_path, xlsx_output_path)
