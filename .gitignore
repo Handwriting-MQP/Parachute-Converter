@@ -7,8 +7,9 @@
 RectangleDetectorOutput/*
 !RectangleDetectorOutput/.gitkeep
 
+SyntheticMixedNumberData/*
+!SyntheticMixedNumberData/.gitkeep
+
 *.jpg
 *.png
-SyntheticMixedNumberDataWithBoxLines/labels.json
-
 *.ipynb
