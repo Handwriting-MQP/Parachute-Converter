@@ -41,6 +41,42 @@ def get_random_cropped_mnist_digit_image(digit):
     # return the cropped image with inverted the colors (so it has a white background)
     return -cropped_image + 255
 
+def get_mnist_fraction_slash():
+
+    digit_dir_path = os.path.join(f'{MNIST_DATASET_PATH}','1')
+    ones_allowlist = [
+        'img_2.jpg',
+        'img_12.jpg',
+        'img_15.jpg',
+        'img_35.jpg',
+        'img_37.jpg',
+        'img_41.jpg',
+        'img_52.jpg',
+        'img_59.jpg',
+        'img_68.jpg',
+        'img_77.jpg',
+        'img_79.jpg',
+        'img_96.jpg'
+    ]
+
+    image_path = os.path.join(digit_dir_path, random.choice(ones_allowlist))
+
+    # read in the random digit image
+    image = cv2.imread(image_path)
+
+    # convert to grayscale and threshold to binary
+    gray_image = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
+    _, binary_image = cv2.threshold(gray_image, 200, 255, cv2.THRESH_BINARY)
+
+    # find the minimum bounding box of non-zero pixels
+    x, y, w, h = cv2.boundingRect(cv2.findNonZero(binary_image))
+
+    # crop the original image using the bounding box on the binary image
+    cropped_image = image[y:y + h, x:x + w]
+
+    # return the cropped image with inverted the colors (so it has a white background)
+    return -cropped_image + 255
+
 #----------------------------------------------------------------------------------------------------
 
 def concatenate_images_horizontally(images):
@@ -143,7 +179,7 @@ def generate_random_fraction_image(vertical_orientation):
     numerator_image = generate_image_from_whole_number(numerator)
 
     # pick a random mnsit "1" to use as the slash and add some whitespace on the sides
-    slash_image = get_random_cropped_mnist_digit_image(1)
+    slash_image = get_mnist_fraction_slash()
     slash_image = cv2.copyMakeBorder(slash_image, 0, 0, 2, 2, cv2.BORDER_CONSTANT, value=[255, 255, 255])
     
     # concatenate the images horizontally or vertically to form the fraction image
