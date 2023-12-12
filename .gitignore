@@ -10,6 +10,9 @@ RectangleDetectorOutput/*
 SyntheticMixedNumberData/*
 !SyntheticMixedNumberData/.gitkeep
 
-*.jpg
-*.png
+CellClassifier/SyntheticCellData/images/
+!CellClassifier/SyntheticCellData/images/.gitkeep
+
+CellClassifier/IAM-data/words/*
+
 *.ipynb

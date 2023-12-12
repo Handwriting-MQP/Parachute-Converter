@@ -1,0 +1,1 @@
+- download "words.zip" from Google Drive. Unzip it to "IAM-data/words"
