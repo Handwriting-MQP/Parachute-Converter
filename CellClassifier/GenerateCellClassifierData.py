@@ -10,14 +10,14 @@ from trdg.generators import GeneratorFromStrings
 # import generate_synthetic_image from parent directory (a bit of trickery is needed to do this)
 import sys
 sys.path.insert(1, os.path.join(sys.path[0], '..'))
-from ImageCombinerV2 import generate_synthetic_image
+from GenerateSyntheticMixedNumberData import generate_synthetic_image
 
 #----------------------------------------------------------------------------------------------------
 
 minimum_word_length = 3
 maximum_word_length = 12
 
-IAM_data_base_path = './CellClassifier/IAM-data/'
+IAM_data_base_path = 'CellClassifier/IAM-data/'
 
 # read in lines from words.txt
 with open(os.path.join(IAM_data_base_path, 'words.txt'), 'r') as f:
