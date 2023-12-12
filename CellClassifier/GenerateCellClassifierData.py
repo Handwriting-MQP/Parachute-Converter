@@ -10,7 +10,7 @@ from trdg.generators import GeneratorFromStrings
 # import generate_synthetic_image from parent directory (a bit of trickery is needed to do this)
 import sys
 sys.path.insert(1, os.path.join(sys.path[0], '..'))
-from ImageCombinerV2 import generate_synthetic_image
+from GenerateSyntheticMixedNumberData import generate_synthetic_image
 
 #----------------------------------------------------------------------------------------------------
 
