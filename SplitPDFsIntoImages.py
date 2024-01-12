@@ -2,8 +2,6 @@ from pdf2image import convert_from_path
 import os
 import itertools
 
-from WarpPerspectiveDeskew import warp_perspective_deskew
-
 
 def split_pdf_into_images(pdf_filepath, image_dir):
     for i in itertools.count(start=1):
@@ -18,7 +16,6 @@ def split_pdf_into_images(pdf_filepath, image_dir):
         image_filename = os.path.basename(pdf_filepath).split('.')[0] + f'-{i:03}' + '.png'
         image_filepath = os.path.join(image_dir, image_filename)
         pages[0].save(image_filepath, 'png')
-        warp_perspective_deskew(image_filepath, image_filepath)
 
         print(f'saved page {i}')
 
