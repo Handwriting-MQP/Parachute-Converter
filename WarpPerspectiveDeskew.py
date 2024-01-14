@@ -1,5 +1,4 @@
 import os
-import math
 
 import cv2
 import numpy as np
@@ -41,7 +40,7 @@ def extract_cell_edges_from_image(image):
         blurred = cv2.GaussianBlur(gray, (5, 5), 0)
 
         # convert to binary
-        binary = cv2.adaptiveThreshold(blurred, maxValue=255, adaptiveMethod=cv2.ADAPTIVE_THRESH_MEAN_C,
+        binary = cv2.adaptiveThreshold(blurred, maxValue=255, adaptiveMethod=cv2.ADAPTIVE_THRESH_GAUSSIAN_C,
                                        thresholdType=cv2.THRESH_BINARY_INV, blockSize=5, C=2)
 
         return binary

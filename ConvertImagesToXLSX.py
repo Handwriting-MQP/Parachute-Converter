@@ -269,49 +269,38 @@ def generate_xlsx_with_detected_text(image, cell_contours, xlsx_path):
     xlsx_path (str): Path to save the generated Excel file.
 
     """
+    def add_value_to_list_with_tolerance(new_val, lst, tolerance):
+        for v in lst:
+            if v - tolerance <= new_val <= v + tolerance:
+                return
+        lst.append(new_val)
+        lst.sort()
+    
+    def get_index_of_closest_val(target_val, lst, tolerance):
+        for i, v in enumerate(lst):
+            if v - tolerance <= target_val <= v + tolerance:
+                return i
+        raise ValueError(f'No value in list is within tolerance of target value: {target_val}')
+    
     # TODO: think about tuning these values in some way
-    # NOTE: a value of 50 was too big!
+    # NOTE: a value of 50 was too big! that is, we skipped over small cells that were close together!
     vertical_tolernce = 30
     horizontal_tolerance = 30
 
-    columns = []  # stores the x values each column starts at
-    rows = []  # stores the y values each row starts at
+    column_edges = []  # stores the x values for each vertical edge
+    row_edges = []  # stores the y values for each horizontal edges
     data_tuples = []  # stores data in the form (x, y, w, h, cell_text, median_color_str)
 
-    def update_columns(x):
-        for val in columns:
-            if val - horizontal_tolerance <= x <= val + horizontal_tolerance:
-                return
-        columns.append(x)
-        columns.sort()
-
-    def update_rows(y):
-        for val in rows:
-            if val - vertical_tolernce <= y <= val + vertical_tolernce:
-                return
-        rows.append(y)
-        rows.sort()
-
-    def get_index_of_closest_xval(x):
-        for i, val in enumerate(columns):
-            if val - horizontal_tolerance <= x <= val + horizontal_tolerance:
-                return i
-        return len(columns)
-
-    def get_index_of_closest_yval(y):
-        for i, val in enumerate(rows):
-            if val - vertical_tolernce <= y <= val + vertical_tolernce:
-                return i
-        return len(rows)
-    
-    # generate  data tuples from filtered contours
+    # generate data tuples from filtered contours
     for cell_contour in tqdm(cell_contours):
         # get the bounding rectangle for the contour
         x, y, w, h = cv2.boundingRect(cell_contour)
 
         # update rows and cols
-        update_columns(x)
-        update_rows(y)
+        add_value_to_list_with_tolerance(x, column_edges, horizontal_tolerance)
+        add_value_to_list_with_tolerance(x + w, column_edges, horizontal_tolerance)
+        add_value_to_list_with_tolerance(y, row_edges, vertical_tolernce)
+        add_value_to_list_with_tolerance(y + h, row_edges, vertical_tolernce)
 
         # extract cell from image
         cell_image = image[y:y + h, x:x + w]
@@ -326,33 +315,33 @@ def generate_xlsx_with_detected_text(image, cell_contours, xlsx_path):
 
         # add cell data to data tuples
         data_tuples.append((x, y, w, h, cell_text, median_color_str))
-
-    print(f'column start x values: {list(enumerate(columns))}')
-    print(f'row start y values: {list(enumerate(rows))}')
+    
+    # print(f'column_edges: {list(enumerate(column_edges))}')
+    # print(f'row_edges: {list(enumerate(row_edges))}')
 
     # generate XLSX file
     workbook = xlsxwriter.Workbook(xlsx_path)
     worksheet = workbook.add_worksheet()
-
+    
     # update column/row width/height in spreadsheet
     column_px_to_width_ratio = 1 / 20
     row_px_to_width_ratio = 1 / 4
     # set column widths
-    for index in range(1, len(columns)):
-        width_px = columns[index] - columns[index - 1]
+    for index in range(len(column_edges) - 1):
+        width_px = column_edges[index + 1] - column_edges[index]
         worksheet.set_column(first_col=index, last_col=index, width=width_px * column_px_to_width_ratio)
     # set row heights
-    for index in range(1, len(rows)):
-        height_px = rows[index] - rows[index - 1]
+    for index in range(len(row_edges) - 1):
+        height_px = row_edges[index + 1] - row_edges[index]
         worksheet.set_row(row=index, height=height_px * row_px_to_width_ratio)
-
+    
     # populate XLSX file from data tuples
     for x, y, w, h, text, median_color_str in data_tuples:
         # get the index of the cell in the spreadsheet
-        low_xindex = get_index_of_closest_xval(x)
-        high_xindex = get_index_of_closest_xval(x + w)
-        low_yindex = get_index_of_closest_yval(y)
-        high_yindex = get_index_of_closest_yval(y + h)
+        column_left_edge_index = get_index_of_closest_val(x, column_edges, horizontal_tolerance)
+        column_right_edge_index = get_index_of_closest_val(x + w, column_edges, horizontal_tolerance)
+        row_top_edge_index = get_index_of_closest_val(y, row_edges, vertical_tolernce)
+        row_bottom_edge_index = get_index_of_closest_val(y + h, row_edges, vertical_tolernce)
 
         # set cell formatting
         cell_format = workbook.add_format({
@@ -365,16 +354,17 @@ def generate_xlsx_with_detected_text(image, cell_contours, xlsx_path):
         })
 
         # try to add the cell to excel
-        if high_xindex - low_xindex == 1 and high_yindex - low_yindex == 1:
-            worksheet.write(low_yindex + 1, low_xindex + 1, text, cell_format)
+        if column_right_edge_index - column_left_edge_index == 1 and row_bottom_edge_index - row_top_edge_index == 1:
+            worksheet.write(row_top_edge_index, column_left_edge_index, text, cell_format)
         else:
             try:
-                worksheet.merge_range(first_row=low_yindex + 1, last_row=high_yindex,
-                                      first_col=low_xindex + 1, last_col=high_xindex,
+                worksheet.merge_range(first_row=row_top_edge_index, last_row=row_bottom_edge_index - 1,
+                                      first_col=column_left_edge_index, last_col=column_right_edge_index - 1,
                                       data=text, cell_format=cell_format)
             except xlsxwriter.exceptions.OverlappingRange as e:
                 print(e)
-                # print(f'An exception occurred in "merge_range" x: {x}, y: {y}, w: {w}, h: {h}, text: {repr(text)}')
+                print(f'\tx: {x}, y: {y}, w: {w}, h: {h}, text: {repr(text)}')
+                print(f'\tcolumn_left_edge_index: {column_left_edge_index}, column_right_edge_index: {column_right_edge_index}, row_top_edge_index: {row_top_edge_index}, row_bottom_edge_index: {row_bottom_edge_index}')
 
     workbook.close()
 
@@ -453,7 +443,7 @@ if __name__ == "__main__":
     # NOTE: if tesseract isn't already installed, you can install it here: https://github.com/UB-Mannheim/tesseract/wiki
     pytesseract.pytesseract.tesseract_cmd = 'C:/Program Files/Tesseract-OCR/tesseract.exe'
 
-    # main()
+    main()
 
     # image_input_path = 'ParachuteData/pdf-pages-as-images-preprocessed-deskewed/T-11 W911QY-19-D-0046 LOT 45_09282023-014.png'
     image_input_path = './ParachuteData/pdf-pages-as-images-preprocessed-deskewed/T-11 LAT (SEPT 2022)-020.png'
