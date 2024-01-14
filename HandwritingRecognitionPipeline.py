@@ -3,8 +3,11 @@ import sys
 import tempfile
 import os
 from SplitPDFsIntoImages import split_pdf_into_images
-from RectangleDetector import process_image
+from ConvertImagesToXLSX import process_image
 from WarpPerspectiveDeskew import warp_perspective_deskew
+from PreprocessImages import preprocess_image
+
+# TODO: add in preprocess_image from PreprocessImages.py + add in warp_perspective_deskew from WarpPerspectiveDeskew.py
 
 def print_usage_and_exit():
     print("Usage: python HandwritingRecognitionPipeline.py <directory/containing/data/pdfs>")

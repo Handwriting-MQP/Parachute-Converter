@@ -27,6 +27,12 @@ def deskew_image(image):
     return rotated.astype(np.uint8)
 
 
+def preprocess_image(image):
+    image = resize_image(image)
+    image = deskew_image(image)
+    return image
+
+
 def main():
     raw_images_path = './ParachuteData/pdf-pages-as-images'
     processed_images_path = './ParachuteData/pdf-pages-as-images-preprocessed'
@@ -36,10 +42,7 @@ def main():
         processed_image_path = os.path.join(processed_images_path, image_filename)
 
         image = cv2.imread(raw_image_path)
-
-        image = resize_image(image)
-        image = deskew_image(image)
-
+        image = preprocess_image(image)
         cv2.imwrite(processed_image_path, image)
 
 

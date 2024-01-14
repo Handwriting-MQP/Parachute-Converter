@@ -7,9 +7,10 @@ import cv2
 
 from trdg.generators import GeneratorFromStrings
 
-# import generate_synthetic_image from parent directory (a bit of trickery is needed to do this)
+# import generate_synthetic_image from a different directory (a bit of trickery is needed to do this)
+# we should probably reorganize the directory structure to make this less hacky
 import sys
-sys.path.insert(1, os.path.join(sys.path[0], '..'))
+sys.path.insert(1, os.path.join(sys.path[0], '../TrainMixedNumberModel/'))
 from GenerateSyntheticMixedNumberData import generate_synthetic_image
 
 #----------------------------------------------------------------------------------------------------

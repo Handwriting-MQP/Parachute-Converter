@@ -30,8 +30,8 @@ def debug_draw_contour_and_save_image(image, contour, save_path):
     cv2.imwrite(save_path, image)
 
 
-def extract_cell_lines_from_image(image):
-    # NOTE: this is similar, but not exactly the same as the function defined in RectangleDetector
+def extract_cell_edges_from_image(image):
+    # NOTE: this is similar, but not exactly the same as the function defined in ConvertImagesToXLSX
 
     def convert_image_to_binary(image):
         # convert to grayscale
@@ -49,21 +49,21 @@ def extract_cell_lines_from_image(image):
     binary = convert_image_to_binary(image)
     # cv2.imwrite('test01.png', binary)
 
-    # detect horizontal lines
+    # detect horizontal edges
     horizontal_kernel = cv2.getStructuringElement(cv2.MORPH_RECT, (20, 1))
-    horizontal_lines = cv2.morphologyEx(binary, cv2.MORPH_OPEN, horizontal_kernel, iterations=2)
-    # cv2.imwrite('test02.png', horizontal_lines)
+    horizontal_edges = cv2.morphologyEx(binary, cv2.MORPH_OPEN, horizontal_kernel, iterations=2)
+    # cv2.imwrite('test02.png', horizontal_edges)
 
-    # detect vertical lines
+    # detect vertical edges
     vertical_kernel = cv2.getStructuringElement(cv2.MORPH_RECT, (1, 20))
-    vertical_lines = cv2.morphologyEx(binary, cv2.MORPH_OPEN, vertical_kernel, iterations=2)
-    # cv2.imwrite('test03.png', vertical_lines)
+    vertical_edges = cv2.morphologyEx(binary, cv2.MORPH_OPEN, vertical_kernel, iterations=2)
+    # cv2.imwrite('test03.png', vertical_edges)
 
-    # combine lines
-    all_lines = vertical_lines | horizontal_lines
-    # cv2.imwrite('./deskewer-WIP/processing-test04.png', all_lines)
+    # combine edges
+    all_edges = vertical_edges | horizontal_edges
+    # cv2.imwrite('./deskewer-WIP/processing-test04.png', all_edges)
 
-    return all_lines
+    return all_edges
 
 
 def order_quadrilateral_points(pts):
@@ -85,11 +85,11 @@ def find_largest_quadrilateral(image):
     absolute_top_bottom_slope_difference_threshold = 0.01
 
     # preprocess the image
-    cell_lines = extract_cell_lines_from_image(image)
-    # cv2.imwrite('deskewer-WIP/test00.png', cell_lines)
+    cell_edges = extract_cell_edges_from_image(image)
+    # cv2.imwrite('deskewer-WIP/test00.png', cell_edges)
     
     # find contours
-    contours, _ = cv2.findContours(cell_lines, cv2.RETR_LIST, cv2.CHAIN_APPROX_SIMPLE)
+    contours, _ = cv2.findContours(cell_edges, cv2.RETR_LIST, cv2.CHAIN_APPROX_SIMPLE)
     # replace contours with their convex hull
     contours = [cv2.convexHull(c) for c in contours]
 

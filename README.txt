@@ -4,7 +4,7 @@ main script pipeline
 - run SplitPDFsIntoImages.py to break a PDF up into image files
 - run PreprocessImages.py to do a basic rotation deskew and resize the images
 - run WarpPerspectiveDeskew.py to do a perspective deskew on the images
-- run RectangleDetector.py (bad name) to do OCR on the images
+- run ConvertImagesToXLSX to do OCR on the images
     - first it finds cell edges
     - then it does OCR on each cell
 

@@ -4,15 +4,14 @@
 *.idea
 *__pycache__/*
 
-RectangleDetectorOutput/*
-!RectangleDetectorOutput/.gitkeep
+XLSXOutput/*
+!XLSXOutput/.gitkeep
 
-SyntheticMixedNumberData/*
-!SyntheticMixedNumberData/.gitkeep
+TrainMixedNumberModel/SyntheticMixedNumberData/*
+!TrainMixedNumberModel/SyntheticMixedNumberData/.gitkeep
 
-CellClassifier/SyntheticCellData/images/
-!CellClassifier/SyntheticCellData/images/.gitkeep
-
-CellClassifier/IAM-data/words/*
+TrainCellClassifierModel/SyntheticCellData/images/
+!TrainCellClassifierModel/SyntheticCellData/images/.gitkeep
+TrainCellClassifierModel/IAM-data/words/*
 
 *.ipynb

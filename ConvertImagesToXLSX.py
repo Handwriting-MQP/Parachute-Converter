@@ -33,10 +33,10 @@ def extract_cell_edges_from_image(image):
         # apply Gaussian blur
         blurred = cv2.GaussianBlur(gray, (5, 5), 0)
 
-        # convert to binary
-        binary = cv2.adaptiveThreshold(blurred, maxValue=255, adaptiveMethod=cv2.ADAPTIVE_THRESH_MEAN_C,
+        # convert to binary image
+        binary = cv2.adaptiveThreshold(blurred, maxValue=255, adaptiveMethod=cv2.ADAPTIVE_THRESH_GAUSSIAN_C,
                                        thresholdType=cv2.THRESH_BINARY_INV, blockSize=5, C=2)
-
+        
         return binary
 
     # documentation on morphological transformations:
@@ -51,25 +51,25 @@ def extract_cell_edges_from_image(image):
     #   print(np.all(a == b)) # this will return True
 
     binary = convert_image_to_binary(image)
-    # cv2.imwrite('test01.png', binary)
+    # cv2.imwrite('tmp/test01.png', binary)
 
     # detect horizontal edges
     horizontal_kernel = cv2.getStructuringElement(cv2.MORPH_RECT, (20, 1))
     horizontal_edges = cv2.morphologyEx(binary, cv2.MORPH_OPEN, horizontal_kernel, iterations=2)
-    # cv2.imwrite('test02.png', horizontal_edges)
+    # cv2.imwrite('tmp/test02.png', horizontal_edges)
 
     # detect vertical edges
     vertical_kernel = cv2.getStructuringElement(cv2.MORPH_RECT, (1, 20))
     vertical_edges = cv2.morphologyEx(binary, cv2.MORPH_OPEN, vertical_kernel, iterations=2)
-    # cv2.imwrite('test03.png', vertical_edges)
+    # cv2.imwrite('tmp/test03.png', vertical_edges)
 
     # combine edges
     all_edges = vertical_edges | horizontal_edges
     # cv2.imwrite('tmp/test04.png', all_edges)
 
     # run kernel over image to close up gaps
-    cross_kernel = cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (15, 15))
-    all_edges_2 = cv2.morphologyEx(all_edges, cv2.MORPH_CLOSE, cross_kernel)
+    ellipse_kernel = cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (15, 15))
+    all_edges_2 = cv2.morphologyEx(all_edges, cv2.MORPH_CLOSE, ellipse_kernel)
     # cv2.imwrite('tmp/test05.png', all_edges_2)
 
     return all_edges_2
@@ -426,7 +426,7 @@ def main():
     Main function to process images in a specified input folder and generate outputs.
     """
     image_input_folder = './ParachuteData/pdf-pages-as-images-preprocessed-deskewed'
-    output_folder = './RectangleDetectorOutput'
+    output_folder = './XLSXOutput'
 
     # check if input folder exists
     if not os.path.exists(image_input_folder):
@@ -457,6 +457,6 @@ if __name__ == "__main__":
 
     # image_input_path = 'ParachuteData/pdf-pages-as-images-preprocessed-deskewed/T-11 W911QY-19-D-0046 LOT 45_09282023-014.png'
     image_input_path = './ParachuteData/pdf-pages-as-images-preprocessed-deskewed/T-11 LAT (SEPT 2022)-020.png'
-    image_output_path = './RectangleDetectorOutput/test.png'
-    xlsx_output_path = './RectangleDetectorOutput/test.xlsx'
+    image_output_path = './XLSXOutput/test.png'
+    xlsx_output_path = './XLSXOutput/test.xlsx'
     process_image(image_input_path, image_output_path, xlsx_output_path)
