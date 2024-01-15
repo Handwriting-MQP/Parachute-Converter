@@ -1,7 +1,12 @@
+import queue
 import shutil
 import sys
 import tempfile
 import os
+import threading
+from tkinter import filedialog, scrolledtext
+
+import tkinter as tk
 
 from SplitPDFsIntoImages import split_pdf_into_images
 from ConvertImagesToXLSX import process_image
@@ -11,23 +16,51 @@ from PreprocessImages import preprocess_image
 # TODO: add in preprocess_image from PreprocessImages.py + add in warp_perspective_deskew from WarpPerspectiveDeskew.py
 
 def print_usage_and_exit():
-    print("Usage: python HandwritingRecognitionPipeline.py <directory/containing/data/pdfs>")
+    print("Data directory should contain only pdfs.")
     sys.exit()
 
-if __name__ == '__main__':
+def update_gui_from_queue(root, gui_queue):
+    while not gui_queue.empty():
+        message = gui_queue.get_nowait()
+        # Update your GUI here, e.g., insert message into a text widget
+        print(message)  # or your mechanism to update the GUI
+    root.after(100, update_gui_from_queue, root, gui_queue)  # Reschedule
 
-    pipeline_results_dir = 'PipelineResults'
+def start_processing_thread(pdfs_dir, gui_queue):
+    threading.Thread(target=process_handwriting_data, args=(pdfs_dir, gui_queue), daemon=True).start()
+
+def select_folder(gui_queue):
+    folder_selected = filedialog.askdirectory()
+    if folder_selected:
+        start_processing_thread(folder_selected, gui_queue)
+
+
+class TextRedirector(object):
+    def __init__(self, widget):
+        self.widget = widget
+
+    def write(self, str):
+        self.widget.config(state=tk.NORMAL)
+        self.widget.insert(tk.END, str)
+        self.widget.see(tk.END)  # Scroll to the end
+        self.widget.config(state=tk.DISABLED)
+    def flush(self):
+        pass
+
+def process_handwriting_data(pdfs_dir, gui_queue):
+
+    gui_queue.put("Processing started for: " + pdfs_dir)
+
+    parent_dir = os.path.dirname(pdfs_dir)
+
+    pipeline_results_dir = os.path.join(parent_dir, 'PipelineResults')
     if os.path.exists(pipeline_results_dir):
         shutil.rmtree(pipeline_results_dir)
     os.makedirs(pipeline_results_dir)
 
-    # Make sure that the input command line argument is good, that is,
+    # Make sure that the input directory is good, that is,
     # it is a directory containing only the pdfs intended to be processed.
 
-    if len(sys.argv) < 2:
-        print_usage_and_exit()
-
-    pdfs_dir = sys.argv[1]
     data_pdfs = []
     if os.path.isdir(pdfs_dir):
         for pdf in os.listdir(pdfs_dir):
@@ -71,3 +104,30 @@ if __name__ == '__main__':
                 current_image_output_path = os.path.join(cur_images_out_dir, image)
                 current_xlsx_output_path = os.path.join(cur_xlsxs_out_dir, image).replace(".png", ".xlsx")
                 process_image(current_image_input_path, current_image_output_path, current_xlsx_output_path)
+
+    gui_queue.put("Processing completed for: " + pdfs_dir)
+
+def main():
+    # Create the main window
+    root = tk.Tk()
+    gui_queue = queue.Queue()
+    root.title("Handwriting Recognition Pipeline")
+
+    # Create a scrolled text widget for console output
+    console = scrolledtext.ScrolledText(root, state='disabled', height=10)
+    console.pack(padx=10, pady=10, fill=tk.BOTH, expand=True)
+
+    # Redirect stdout
+    sys.stdout = TextRedirector(console)
+
+    root.after(100, update_gui_from_queue, root, gui_queue)
+
+    # Create a button to open the dialog
+    select_folder_button = tk.Button(root, text="Select Folder With PDFs", command=lambda: select_folder(gui_queue))
+    select_folder_button.pack(pady=20)
+
+    # Run the application
+    root.mainloop()
+
+if __name__ == '__main__':
+    main()
