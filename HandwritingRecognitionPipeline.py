@@ -4,6 +4,7 @@ import sys
 import tempfile
 import os
 import threading
+import cv2
 from tkinter import filedialog, scrolledtext
 
 import tkinter as tk
@@ -99,10 +100,23 @@ def process_handwriting_data(pdfs_dir, gui_queue):
             os.makedirs(cur_xlsxs_out_dir)
 
             full_current_temp_path = os.path.join(tmp_dir_name, temporary_pdf_image_dir)
+
+            # Processing location/ THE PIPELINE
             for image in os.listdir(full_current_temp_path):
+                # Getting paths
                 current_image_input_path = os.path.join(full_current_temp_path, image)
                 current_image_output_path = os.path.join(cur_images_out_dir, image)
                 current_xlsx_output_path = os.path.join(cur_xlsxs_out_dir, image).replace(".png", ".xlsx")
+
+                # calling PreprocessImages.preprocess_image
+                image = cv2.imread(current_image_input_path)
+                image = preprocess_image(image)
+                cv2.imwrite(current_image_input_path, image)
+
+                # Calling WarpPerspectiveDeskew.warp_perspective_deskew
+                warp_perspective_deskew(current_image_input_path, current_image_input_path)
+
+                # This is where the machine learning models are used.
                 process_image(current_image_input_path, current_image_output_path, current_xlsx_output_path)
 
     gui_queue.put("Processing completed for: " + pdfs_dir)
