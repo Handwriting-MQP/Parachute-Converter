@@ -7,6 +7,9 @@ import pytesseract
 import xlsxwriter
 from tqdm import tqdm
 
+from PreprocessImages import preprocess_image
+from WarpPerspectiveDeskew import warp_perspective_deskew
+
 
 # import huggingface packages and models
 # from transformers import VisionEncoderDecoderModel
@@ -259,7 +262,7 @@ def do_OCR_on_cell(cell_image):
     return ' '.join(cell_text)
 
 
-def generate_xlsx_with_detected_text(image, cell_contours, xlsx_path):
+def generate_xlsx_with_detected_text(image, cell_contours, xlsx_path, debug=False):
     """
     Generates an Excel file with text detected in various sections of an image.
 
@@ -362,9 +365,10 @@ def generate_xlsx_with_detected_text(image, cell_contours, xlsx_path):
                                       first_col=column_left_edge_index, last_col=column_right_edge_index - 1,
                                       data=text, cell_format=cell_format)
             except xlsxwriter.exceptions.OverlappingRange as e:
-                print(e)
-                print(f'\tx: {x}, y: {y}, w: {w}, h: {h}, text: {repr(text)}')
-                print(f'\tcolumn_left_edge_index: {column_left_edge_index}, column_right_edge_index: {column_right_edge_index}, row_top_edge_index: {row_top_edge_index}, row_bottom_edge_index: {row_bottom_edge_index}')
+                if debug:
+                    print(e)
+                    print(f'\tx: {x}, y: {y}, w: {w}, h: {h}, text: {repr(text)}')
+                    print(f'\tcolumn_left_edge_index: {column_left_edge_index}, column_right_edge_index: {column_right_edge_index}, row_top_edge_index: {row_top_edge_index}, row_bottom_edge_index: {row_bottom_edge_index}')
 
     workbook.close()
 
