@@ -1,3 +1,6 @@
+# NOTE: the code for the 4-point transform function was mostly taken from the imutils library
+# https://github.com/PyImageSearch/imutils/blob/master/imutils/perspective.py
+
 import os
 
 import cv2

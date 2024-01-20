@@ -4,17 +4,15 @@ import sys
 import tempfile
 import os
 import threading
-import cv2
 from tkinter import filedialog, scrolledtext
-
 import tkinter as tk
+
+import cv2
 
 from SplitPDFsIntoImages import split_pdf_into_images
 from ConvertImagesToXLSX import process_image
 from WarpPerspectiveDeskew import warp_perspective_deskew
-from PreprocessImages import preprocess_image
-
-# TODO: add in preprocess_image from PreprocessImages.py + add in warp_perspective_deskew from WarpPerspectiveDeskew.py
+from PreprocessImages import convert_image_to_xlsx
 
 def print_usage_and_exit():
     print("Data directory should contain only pdfs.")
@@ -27,10 +25,10 @@ def update_gui_from_queue(root, gui_queue):
         print(message)  # or your mechanism to update the GUI
     root.after(100, update_gui_from_queue, root, gui_queue)  # Reschedule
 
-def start_processing_thread(pdfs_dir, gui_queue):
-    threading.Thread(target=process_handwriting_data, args=(pdfs_dir, gui_queue), daemon=True).start()
-
 def select_folder(gui_queue):
+    def start_processing_thread(pdfs_dir, gui_queue):
+        threading.Thread(target=process_handwriting_data, args=(pdfs_dir, gui_queue), daemon=True).start()
+    
     folder_selected = filedialog.askdirectory()
     if folder_selected:
         start_processing_thread(folder_selected, gui_queue)
@@ -110,7 +108,7 @@ def process_handwriting_data(pdfs_dir, gui_queue):
 
                 # calling PreprocessImages.preprocess_image
                 image = cv2.imread(current_image_input_path)
-                image = preprocess_image(image)
+                image = convert_image_to_xlsx(image)
                 cv2.imwrite(current_image_input_path, image)
 
                 # Calling WarpPerspectiveDeskew.warp_perspective_deskew

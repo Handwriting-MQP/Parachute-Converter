@@ -14,4 +14,7 @@ TrainCellClassifierModel/SyntheticCellData/images/
 !TrainCellClassifierModel/SyntheticCellData/images/.gitkeep
 TrainCellClassifierModel/IAM-data/words/*
 
+build/*
+dist/*
+
 *.ipynb
