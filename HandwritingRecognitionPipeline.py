@@ -10,9 +10,9 @@ import tkinter as tk
 import cv2
 
 from SplitPDFsIntoImages import split_pdf_into_images
-from ConvertImagesToXLSX import process_image
+from PreprocessImages import preprocess_image
 from WarpPerspectiveDeskew import warp_perspective_deskew
-from PreprocessImages import convert_image_to_xlsx
+from ConvertImagesToXLSX import convert_image_to_xlsx
 
 def print_usage_and_exit():
     print("Data directory should contain only pdfs.")
@@ -108,14 +108,14 @@ def process_handwriting_data(pdfs_dir, gui_queue):
 
                 # calling PreprocessImages.preprocess_image
                 image = cv2.imread(current_image_input_path)
-                image = convert_image_to_xlsx(image)
+                image = preprocess_image(image)
                 cv2.imwrite(current_image_input_path, image)
 
                 # Calling WarpPerspectiveDeskew.warp_perspective_deskew
                 warp_perspective_deskew(current_image_input_path, current_image_input_path)
 
                 # This is where the machine learning models are used.
-                process_image(current_image_input_path, current_image_output_path, current_xlsx_output_path)
+                convert_image_to_xlsx(current_image_input_path, current_image_output_path, current_xlsx_output_path)
 
     gui_queue.put("Processing completed for: " + pdfs_dir)
 
