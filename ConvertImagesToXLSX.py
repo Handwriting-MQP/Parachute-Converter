@@ -1,4 +1,5 @@
 import os
+import sys # for sys.stdout in tqdm
 
 import cv2
 import numpy as np
@@ -6,9 +7,6 @@ import numpy as np
 import pytesseract
 import xlsxwriter
 from tqdm import tqdm
-
-from PreprocessImages import preprocess_image
-from WarpPerspectiveDeskew import warp_perspective_deskew
 
 
 # import huggingface packages and models
@@ -295,7 +293,7 @@ def generate_xlsx_with_detected_text(image, cell_contours, xlsx_path, debug=Fals
     data_tuples = []  # stores data in the form (x, y, w, h, cell_text, median_color_str)
 
     # generate data tuples from filtered contours
-    for cell_contour in tqdm(cell_contours):
+    for cell_contour in tqdm(cell_contours, file=sys.stdout):
         # get the bounding rectangle for the contour
         x, y, w, h = cv2.boundingRect(cell_contour)
 
@@ -373,7 +371,7 @@ def generate_xlsx_with_detected_text(image, cell_contours, xlsx_path, debug=Fals
     workbook.close()
 
 
-def process_image(image_input_path, image_output_path, xlsx_output_path):
+def convert_image_to_xlsx(image_input_path, image_output_path, xlsx_output_path, debug=False):
     """
     Processes an image to detect text regions, performs OCR, and generates an Excel file with the extracted data.
 
@@ -412,7 +410,7 @@ def process_image(image_input_path, image_output_path, xlsx_output_path):
         with open(xlsx_output_path + '.txt', 'w') as f:
             f.write("this file is a placeholder. we didn't think this page had cells on it.")
     else:
-        generate_xlsx_with_detected_text(image, cell_contours, xlsx_output_path)
+        generate_xlsx_with_detected_text(image, cell_contours, xlsx_output_path, debug)
 
 
 def main():
@@ -440,7 +438,7 @@ def main():
         xlsx_output_path = os.path.join(output_folder, xlsx_filename)
 
         print(f'{image_input_path} started')
-        process_image(image_input_path, image_output_path, xlsx_output_path)
+        convert_image_to_xlsx(image_input_path, image_output_path, xlsx_output_path)
 
 
 if __name__ == "__main__":
@@ -453,4 +451,4 @@ if __name__ == "__main__":
     image_input_path = './ParachuteData/pdf-pages-as-images-preprocessed-deskewed/T-11 LAT (SEPT 2022)-020.png'
     image_output_path = './XLSXOutput/test.png'
     xlsx_output_path = './XLSXOutput/test.xlsx'
-    process_image(image_input_path, image_output_path, xlsx_output_path)
+    convert_image_to_xlsx(image_input_path, image_output_path, xlsx_output_path)
