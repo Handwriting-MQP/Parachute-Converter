@@ -293,7 +293,7 @@ def generate_xlsx_with_detected_text(image, cell_contours, xlsx_path, debug=Fals
     data_tuples = []  # stores data in the form (x, y, w, h, cell_text, median_color_str)
 
     # generate data tuples from filtered contours
-    for cell_contour in tqdm(cell_contours, file=sys.stdout):
+    for cell_contour in cell_contours:
         # get the bounding rectangle for the contour
         x, y, w, h = cv2.boundingRect(cell_contour)
 
@@ -369,7 +369,7 @@ def generate_xlsx_with_detected_text(image, cell_contours, xlsx_path, debug=Fals
                     print(f'\tcolumn_left_edge_index: {column_left_edge_index}, column_right_edge_index: {column_right_edge_index}, row_top_edge_index: {row_top_edge_index}, row_bottom_edge_index: {row_bottom_edge_index}')
 
     workbook.close()
-
+    print("    Finished generating an Excel for: " + xlsx_path)
 
 def convert_image_to_xlsx(image_input_path, image_output_path, xlsx_output_path, debug=False):
     """
