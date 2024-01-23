@@ -16,3 +16,4 @@ TrainCellClassifierModel/IAM-data/words/*
 
 *.ipynb
 *.xlsx
+*.png
