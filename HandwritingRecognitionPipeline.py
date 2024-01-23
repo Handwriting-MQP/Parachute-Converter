@@ -82,7 +82,7 @@ def process_handwriting_data(pdfs_dir, gui_queue):
 
     # Split the pdfs into images in temporary files based on the pdf name.
     with tempfile.TemporaryDirectory() as tmp_dir_name:
-        print("Created directory " + tmp_dir_name)
+        print("Created top-level temporary directory: " + tmp_dir_name)
         # A list of just the names of each of the temporary directories,
         # which contain the images corresponding to each PDF.
         temporary_pdf_image_dirs = []
@@ -100,6 +100,8 @@ def process_handwriting_data(pdfs_dir, gui_queue):
             split_pdf_into_images(path_to_cur_pdf, output_path_for_cur_pdfs_images)
 
         for temporary_pdf_image_dir in temporary_pdf_image_dirs:
+            print("Created temporary directory: " + temporary_pdf_image_dir)
+
             # These first two code blocks make the results folders for each data PDF.
 
             # After the run is finished, "Images" contains the images of each page of a data PDF,
