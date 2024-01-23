@@ -4,16 +4,19 @@ import sys
 import tempfile
 import os
 import threading
-import cv2
 from tkinter import filedialog, scrolledtext
-
 import tkinter as tk
 
-from SplitPDFsIntoImages import split_pdf_into_images
-from ConvertImagesToXLSX import process_image
-from WarpPerspectiveDeskew import warp_perspective_deskew
-from PreprocessImages import preprocess_image
+import cv2
 
+<<<<<<< HEAD
+=======
+from SplitPDFsIntoImages import split_pdf_into_images
+from PreprocessImages import preprocess_image
+from WarpPerspectiveDeskew import warp_perspective_deskew
+from ConvertImagesToXLSX import convert_image_to_xlsx
+
+>>>>>>> 473136270da0daedfe8f71b4cdc0069460a7c530
 def print_usage_and_exit():
     print("Data directory should contain only pdfs.")
     sys.exit()
@@ -26,13 +29,19 @@ def update_gui_from_queue(root, gui_queue):
         print(message)  # or your mechanism to update the GUI
     root.after(100, update_gui_from_queue, root, gui_queue)  # Reschedule
 
+<<<<<<< HEAD
 # Start a thread to bear the load of the pipeline which is not the "main thread",
 # as tkinter requires use of the main thread.
 def start_processing_thread(pdfs_dir, gui_queue):
     threading.Thread(target=process_handwriting_data, args=(pdfs_dir, gui_queue), daemon=True).start()
 
 # A function to prompt the user to select a folder, then start processing that folder.
+=======
+>>>>>>> 473136270da0daedfe8f71b4cdc0069460a7c530
 def select_folder(gui_queue):
+    def start_processing_thread(pdfs_dir, gui_queue):
+        threading.Thread(target=process_handwriting_data, args=(pdfs_dir, gui_queue), daemon=True).start()
+    
     folder_selected = filedialog.askdirectory()
     if folder_selected:
         start_processing_thread(folder_selected, gui_queue)
@@ -132,7 +141,7 @@ def process_handwriting_data(pdfs_dir, gui_queue):
                 warp_perspective_deskew(current_image_input_path, current_image_input_path)
 
                 # This is where the machine learning models are used.
-                process_image(current_image_input_path, current_image_output_path, current_xlsx_output_path)
+                convert_image_to_xlsx(current_image_input_path, current_image_output_path, current_xlsx_output_path)
 
     gui_queue.put("Processing completed for: " + pdfs_dir)
 
