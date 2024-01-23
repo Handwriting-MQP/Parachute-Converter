@@ -17,7 +17,7 @@ def split_pdf_into_images(pdf_filepath, image_dir):
         image_filepath = os.path.join(image_dir, image_filename)
         pages[0].save(image_filepath, 'png')
 
-        print(f'saved page {i} to temp dir')
+        print(f'    saved page {i} to temp dir')
 
 
 if __name__ == '__main__':
