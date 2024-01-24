@@ -11,10 +11,31 @@ from tqdm import tqdm
 # import huggingface packages and models
 from transformers import VisionEncoderDecoderModel, ViTImageProcessor, ViTForImageClassification
 from transformers import TrOCRProcessor, VisionEncoderDecoderModel
+import torch
+
+
+# load models
+print('started loading models')
+
+device = "cuda:0" if torch.cuda.is_available() else "cpu"
+print(f'models will be running on device: {device}')
 
 textProcessor = TrOCRProcessor.from_pretrained('microsoft/trocr-base-printed')
-textModel = VisionEncoderDecoderModel.from_pretrained('microsoft/trocr-base-printed')
-fractionModel = VisionEncoderDecoderModel.from_pretrained("./Models/FractionModel", local_files_only=True)
+textModel = VisionEncoderDecoderModel.from_pretrained('microsoft/trocr-base-printed').to(device)
+
+# uses the same processor as textModel
+fractionModel = VisionEncoderDecoderModel.from_pretrained("./Models/FractionModel", local_files_only=True).to(device)
+
+classifier_labels = ['fraction', 'written', 'printed', 'blank']
+classifierProcessor = ViTImageProcessor.from_pretrained('google/vit-base-patch16-224')
+classifierModel = ViTForImageClassification.from_pretrained(
+    './Models/ClassifierModel',
+    num_labels=len(classifier_labels),
+    id2label={str(i): c for i, c in enumerate(classifier_labels)},
+    label2id={c: str(i) for i, c in enumerate(classifier_labels)}
+).to(device)
+print('finished loading models')
+
 
 def extract_cell_edges_from_image(image):
     """
@@ -221,55 +242,39 @@ def generate_image_with_rectangle_overlays(image, cell_contours, image_output_pa
     cv2.imwrite(image_output_path, image)
 
 
-def getClassifierPrediction(image):
-    labels = ['fraction', 'written', 'printed', 'blank']
-    classifierProcessor = ViTImageProcessor.from_pretrained('google/vit-base-patch16-224')
-    classifierModel = ViTForImageClassification.from_pretrained(
-        './Models/ClassifierModel',
-        num_labels=len(labels),
-        id2label={str(i): c for i, c in enumerate(labels)},
-        label2id={c: str(i) for i, c in enumerate(labels)}
-    )
-    inputs = classifierProcessor(images=image, return_tensors="pt")
-    outputs = classifierModel(**inputs)
-    logits = outputs.logits
-    # model predicts one of the 1000 ImageNet classes
-    predicted_class_idx = logits.argmax(-1).item()
-    options = {
-        0: 'fraction',
-        1: 'written',
-        2: 'printed',
-        3: 'blank',
+def do_OCR_on_word_group(word_group_image, use_tesseract=False):
+    def getClassifierPrediction(image):
+        inputs = classifierProcessor(images=image, return_tensors="pt").to(device)
+        outputs = classifierModel(**inputs)
+        logits = outputs.logits
+        # model predicts one of the 1000 ImageNet classes
+        predicted_class_idx = logits.argmax(-1).item()
+        options = {
+            0: 'fraction',
+            1: 'written',
+            2: 'printed',
+            3: 'blank',
 
-    }
-    # print(predicted_class_idx)
-    # print("Predicted class:", options[predicted_class_idx])
-    return options[predicted_class_idx]
-
-
-def do_OCR_on_word_group(word_group_image):
-    """
-    Performs Optical Character Recognition (OCR) on a cropped image.
-
-    Parameters:
-    cropped_image (numpy.ndarray): The cropped image on which OCR is to be performed.
-
-    Returns:
-    str: The text extracted from the cropped image.
-    """
-    # return pytesseract.image_to_string(word_group_image).strip()
+        }
+        # print(predicted_class_idx)
+        # print("Predicted class:", options[predicted_class_idx])
+        return options[predicted_class_idx]
+    
+    if use_tesseract:
+        return pytesseract.image_to_string(word_group_image).strip()
+    
     cellType = getClassifierPrediction(word_group_image)
     if cellType == 'typed' or 'written':
-        pixel_values = textProcessor(images=word_group_image, return_tensors="pt").pixel_values
+        pixel_values = textProcessor(images=word_group_image, return_tensors="pt").to(device).pixel_values
         generated_ids = textModel.generate(pixel_values)
         generated_text = textProcessor.batch_decode(generated_ids, skip_special_tokens=True)[0]
     elif cellType == 'fraction':
-        pixel_values = textProcessor(images=word_group_image, return_tensors="pt").pixel_values
+        pixel_values = textProcessor(images=word_group_image, return_tensors="pt").to(device).pixel_values
         generated_ids = fractionModel.generate(pixel_values)
         generated_text = textProcessor.batch_decode(generated_ids, skip_special_tokens=True)[0]
     else:
         generated_text = ''
-    # print(generated_text)
+    
     return generated_text
 
 
@@ -327,7 +332,8 @@ def generate_xlsx_with_detected_text(image, cell_contours, xlsx_path, debug=Fals
     data_tuples = []  # stores data in the form (x, y, w, h, cell_text, median_color_str)
 
     # generate data tuples from filtered contours
-    for cell_contour in cell_contours:
+    tqdm_output = sys.stdout if debug else open(os.devnull, 'w')
+    for cell_contour in tqdm(cell_contours, file=tqdm_output):
         # get the bounding rectangle for the contour
         x, y, w, h = cv2.boundingRect(cell_contour)
 
@@ -400,8 +406,10 @@ def generate_xlsx_with_detected_text(image, cell_contours, xlsx_path, debug=Fals
                 if debug:
                     print(e)
                     print(f'\tx: {x}, y: {y}, w: {w}, h: {h}, text: {repr(text)}')
-                    print(
-                        f'\tcolumn_left_edge_index: {column_left_edge_index}, column_right_edge_index: {column_right_edge_index}, row_top_edge_index: {row_top_edge_index}, row_bottom_edge_index: {row_bottom_edge_index}')
+                    print(f'\tcolumn_left_edge_index: {column_left_edge_index},\
+                            column_right_edge_index: {column_right_edge_index},\
+                            row_top_edge_index: {row_top_edge_index},\
+                            row_bottom_edge_index: {row_bottom_edge_index}')
 
     workbook.close()
     print("Finished generating an Excel for: " + xlsx_path)
@@ -481,10 +489,10 @@ if __name__ == "__main__":
     # NOTE: if tesseract isn't already installed, you can install it here: https://github.com/UB-Mannheim/tesseract/wiki
     #pytesseract.pytesseract.tesseract_cmd = 'C:/Program Files/Tesseract-OCR/tesseract.exe'
 
-    main()
+    # main()
 
     # image_input_path = 'ParachuteData/pdf-pages-as-images-preprocessed-deskewed/T-11 W911QY-19-D-0046 LOT 45_09282023-014.png'
     image_input_path = './ParachuteData/pdf-pages-as-images-preprocessed-deskewed/T-11 LAT (SEPT 2022)-020.png'
     image_output_path = './XLSXOutput/test.png'
     xlsx_output_path = './XLSXOutput/test.xlsx'
-    convert_image_to_xlsx(image_input_path, image_output_path, xlsx_output_path)
+    convert_image_to_xlsx(image_input_path, image_output_path, xlsx_output_path, debug=True)

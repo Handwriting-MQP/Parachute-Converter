@@ -7,21 +7,14 @@ import cv2
 
 from trdg.generators import GeneratorFromStrings
 
-# import generate_synthetic_image from a different directory (a bit of trickery is needed to do this)
-# we should probably reorganize the directory structure to make this less hacky
-import sys
-
 from TrainMixedNumberModel.GenerateSyntheticMixedNumberData import generate_synthetic_image
-
-sys.path.insert(1, os.path.join(sys.path[0], '../TrainMixedNumberModel/'))
-# from GenerateSyntheticMixedNumberData import generate_synthetic_image
 
 # ----------------------------------------------------------------------------------------------------
 
 minimum_word_length = 3
 maximum_word_length = 12
 
-IAM_data_base_path = '.\\IAM-data\\'
+IAM_data_base_path = './IAM-data'
 
 # read in lines from words.txt
 with open(os.path.join(IAM_data_base_path, 'words.txt'), 'r') as f:
@@ -129,8 +122,7 @@ def generate_written_text():
 
         # because the IAM dataset has segmented letters with a white background, we need replace the white background with
         # noise that has a central value of "background_value"
-        background_value = np.median(
-            image) * 0.99  # this background value is rather arbitrary. it just looks good to me.
+        background_value = np.median(image) * 0.99  # this background value is rather arbitrary. it just looks good to me.
         image[image == 255] = np.clip(np.random.normal(background_value, size=image[image == 255].shape), 0,
                                       255).astype(np.uint8)
 
