@@ -5,8 +5,9 @@ import json
 from tqdm import tqdm
 import cv2
 
+
 # Path to the MNIST dataset directory
-MNIST_DATASET_PATH = '../MNIST/trainingSet'
+MNIST_DATASET_PATH = 'MNIST/trainingSet'
 
 
 def get_random_cropped_mnist_digit_image(digit):
@@ -18,7 +19,7 @@ def get_random_cropped_mnist_digit_image(digit):
     """
     if not 0 <= digit <= 9:
         raise ValueError("Digit must be between 0 and 9 inclusive")
-
+    
     # get a random image of the specified digit
     digit_path = f'{MNIST_DATASET_PATH}/{digit}'
     image_files = os.listdir(digit_path)
@@ -40,9 +41,9 @@ def get_random_cropped_mnist_digit_image(digit):
     # return the cropped image with inverted the colors (so it has a white background)
     return -cropped_image + 255
 
-
 def get_mnist_fraction_slash():
-    digit_dir_path = os.path.join(f'{MNIST_DATASET_PATH}', '1')
+
+    digit_dir_path = os.path.join(f'{MNIST_DATASET_PATH}','1')
     ones_allowlist = [
         'img_2.jpg',
         'img_12.jpg',
@@ -76,12 +77,10 @@ def get_mnist_fraction_slash():
     # return the cropped image with inverted the colors (so it has a white background)
     return -cropped_image + 255
 
-
-# ----------------------------------------------------------------------------------------------------
+#----------------------------------------------------------------------------------------------------
 
 def concatenate_images_horizontally(images):
     """Concatenates a list of images horizontally by padding them all to be the same height."""
-
     def pad_image_to_match_height(image, target_height):
         if target_height < image.shape[0]:
             raise ValueError("target_height must be greater than or equal to the image height")
@@ -92,7 +91,7 @@ def concatenate_images_horizontally(images):
 
         # add the border to the image
         return cv2.copyMakeBorder(image, top_border, bottom_border, 0, 0, cv2.BORDER_CONSTANT, value=[255, 255, 255])
-
+    
     # pick the max height of all images
     max_height = max([image.shape[0] for image in images])
 
@@ -104,7 +103,6 @@ def concatenate_images_horizontally(images):
 
 def concatenate_images_vertically(images):
     """Concatenates a list of images horizontally by padding them all to be the same height."""
-
     def pad_image_to_match_width(image, target_width):
         if target_width < image.shape[1]:
             raise ValueError("target_width must be greater than or equal to the image width")
@@ -115,7 +113,7 @@ def concatenate_images_vertically(images):
 
         # add the border to the image
         return cv2.copyMakeBorder(image, 0, 0, left_border, right_border, cv2.BORDER_CONSTANT, value=[255, 255, 255])
-
+    
     # pick the max width of all images
     max_width = max([image.shape[1] for image in images])
 
@@ -124,8 +122,7 @@ def concatenate_images_vertically(images):
 
     return cv2.vconcat(padded_images)
 
-
-# ----------------------------------------------------------------------------------------------------
+#----------------------------------------------------------------------------------------------------
 
 def generate_image_from_whole_number(whole_number):
     whole_number_str = str(whole_number)
@@ -135,13 +132,12 @@ def generate_image_from_whole_number(whole_number):
         # get a random image of the digit
         digit = int(whole_number_str[i])
         digit_image = get_random_cropped_mnist_digit_image(digit)
-
+        
         # add a random amount of whitespace to the right of the digit if it is not the last digit
         if i != len(whole_number_str) - 1:
-            right_border = random.randint(0, 7)  # NOTE: the max of 7 pixels of whitespace is somewhat arbitrary
-            digit_image = cv2.copyMakeBorder(digit_image, 0, 0, 0, right_border, cv2.BORDER_CONSTANT,
-                                             value=[255, 255, 255])
-
+            right_border = random.randint(0, 7) # NOTE: the max of 7 pixels of whitespace is somewhat arbitrary
+            digit_image = cv2.copyMakeBorder(digit_image, 0, 0, 0, right_border, cv2.BORDER_CONSTANT, value=[255, 255, 255])
+        
         digit_images.append(digit_image)
 
     return concatenate_images_horizontally(digit_images)
@@ -160,7 +156,7 @@ def generate_random_whole_number_image():
             digit = random.randint(0, 9)
         # add the digit to the list
         digits.append(digit)
-
+    
     # convert the list of digits to a string and then to an number
     number = int(''.join([str(digit) for digit in digits]))
 
@@ -177,7 +173,7 @@ def generate_random_fraction_image(vertical_orientation):
     # pick a random denominator from 2, 4, 8, 16
     denominator = random.choice([2, 4, 8, 16])
     denominator_image = generate_image_from_whole_number(denominator)
-
+    
     # pick a random odd number for the numerator (to avoid fraction simplification)
     numerator = random.randrange(1, denominator, 2)
     numerator_image = generate_image_from_whole_number(numerator)
@@ -185,7 +181,7 @@ def generate_random_fraction_image(vertical_orientation):
     # pick a random mnsit "1" to use as the slash and add some whitespace on the sides
     slash_image = get_mnist_fraction_slash()
     slash_image = cv2.copyMakeBorder(slash_image, 0, 0, 2, 2, cv2.BORDER_CONSTANT, value=[255, 255, 255])
-
+    
     # concatenate the images horizontally or vertically to form the fraction image
     if vertical_orientation is True:
         # rotated the slash image 90 degrees clockwise
@@ -196,13 +192,12 @@ def generate_random_fraction_image(vertical_orientation):
 
     return fraction_image, f'{numerator}/{denominator}'
 
-
-# ----------------------------------------------------------------------------------------------------
+#----------------------------------------------------------------------------------------------------
 
 def generate_synthetic_image(num_cell_lines=0):
     """
     Creates a synthetic image of a mixed number with optional box lines.
-
+    
     :param num_box_lines: Integer, the number of box lines to add to the image.
     :return: None, but saves the image to a file and prints the number.
     """
@@ -216,9 +211,8 @@ def generate_synthetic_image(num_cell_lines=0):
     # Layout Type 2: whole number above a vertically arranged fraction
     if layout_type in (1, 2):
         # Add whitespace to the whole number for vertical alignment
-        bottom_padding = random.randint(0, 10)  # NOTE: these values are somewhat arbitrary
-        whole_number = cv2.copyMakeBorder(whole_number, 0, bottom_padding, 0, 0, cv2.BORDER_CONSTANT,
-                                          value=[255, 255, 255])
+        bottom_padding = random.randint(0, 10) # NOTE: these values are somewhat arbitrary
+        whole_number = cv2.copyMakeBorder(whole_number, 0, bottom_padding, 0, 0, cv2.BORDER_CONSTANT, value=[255, 255, 255])
         # generate a random fraction image and its corresponding text in a horizontal or vertical orientation
         if layout_type == 1:
             fraction_image, fraction_text = generate_random_fraction_image(vertical_orientation=False)
@@ -228,14 +222,13 @@ def generate_synthetic_image(num_cell_lines=0):
         mixed_number_image = concatenate_images_vertically([whole_number, fraction_image])
         # Form the textual representation of the mixed number
         mixed_number_text = f'{whole_number_text} {fraction_text}'
-
+    
     # Layout Type 3: whole number next to a horizontally arranged fraction
     # layout type 4: whole number next to a vertically arranged fraction
     elif layout_type in (3, 4):
         # Add whitespace to the whole number for vertical alignment
-        right_padding = random.randint(10, 20)  # NOTE: these values are somewhat arbitrary
-        whole_number = cv2.copyMakeBorder(whole_number, 0, 0, 0, right_padding, cv2.BORDER_CONSTANT,
-                                          value=[255, 255, 255])
+        right_padding = random.randint(10, 20) # NOTE: these values are somewhat arbitrary
+        whole_number = cv2.copyMakeBorder(whole_number, 0, 0, 0, right_padding, cv2.BORDER_CONSTANT, value=[255, 255, 255])
         # generate a random fraction image and its corresponding text in a horizontal or vertical orientation
         if layout_type == 3:
             fraction_image, fraction_text = generate_random_fraction_image(vertical_orientation=False)
@@ -245,27 +238,27 @@ def generate_synthetic_image(num_cell_lines=0):
         mixed_number_image = concatenate_images_horizontally([whole_number, fraction_image])
         # Form the textual representation of the mixed number
         mixed_number_text = f'{whole_number_text} {fraction_text}'
-
+    
     # Layout Type 5: Image consists only of the whole number
     elif layout_type == 5:
         mixed_number_image = whole_number
         mixed_number_text = whole_number_text
-
-    # Layout Type 6: Image consists of just a horizontally arranged fraction
+    
+    #Layout Type 6: Image consists of just a horizontally arranged fraction
     elif layout_type == 6:
         mixed_number_image, mixed_number_text = generate_random_fraction_image(vertical_orientation=False)
-
+    
     # Layout Type 7: Image consists of just a vertically arranged fraction
     elif layout_type == 7:
         mixed_number_image, mixed_number_text = generate_random_fraction_image(vertical_orientation=True)
-
+    
     # add cell lines to the image
     possible_sides = [1, 2, 3, 4]
     for _ in range(num_cell_lines):
         # pick a side and remove it from the list of possible sides
         side = random.choice(possible_sides)
         possible_sides.remove(side)
-
+        
         color = (0, 0, 0)
         thickness = 1
         width, height = mixed_number_image.shape[1], mixed_number_image.shape[0]
@@ -278,12 +271,10 @@ def generate_synthetic_image(num_cell_lines=0):
         elif side == 2:  # left
             cv2.line(mixed_number_image, (distance_from_edge, 0), (distance_from_edge, height), color, thickness)
         elif side == 3:  # bottom
-            cv2.line(mixed_number_image, (0, height - distance_from_edge), (width, height - distance_from_edge), color,
-                     thickness)
+            cv2.line(mixed_number_image, (0, height - distance_from_edge), (width, height - distance_from_edge), color, thickness)
         elif side == 4:  # right
-            cv2.line(mixed_number_image, (width - distance_from_edge, 0), (width - distance_from_edge, height), color,
-                     thickness)
-
+            cv2.line(mixed_number_image, (width - distance_from_edge, 0), (width - distance_from_edge, height), color, thickness)
+    
     return mixed_number_image, mixed_number_text, layout_type
 
 
@@ -292,7 +283,7 @@ def main():
     synthetic_data_directory = "SyntheticMixedNumberData"
 
     # Number of synthetic images to generate
-    number_of_images = 1000
+    number_of_images = 100
 
     # JSON structure for storing labels
     synthetic_data_list = []
@@ -302,11 +293,10 @@ def main():
         os.makedirs(synthetic_data_directory)
     if not os.path.exists(os.path.join(synthetic_data_directory, 'images')):
         os.makedirs(os.path.join(synthetic_data_directory, 'images'))
-
+    
     for i in tqdm(range(number_of_images)):
         # generate a synthetic image
-        mixed_number_image, mixed_number_text, layout_type = generate_synthetic_image(
-            num_cell_lines=random.randint(0, 4))
+        mixed_number_image, mixed_number_text, layout_type = generate_synthetic_image(num_cell_lines=random.randint(0, 4))
 
         # save the image
         file_name = f'image_{i}.png'
@@ -315,11 +305,11 @@ def main():
 
         # add the image to the list of labeled data
         synthetic_data_list.append({'filename': file_name, 'text': mixed_number_text, 'layout_type': layout_type})
-
+    
     # save the labeled data list in a JSON file
     with open(os.path.join(synthetic_data_directory, 'labels.json'), 'w') as f:
         json.dump(synthetic_data_list, f, indent=4)
-
+    
     print(f"Generated {number_of_images} synthetic mixed number images.")
 
 

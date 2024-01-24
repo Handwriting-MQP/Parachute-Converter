@@ -10,18 +10,15 @@ from trdg.generators import GeneratorFromStrings
 # import generate_synthetic_image from a different directory (a bit of trickery is needed to do this)
 # we should probably reorganize the directory structure to make this less hacky
 import sys
-
-from TrainMixedNumberModel.GenerateSyntheticMixedNumberData import generate_synthetic_image
-
 sys.path.insert(1, os.path.join(sys.path[0], '../TrainMixedNumberModel/'))
-# from GenerateSyntheticMixedNumberData import generate_synthetic_image
+from GenerateSyntheticMixedNumberData import generate_synthetic_image
 
-# ----------------------------------------------------------------------------------------------------
+#----------------------------------------------------------------------------------------------------
 
 minimum_word_length = 3
 maximum_word_length = 12
 
-IAM_data_base_path = '.\\IAM-data\\'
+IAM_data_base_path = 'CellClassifier/IAM-data/'
 
 # read in lines from words.txt
 with open(os.path.join(IAM_data_base_path, 'words.txt'), 'r') as f:
@@ -61,11 +58,11 @@ for i, line in enumerate(words_lines):
                       'tag': tag,
                       'word': word})
 
-# ----------------------------------------------------------------------------------------------------
+#----------------------------------------------------------------------------------------------------
 
 # read in lines from most_common_words.txt
 most_common_words = []
-with open('./1000-most-common-words.txt', 'r') as f:
+with open('./CellClassifier/1000-most-common-words.txt', 'r') as f:
     word_lines = f.readlines()
 
 # process the lines into a list of words
@@ -75,18 +72,17 @@ for line in word_lines:
     # we don't need to keep words that are too short or too long
     if len(word) < minimum_word_length or len(word) > maximum_word_length:
         continue
-
+    
     most_common_words.append(word)
 
-
-# ----------------------------------------------------------------------------------------------------
+#----------------------------------------------------------------------------------------------------
 
 def generate_blank_data(height=30, width=80, central_brightness=200, noise_standard_deviation=5):
     """generate a blank image (with noise) of the given size and brightness"""
 
     shape = (height, width)
 
-    base_image = np.ones(shape) * central_brightness
+    base_image = np.ones(shape)*central_brightness
     noise = np.random.normal(0, noise_standard_deviation, shape)
 
     image = np.clip(base_image + noise, 0, 255).astype(np.uint8)
@@ -98,12 +94,12 @@ def generate_printed_text(text, height=30):
     """generate a printed image of the given text and of the given height"""
 
     # NOTE: GeneratorFromStrings has a number of paramaters we can mess with if we would like
-    generator = GeneratorFromStrings([text], size=height, fonts=['./fonts/Roboto-Regular.ttf'],
+    generator = GeneratorFromStrings([text], size=height, fonts=['./CellClassifier/fonts/Roboto-Regular.ttf'],
                                      skewing_angle=3, random_skew=True)
     # pull out one channel of the image (they're all the same value)
     image = next(generator)[0]
     gray_image = np.array(image, dtype=np.uint8)[:, :, 0]
-
+    
     return gray_image
 
 
@@ -115,13 +111,14 @@ def generate_written_text():
 
         # split the word ID into parts
         id1, id2, id3, id4 = word_id.split('-')
+
         # use parts of the ID to generate the path to the file
         image_path = os.path.join(IAM_data_base_path, 'words', id1, id1 + '-' + id2, word_id + '.png')
-        # print(image_path)
+
         # check if the image path exists (because imread() will fail silently)
         if os.path.exists(image_path) is False:
             raise Exception('IAM word path does not exist')
-
+        
         image = cv2.imread(image_path)
 
         # convert image to grayscale
@@ -129,13 +126,11 @@ def generate_written_text():
 
         # because the IAM dataset has segmented letters with a white background, we need replace the white background with
         # noise that has a central value of "background_value"
-        background_value = np.median(
-            image) * 0.99  # this background value is rather arbitrary. it just looks good to me.
-        image[image == 255] = np.clip(np.random.normal(background_value, size=image[image == 255].shape), 0,
-                                      255).astype(np.uint8)
+        background_value = np.median(image)*0.99 # this background value is rather arbitrary. it just looks good to me.
+        image[image == 255] = np.clip(np.random.normal(background_value, size=image[image == 255].shape), 0, 255).astype(np.uint8)
 
         return image
-
+    
     # select a word a random
     IAM_word = random.choice(IAM_words)
 
@@ -153,15 +148,15 @@ def generate_written_fraction():
 
 
 def main():
-    image_output_folder = './SyntheticCellData/images'
+    image_output_folder = './CellClassifier/SyntheticCellData/images'
 
     # create output folder if it doesn't exist
     if not os.path.exists(image_output_folder):
         os.makedirs(image_output_folder)
-
+    
     # number of synthetic images to generate
-    number_of_images = 10000
-
+    number_of_images = 100
+    
     # generate a bunch of synthetic images of each type
     data_list = []
     for i in range(number_of_images):
@@ -177,22 +172,22 @@ def main():
         image = generate_printed_text(random.choice(most_common_words), height=random.randint(30, 50))
         fpath = os.path.join(image_output_folder, str(i) + '_printed.png')
         cv2.imwrite(fpath, image)
-        data_list.append({'path': str(i) + '_printed.png', 'label': 'printed'})
+        data_list.append({'path': fpath, 'label': 'printed'})
 
         # generate a written cell image
         image, word = generate_written_text()
         fpath = os.path.join(image_output_folder, str(i) + '_written.png')
         cv2.imwrite(fpath, image)
-        data_list.append({'path': str(i) + '_written.png', 'label': 'written'})
+        data_list.append({'path': fpath, 'label': 'written'})
 
         # generate a fraction cell image
         image, mixed_number = generate_written_fraction()
         fpath = os.path.join(image_output_folder, str(i) + '_fraction.png')
         cv2.imwrite(fpath, image)
-        data_list.append({'path': str(i) + '_fraction.png', 'label': 'fraction'})
-
+        data_list.append({'path': fpath, 'label': 'fraction'})
+    
     # save the labels to a json file
-    with open('./SyntheticCellData/labels.json', 'w') as f:
+    with open('./CellClassifier/SyntheticCellData/labels.json', 'w') as f:
         json.dump(data_list, f, indent=4)
 
 

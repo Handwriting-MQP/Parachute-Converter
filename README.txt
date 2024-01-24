@@ -11,10 +11,3 @@ main script pipeline
 other scripts
 - GenerateSyntheticMixedNumberData.py does what is says on the tin
 - TrainMixedNumberTrOCR.py does what is says on the tin
-
-downloading models
-- Both the classifier and fraction models are stored in the Handwriting MQP folder. Go to the Code and Data folder,
-  and in there is a folder called "Models"
-- Download this entire folder and copy it to the root project folder. So it should be ${project_folder_name}/Models/FractionModel
-  for example
-- These folders are too big for Github so should be downloaded this way

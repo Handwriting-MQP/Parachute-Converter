@@ -1,5 +1,5 @@
 import os
-import sys  # for sys.stdout in tqdm
+import sys # for sys.stdout in tqdm
 
 import cv2
 import numpy as np
@@ -8,13 +8,13 @@ import pytesseract
 import xlsxwriter
 from tqdm import tqdm
 
-# import huggingface packages and models
-from transformers import VisionEncoderDecoderModel, ViTImageProcessor, ViTForImageClassification
-from transformers import TrOCRProcessor, VisionEncoderDecoderModel
 
-textProcessor = TrOCRProcessor.from_pretrained('microsoft/trocr-base-printed')
-textModel = VisionEncoderDecoderModel.from_pretrained('microsoft/trocr-base-printed')
-fractionModel = VisionEncoderDecoderModel.from_pretrained("./Models/FractionModel", local_files_only=True)
+# import huggingface packages and models
+# from transformers import VisionEncoderDecoderModel
+# from transformers import TrOCRProcessor, VisionEncoderDecoderModel
+# processor = TrOCRProcessor.from_pretrained('microsoft/trocr-base-printed')
+# model = VisionEncoderDecoderModel.from_pretrained('microsoft/trocr-base-printed')
+
 
 def extract_cell_edges_from_image(image):
     """
@@ -37,7 +37,7 @@ def extract_cell_edges_from_image(image):
         # convert to binary image
         binary = cv2.adaptiveThreshold(blurred, maxValue=255, adaptiveMethod=cv2.ADAPTIVE_THRESH_GAUSSIAN_C,
                                        thresholdType=cv2.THRESH_BINARY_INV, blockSize=5, C=2)
-
+        
         return binary
 
     # documentation on morphological transformations:
@@ -94,7 +94,7 @@ def find_cell_contours(image):
         next_contour, previous_contour, first_child_contour, parent_contour = hierarchy_info
         if parent_contour != -1 and hierarchy[0][parent_contour][3] == -1:
             cell_contours.append(contour)
-
+    
     # remove any contours that have bounding rectangles that mostly overlap the bounding rectangle of any other contour
     # for each contour, check if its bounding rectangle is mostly within the bounding rectangles of any other contour
     # if it is, we should remove it!
@@ -122,7 +122,7 @@ def find_cell_contours(image):
             overlap_area = (right - left) * (bottom - top)
 
             # check if the overlapping area is more then a certain fraction of the area of the contour being chcked
-            if overlap_area / (w1 * h1) > overlap_fraction_threshold:
+            if overlap_area/(w1*h1) > overlap_fraction_threshold:
                 indices_to_remove.append(i)
 
     # remove the offending contours
@@ -172,7 +172,7 @@ def find_word_contours_in_cell(cell_image):
 
     # set the edges of the binary image to be 0
     # this removes cell lines that are part of the image border
-    zero_border_size = 10  # NOTE: this can safely be at least as large as the kernal size used in the next step
+    zero_border_size = 10 # NOTE: this can safely be at least as large as the kernal size used in the next step
     binary_image[:zero_border_size, :] = 0
     binary_image[-zero_border_size:, :] = 0
     binary_image[:, :zero_border_size] = 0
@@ -217,34 +217,8 @@ def generate_image_with_rectangle_overlays(image, cell_contours, image_output_pa
         word_contours = find_word_contours_in_cell(cell_image)
         for word_contour in word_contours:
             cv2.drawContours(image, [word_contour + np.array([x, y])], -1, (0, 0, 255), thickness=1)
-
+    
     cv2.imwrite(image_output_path, image)
-
-
-def getClassifierPrediction(image):
-    labels = ['fraction', 'written', 'printed', 'blank']
-    classifierProcessor = ViTImageProcessor.from_pretrained('google/vit-base-patch16-224')
-    classifierModel = ViTForImageClassification.from_pretrained(
-        './Models/ClassifierModel',
-        num_labels=len(labels),
-        id2label={str(i): c for i, c in enumerate(labels)},
-        label2id={c: str(i) for i, c in enumerate(labels)}
-    )
-    inputs = classifierProcessor(images=image, return_tensors="pt")
-    outputs = classifierModel(**inputs)
-    logits = outputs.logits
-    # model predicts one of the 1000 ImageNet classes
-    predicted_class_idx = logits.argmax(-1).item()
-    options = {
-        0: 'fraction',
-        1: 'written',
-        2: 'printed',
-        3: 'blank',
-
-    }
-    # print(predicted_class_idx)
-    # print("Predicted class:", options[predicted_class_idx])
-    return options[predicted_class_idx]
 
 
 def do_OCR_on_word_group(word_group_image):
@@ -257,20 +231,13 @@ def do_OCR_on_word_group(word_group_image):
     Returns:
     str: The text extracted from the cropped image.
     """
-    # return pytesseract.image_to_string(word_group_image).strip()
-    cellType = getClassifierPrediction(word_group_image)
-    if cellType == 'typed' or 'written':
-        pixel_values = textProcessor(images=word_group_image, return_tensors="pt").pixel_values
-        generated_ids = textModel.generate(pixel_values)
-        generated_text = textProcessor.batch_decode(generated_ids, skip_special_tokens=True)[0]
-    elif cellType == 'fraction':
-        pixel_values = textProcessor(images=word_group_image, return_tensors="pt").pixel_values
-        generated_ids = fractionModel.generate(pixel_values)
-        generated_text = textProcessor.batch_decode(generated_ids, skip_special_tokens=True)[0]
-    else:
-        generated_text = ''
+    return pytesseract.image_to_string(word_group_image).strip()
+
+    # pixel_values = processor(images=cropped_image, return_tensors="pt").pixel_values
+    # generated_ids = model.generate(pixel_values)
+    # generated_text = processor.batch_decode(generated_ids, skip_special_tokens=True)[0]
     # print(generated_text)
-    return generated_text
+    # return generated_text
 
 
 def do_OCR_on_cell(cell_image):
@@ -303,20 +270,19 @@ def generate_xlsx_with_detected_text(image, cell_contours, xlsx_path, debug=Fals
     xlsx_path (str): Path to save the generated Excel file.
 
     """
-
     def add_value_to_list_with_tolerance(new_val, lst, tolerance):
         for v in lst:
             if v - tolerance <= new_val <= v + tolerance:
                 return
         lst.append(new_val)
         lst.sort()
-
+    
     def get_index_of_closest_val(target_val, lst, tolerance):
         for i, v in enumerate(lst):
             if v - tolerance <= target_val <= v + tolerance:
                 return i
         raise ValueError(f'No value in list is within tolerance of target value: {target_val}')
-
+    
     # TODO: think about tuning these values in some way
     # NOTE: a value of 50 was too big! that is, we skipped over small cells that were close together!
     vertical_tolernce = 30
@@ -350,14 +316,14 @@ def generate_xlsx_with_detected_text(image, cell_contours, xlsx_path, debug=Fals
 
         # add cell data to data tuples
         data_tuples.append((x, y, w, h, cell_text, median_color_str))
-
+    
     # print(f'column_edges: {list(enumerate(column_edges))}')
     # print(f'row_edges: {list(enumerate(row_edges))}')
 
     # generate XLSX file
     workbook = xlsxwriter.Workbook(xlsx_path)
     worksheet = workbook.add_worksheet()
-
+    
     # update column/row width/height in spreadsheet
     column_px_to_width_ratio = 1 / 20
     row_px_to_width_ratio = 1 / 4
@@ -369,7 +335,7 @@ def generate_xlsx_with_detected_text(image, cell_contours, xlsx_path, debug=Fals
     for index in range(len(row_edges) - 1):
         height_px = row_edges[index + 1] - row_edges[index]
         worksheet.set_row(row=index, height=height_px * row_px_to_width_ratio)
-
+    
     # populate XLSX file from data tuples
     for x, y, w, h, text, median_color_str in data_tuples:
         # get the index of the cell in the spreadsheet
@@ -400,12 +366,10 @@ def generate_xlsx_with_detected_text(image, cell_contours, xlsx_path, debug=Fals
                 if debug:
                     print(e)
                     print(f'\tx: {x}, y: {y}, w: {w}, h: {h}, text: {repr(text)}')
-                    print(
-                        f'\tcolumn_left_edge_index: {column_left_edge_index}, column_right_edge_index: {column_right_edge_index}, row_top_edge_index: {row_top_edge_index}, row_bottom_edge_index: {row_bottom_edge_index}')
+                    print(f'\tcolumn_left_edge_index: {column_left_edge_index}, column_right_edge_index: {column_right_edge_index}, row_top_edge_index: {row_top_edge_index}, row_bottom_edge_index: {row_bottom_edge_index}')
 
     workbook.close()
     print("Finished generating an Excel for: " + xlsx_path)
-
 
 def convert_image_to_xlsx(image_input_path, image_output_path, xlsx_output_path, debug=False):
     """
@@ -436,7 +400,7 @@ def convert_image_to_xlsx(image_input_path, image_output_path, xlsx_output_path,
     if len(cell_contours) > 0 and determine_if_image_should_be_rotated(cell_contours) is True:
         image = cv2.rotate(image, cv2.ROTATE_90_CLOCKWISE)
         cell_contours = find_cell_contours(image)
-
+    
     generate_image_with_rectangle_overlays(image, cell_contours, image_output_path)
 
     # if there are less then the minium number of contours, don't try to produce an XLSX file
@@ -479,7 +443,7 @@ def main():
 
 if __name__ == "__main__":
     # NOTE: if tesseract isn't already installed, you can install it here: https://github.com/UB-Mannheim/tesseract/wiki
-    #pytesseract.pytesseract.tesseract_cmd = 'C:/Program Files/Tesseract-OCR/tesseract.exe'
+    pytesseract.pytesseract.tesseract_cmd = 'C:/Program Files/Tesseract-OCR/tesseract.exe'
 
     main()
 
