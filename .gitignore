@@ -17,3 +17,5 @@ TrainCellClassifierModel/IAM-data/words/*
 *.ipynb
 *.xlsx
 *.png
+/Models/ClassifierModel/
+/Models/FractionModel/
