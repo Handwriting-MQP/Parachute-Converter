@@ -89,7 +89,7 @@ def process_handwriting_data(pdfs_dir, gui_queue):
         for pdf in data_pdfs:
             cur_pdf_dir = pdf.replace(".pdf", "")
             temporary_pdf_image_dirs.append(cur_pdf_dir)
-            print("    Created temporary directory for: " + cur_pdf_dir)
+            print("Created temporary directory for: " + cur_pdf_dir)
 
             # Here, "tmp_dir_name" is the top-level temporary directory, whereas
             # "cur_pdf_dir" is the temporary directory for the particular data PDF.
