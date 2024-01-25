@@ -17,6 +17,8 @@ import torch
 # load models
 print('started loading models')
 
+print('torch.cuda.is_available(): ' + str(torch.cuda.is_available()))
+
 device = "cuda:0" if torch.cuda.is_available() else "cpu"
 print(f'models will be running on device: {device}')
 
