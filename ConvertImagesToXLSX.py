@@ -1,13 +1,15 @@
+print('started running ConvertImagesToXLSX. imports may take a moment to load.')
+
 import os
 import sys  # for sys.stdout in tqdm
 
 import cv2
 import numpy as np
 
-import pytesseract
 import xlsxwriter
 from tqdm import tqdm
 
+import pytesseract  # backup OCR library (for debugging)
 from transformers import VisionEncoderDecoderModel, ViTImageProcessor, ViTForImageClassification
 from transformers import TrOCRProcessor, VisionEncoderDecoderModel
 import torch
@@ -267,10 +269,13 @@ def do_OCR_on_word_group(word_group_image, use_tesseract=False):
 
 
 def do_OCR_on_cell(cell_image):
+    # sort contours by the sum of their x and y coordinates of their center
+    def contour_sort_key(contour):
+        x, y, w, h = cv2.boundingRect(contour)
+        return (x + w / 2) + (y + h / 2)
+    
     word_contours = find_word_contours_in_cell(cell_image)
-    # sort contours by y value (helps get words in correct order)
-    # TODO: update this to sort by x value as well!
-    word_contours = sorted(word_contours, key=lambda c: cv2.boundingRect(c)[1])
+    word_contours = sorted(word_contours, key=contour_sort_key)
 
     cell_text = []
     for word_contour in word_contours:
