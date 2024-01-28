@@ -33,9 +33,6 @@ def start_processing_thread(pdfs_dir, gui_queue):
 
 # A function to prompt the user to select a folder, then start processing that folder.
 def select_folder(gui_queue):
-    def start_processing_thread(pdfs_dir, gui_queue):
-        threading.Thread(target=process_handwriting_data, args=(pdfs_dir, gui_queue), daemon=True).start()
-    
     folder_selected = filedialog.askdirectory()
     if folder_selected:
         start_processing_thread(folder_selected, gui_queue)
@@ -131,10 +128,12 @@ def process_handwriting_data(pdfs_dir, gui_queue):
                 # calling PreprocessImages.preprocess_image
                 image = cv2.imread(current_image_input_path)
                 image = preprocess_image(image)
-                cv2.imwrite(current_image_input_path, image)
 
                 # Calling WarpPerspectiveDeskew.warp_perspective_deskew
-                warp_perspective_deskew(current_image_input_path, current_image_input_path)
+                image = warp_perspective_deskew(image)
+
+                # save the now cleaned up image
+                cv2.imwrite(current_image_input_path, image)
 
                 # This is where the machine learning models are used.
                 convert_image_to_xlsx(current_image_input_path, current_image_output_path, current_xlsx_output_path)

@@ -8,16 +8,15 @@ import pytesseract
 import xlsxwriter
 from tqdm import tqdm
 
-# import huggingface packages and models
 from transformers import VisionEncoderDecoderModel, ViTImageProcessor, ViTForImageClassification
 from transformers import TrOCRProcessor, VisionEncoderDecoderModel
 import torch
 
 
-# load models
+# -------------------------------------------------- load models --------------------------------------------------
 print('started loading models')
 
-print('torch.cuda.is_available(): ' + str(torch.cuda.is_available()))
+print(f'torch.cuda.is_available(): {torch.cuda.is_available()}')
 
 device = "cuda:0" if torch.cuda.is_available() else "cpu"
 print(f'models will be running on device: {device}')
@@ -62,17 +61,6 @@ def extract_cell_edges_from_image(image):
                                        thresholdType=cv2.THRESH_BINARY_INV, blockSize=5, C=2)
 
         return binary
-
-    # documentation on morphological transformations:
-    # graphics: https://docs.opencv.org/3.4/dd/dd7/tutorial_morph_lines_detection.html
-    # examples: https://docs.opencv.org/4.x/d9/d61/tutorial_py_morphological_ops.html
-
-    # example of how MORPH_OPEN works:
-    #   k = cv2.getStructuringElement(cv2.MORPH_RECT, (30, 1))
-    #   a = cv2.morphologyEx(binary, cv2.MORPH_OPEN, k, iterations=1)
-    #   b = cv2.erode(binary, k)
-    #   b = cv2.dilate(b, k)
-    #   print(np.all(a == b)) # this will return True
 
     binary = convert_image_to_binary(image)
     # cv2.imwrite('tmp/test01.png', binary)
@@ -154,7 +142,7 @@ def find_cell_contours(image):
     return cell_contours
 
 
-def determine_if_image_should_be_rotated(cell_contours):
+def determine_if_page_should_be_rotated(cell_contours):
     """
     Determines if an image should be rotated based on the aspect ratio of the detected contours.
 
@@ -179,10 +167,8 @@ def determine_if_image_should_be_rotated(cell_contours):
     aspect_ratios = [w / h for x, y, w, h in filtered_rectangles]
     mean_aspect_ratio = sum(aspect_ratios) / len(aspect_ratios)
 
-    # if we think the image is rotate, rotate both the image and the rectangle points
-    if mean_aspect_ratio <= threshold_aspect_raio:
-        return True
-    return False
+    # return True if the mean aspect ratio is less then the threshold
+    return mean_aspect_ratio <= threshold_aspect_raio
 
 
 def find_word_contours_in_cell(cell_image):
@@ -283,6 +269,7 @@ def do_OCR_on_word_group(word_group_image, use_tesseract=False):
 def do_OCR_on_cell(cell_image):
     word_contours = find_word_contours_in_cell(cell_image)
     # sort contours by y value (helps get words in correct order)
+    # TODO: update this to sort by x value as well!
     word_contours = sorted(word_contours, key=lambda c: cv2.boundingRect(c)[1])
 
     cell_text = []
@@ -300,7 +287,7 @@ def do_OCR_on_cell(cell_image):
     return ' '.join(cell_text)
 
 
-def generate_xlsx_with_detected_text(image, cell_contours, xlsx_path, debug=False):
+def generate_xlsx_with_detected_text(image, cell_contours, xlsx_path, display_debug_info=False):
     """
     Generates an Excel file with text detected in various sections of an image.
 
@@ -334,7 +321,7 @@ def generate_xlsx_with_detected_text(image, cell_contours, xlsx_path, debug=Fals
     data_tuples = []  # stores data in the form (x, y, w, h, cell_text, median_color_str)
 
     # generate data tuples from filtered contours
-    tqdm_output = sys.stdout if debug else open(os.devnull, 'w')
+    tqdm_output = sys.stdout if display_debug_info else open(os.devnull, 'w')
     for cell_contour in tqdm(cell_contours, file=tqdm_output):
         # get the bounding rectangle for the contour
         x, y, w, h = cv2.boundingRect(cell_contour)
@@ -405,7 +392,7 @@ def generate_xlsx_with_detected_text(image, cell_contours, xlsx_path, debug=Fals
                                       first_col=column_left_edge_index, last_col=column_right_edge_index - 1,
                                       data=text, cell_format=cell_format)
             except xlsxwriter.exceptions.OverlappingRange as e:
-                if debug:
+                if display_debug_info:
                     print(e)
                     print(f'\tx: {x}, y: {y}, w: {w}, h: {h}, text: {repr(text)}')
                     print(f'\tcolumn_left_edge_index: {column_left_edge_index},\
@@ -414,10 +401,10 @@ def generate_xlsx_with_detected_text(image, cell_contours, xlsx_path, debug=Fals
                             row_bottom_edge_index: {row_bottom_edge_index}')
 
     workbook.close()
-    print("Finished generating an Excel for: " + xlsx_path)
+    print(f'Finished generating an Excel for: {xlsx_path}')
 
 
-def convert_image_to_xlsx(image_input_path, image_output_path, xlsx_output_path, debug=False):
+def convert_image_to_xlsx(image_input_path, image_output_path, xlsx_output_path, display_debug_info=False):
     """
     Processes an image to detect text regions, performs OCR, and generates an Excel file with the extracted data.
 
@@ -443,7 +430,7 @@ def convert_image_to_xlsx(image_input_path, image_output_path, xlsx_output_path,
 
     # determine if the image should be rotated
     # if it should, we'll need to recalculate the contours
-    if len(cell_contours) > 0 and determine_if_image_should_be_rotated(cell_contours) is True:
+    if len(cell_contours) > 0 and determine_if_page_should_be_rotated(cell_contours) is True:
         image = cv2.rotate(image, cv2.ROTATE_90_CLOCKWISE)
         cell_contours = find_cell_contours(image)
 
@@ -456,7 +443,7 @@ def convert_image_to_xlsx(image_input_path, image_output_path, xlsx_output_path,
         with open(xlsx_output_path + '.txt', 'w') as f:
             f.write("this file is a placeholder. we didn't think this page had cells on it.")
     else:
-        generate_xlsx_with_detected_text(image, cell_contours, xlsx_output_path, debug)
+        generate_xlsx_with_detected_text(image, cell_contours, xlsx_output_path, display_debug_info)
 
 
 def main():
@@ -489,7 +476,7 @@ def main():
 
 if __name__ == "__main__":
     # NOTE: if tesseract isn't already installed, you can install it here: https://github.com/UB-Mannheim/tesseract/wiki
-    #pytesseract.pytesseract.tesseract_cmd = 'C:/Program Files/Tesseract-OCR/tesseract.exe'
+    # pytesseract.pytesseract.tesseract_cmd = 'C:/Program Files/Tesseract-OCR/tesseract.exe'
 
     # main()
 
@@ -497,4 +484,4 @@ if __name__ == "__main__":
     image_input_path = './ParachuteData/pdf-pages-as-images-preprocessed-deskewed/T-11 LAT (SEPT 2022)-020.png'
     image_output_path = './XLSXOutput/test.png'
     xlsx_output_path = './XLSXOutput/test.xlsx'
-    convert_image_to_xlsx(image_input_path, image_output_path, xlsx_output_path, debug=True)
+    convert_image_to_xlsx(image_input_path, image_output_path, xlsx_output_path, display_debug_info=True)

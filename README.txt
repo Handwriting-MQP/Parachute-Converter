@@ -1,4 +1,13 @@
-To generate synthetic cell data (for training a cell classifier model), you will need to download "words.zip" from Google Drive. Once you do, unzip it to "./CellClassifier/IAM-data/words"
+downloading data (for training cell classifier model)
+- download "words.zip" from Google Drive in the folder "Handwriting MQP/Code and Data/Large Data Files"
+- unzip it to "./TrainCellClassifierModel/IAM-data/words"
+
+downloading models
+- Both the classifier and fraction models are stored in the Handwriting MQP folder. Go to the Code and Data folder,
+  and in there is a folder called "Models"
+- Download this entire folder and copy it to the root project folder. So it should be ${project_folder_name}/Models/FractionModel
+  for example
+- These folders are too big for Github so should be downloaded this way
 
 main script pipeline
 - run SplitPDFsIntoImages.py to break a PDF up into image files
@@ -7,14 +16,3 @@ main script pipeline
 - run ConvertImagesToXLSX to do OCR on the images
     - first it finds cell edges
     - then it does OCR on each cell
-
-other scripts
-- GenerateSyntheticMixedNumberData.py does what is says on the tin
-- TrainMixedNumberTrOCR.py does what is says on the tin
-
-downloading models
-- Both the classifier and fraction models are stored in the Handwriting MQP folder. Go to the Code and Data folder,
-  and in there is a folder called "Models"
-- Download this entire folder and copy it to the root project folder. So it should be ${project_folder_name}/Models/FractionModel
-  for example
-- These folders are too big for Github so should be downloaded this way

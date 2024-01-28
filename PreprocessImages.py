@@ -6,7 +6,6 @@ import cv2
 from skimage.color import rgb2gray
 from skimage.transform import rotate
 from deskew import determine_skew
-
 from tqdm import tqdm
 
 

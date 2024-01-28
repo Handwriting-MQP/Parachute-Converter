@@ -7,34 +7,8 @@ import cv2
 import numpy as np
 
 
-# set the minium proportion of the page area that must be taken up by a quadrilateral to use it for deskewing
-# if the quadrilateral takes up less then this fraction of the page area, it is likely that the page
-# does not contain a grid
-minAreaProportion = 1/20
-
-
-def debug_draw_contour_and_save_image(image, contour, save_path):
-    image = image.copy()
-    
-    # draw the contour
-    cv2.drawContours(image, [contour], 0, (0, 0, 255), 2)
-    
-    # draw the points
-    for (x, y) in contour.reshape(-1, 2):
-        cv2.circle(image, (x, y), 10, (255, 0, 0), 3)
-    
-    # get and draw the minAreaRect
-    rect = cv2.minAreaRect(contour)
-    box = cv2.boxPoints(rect)
-    box = np.intp(box)
-    cv2.drawContours(image, [box], 0, (0, 255, 0), 2)
-
-    cv2.imwrite(save_path, image)
-
-
+# NOTE: this is function is similar, but not exactly the same as the function defined in ConvertImagesToXLSX
 def extract_cell_edges_from_image(image):
-    # NOTE: this is similar, but not exactly the same as the function defined in ConvertImagesToXLSX
-
     def convert_image_to_binary(image):
         # convert to grayscale
         gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
@@ -63,7 +37,6 @@ def extract_cell_edges_from_image(image):
 
     # combine edges
     all_edges = vertical_edges | horizontal_edges
-    # cv2.imwrite('./deskewer-WIP/processing-test04.png', all_edges)
 
     return all_edges
 
@@ -88,7 +61,6 @@ def find_largest_quadrilateral(image):
 
     # preprocess the image
     cell_edges = extract_cell_edges_from_image(image)
-    # cv2.imwrite('deskewer-WIP/test00.png', cell_edges)
     
     # find contours
     contours, _ = cv2.findContours(cell_edges, cv2.RETR_LIST, cv2.CHAIN_APPROX_SIMPLE)
@@ -103,13 +75,12 @@ def find_largest_quadrilateral(image):
     # we relax the epsilon parameter until we find a quadrilateral approximation of the contour or skip past a
     # quadrilateral to a fewer sided shape (in which case we try again with the next largest contour).
     # if we find a quadrilateral, we need to check if it's roughly a parallelogram.
-    # if it is, we can return it. if it's not, we can just try again with the next largest contour
+    # if it is, we can return it. if it's not, we can just try again with the next largest contour.
     fraction_epsilon_is_of_max_dimension = 1/50
     max_epsilon = max([image.shape[0], image.shape[1]])*fraction_epsilon_is_of_max_dimension
     for contour in contours[:5]:
         for epsilon in np.linspace(0, max_epsilon, 100):
             approx = cv2.approxPolyDP(contour, epsilon, True)
-            # print(f'len(approx): {len(approx)}')
             # if we found an approximation of the contour with only 4 sides, we have a quadrilateral
             # if we've reduced to our approximation to a polygon with less then 4 points, we can stop looking
             if len(approx) <= 4:
@@ -127,13 +98,11 @@ def find_largest_quadrilateral(image):
         slope_bottom = (bl[1]-br[1])/(bl[0]-br[0])
         # slope_left = (tl[1]-bl[1])/(tl[0]-bl[0])
         # slope_right = (tr[1]-br[1])/(tr[0]-br[0])
-        # print(f'slope_top: {slope_top}, slope_bottom: {slope_bottom}, slope_left: {slope_left}, slope_right: {slope_right}')
 
         # if the absolute difference of the top slopes exceeds our threshold, keep looking (at the next largest contour)
         if np.abs(slope_top - slope_bottom) > absolute_top_bottom_slope_difference_threshold:
             continue
         
-        # debug_draw_contour_and_save_image(image, approx, 'deskewer-WIP/test02.png')
         return approx.reshape(4, 2)
     
     # if we failed to find a parallel quadrilateral contour within the first few (as specified by num_contours_to_check),
@@ -174,8 +143,11 @@ def four_point_transform(image, quadrilateral):
     return warped
 
 
-def warp_perspective_deskew(image_path, output_path):
-    image = cv2.imread(image_path)
+def warp_perspective_deskew(image):
+    # set the minium proportion of the page area that must be taken up by a quadrilateral to use it for deskewing.
+    # if the quadrilateral takes up less then this fraction of the page area, it is likely that the page
+    # does not contain a grid
+    minAreaProportion = 1/20
 
     pts = find_largest_quadrilateral(image)
     quadrilateral = order_quadrilateral_points(pts)
@@ -191,11 +163,11 @@ def warp_perspective_deskew(image_path, output_path):
 
     if area < minArea:
         print('Was unable to find large enough quadrilateral to confidently deskew image!'\
-              ' Saving original image as deskewed iamge!')
-        cv2.imwrite(output_path, image)
+              ' Outputting original image as deskewed iamge!')
+        return image
     else:
         warped = four_point_transform(image, quadrilateral)
-        cv2.imwrite(output_path, warped)
+        return warped
 
 
 def main():
@@ -206,7 +178,11 @@ def main():
         skewed_image_path = os.path.join(skewed_images_path, skewed_image_filename)
         deskewed_image_path = os.path.join(deskewed_images_path, skewed_image_filename)
         print(skewed_image_filename)
-        warp_perspective_deskew(skewed_image_path, deskewed_image_path)
+        
+        # read in the image, deskew it, and write it to the deskewed_images_path
+        image = cv2.imread(skewed_image_path)
+        image = warp_perspective_deskew(image)
+        cv2.imwrite(deskewed_image_path, image)
 
 
 if __name__ == '__main__':

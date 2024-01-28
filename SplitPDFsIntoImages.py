@@ -1,6 +1,7 @@
-from pdf2image import convert_from_path
 import os
 import itertools
+
+from pdf2image import convert_from_path
 
 
 def split_pdf_into_images(pdf_filepath, image_dir):
