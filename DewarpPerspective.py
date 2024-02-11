@@ -37,6 +37,7 @@ def extract_cell_edges_from_image(image):
 
     # combine edges
     all_edges = vertical_edges | horizontal_edges
+    cv2.imwrite('test04.png', all_edges)
 
     return all_edges
 
@@ -100,8 +101,15 @@ def find_largest_quadrilateral(image):
         # slope_right = (tr[1]-br[1])/(tr[0]-br[0])
 
         # if the absolute difference of the top slopes exceeds our threshold, keep looking (at the next largest contour)
+        # NOTE: we do this because we expect the top and bottom sides of the quadrilateral to be roughly parallel
+        #       based on the images we are working with. If the top and bottom sides are not roughly parallel, we have likely
+        #       encountered an error and should keep looking.
+        #       This sometimes occurs when a cell edge is on the right side of an image.
         if np.abs(slope_top - slope_bottom) > absolute_top_bottom_slope_difference_threshold:
             continue
+
+        # cv2.drawContours(image, [approx], -1, (0, 0, 255), 3)
+        # cv2.imwrite('test05.png', image)
         
         return approx.reshape(4, 2)
     
@@ -186,10 +194,10 @@ def main():
 
 
 if __name__ == '__main__':
-    # # input_image = 'deskewer-WIP/i1.png'
-    # input_image = 'ParachuteData/pdf-pages-as-images-preprocessed/T-11 LAT (SEPT 2022)-064.png'
-    # # input_image = 'ParachuteData/pdf-pages-as-images-preprocessed/T-11 W911QY-19-D-0046 LOT 45_09282023-008.png'
-    # output_image = 'deskewer-WIP/output.png'
-    # warp_perspective_deskew(input_image, output_image)
+    # input_image = 'ParachuteData/pdf-pages-as-images-preprocessed/T-11 W911QY-19-D-0046 LOT 45_09282023-006.png'
+    # output_image = 'tests/deskewed_image.png'
+    # image = cv2.imread(input_image)
+    # image = warp_perspective_deskew(image)
+    # cv2.imwrite(output_image, image)
 
     main()

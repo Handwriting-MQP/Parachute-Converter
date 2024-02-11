@@ -11,7 +11,7 @@ import cv2
 
 from SplitPDFsIntoImages import split_pdf_into_images
 from PreprocessImages import preprocess_image
-from WarpPerspectiveDeskew import warp_perspective_deskew
+from DewarpPerspective import warp_perspective_deskew
 from ConvertImagesToXLSX import convert_image_to_xlsx
 
 def print_usage_and_exit():

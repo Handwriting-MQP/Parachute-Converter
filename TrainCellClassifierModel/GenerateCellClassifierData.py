@@ -1,3 +1,6 @@
+# NOTE: the 1000 most common words file was taken from: 
+#       https://github.com/powerlanguage/word-lists/blob/master/1000-most-common-words.txt
+
 import os
 import random
 import json
