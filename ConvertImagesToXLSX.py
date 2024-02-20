@@ -14,7 +14,6 @@ from transformers import VisionEncoderDecoderModel, ViTImageProcessor, ViTForIma
 from transformers import TrOCRProcessor, VisionEncoderDecoderModel
 import torch
 
-
 # -------------------------------------------------- load models --------------------------------------------------
 print('started loading models')
 
@@ -28,6 +27,7 @@ textModel = VisionEncoderDecoderModel.from_pretrained('microsoft/trocr-base-prin
 
 # uses the same processor as textModel
 fractionModel = VisionEncoderDecoderModel.from_pretrained("./Models/FractionModel", local_files_only=True).to(device)
+writtenModel = VisionEncoderDecoderModel.from_pretrained("./Models/WrittenModel", local_files_only=True).to(device)
 
 classifier_labels = ['fraction', 'written', 'printed', 'blank']
 classifierProcessor = ViTImageProcessor.from_pretrained('google/vit-base-patch16-224')
@@ -249,23 +249,46 @@ def do_OCR_on_word_group(word_group_image, use_tesseract=False):
         # print(predicted_class_idx)
         # print("Predicted class:", options[predicted_class_idx])
         return options[predicted_class_idx]
-    
+
     if use_tesseract:
         return pytesseract.image_to_string(word_group_image).strip()
-    
+
     cellType = getClassifierPrediction(word_group_image)
-    if cellType == 'typed' or 'written':
-        pixel_values = textProcessor(images=word_group_image, return_tensors="pt").to(device).pixel_values
+    pixel_values = textProcessor(images=word_group_image, return_tensors="pt").to(device).pixel_values
+
+    if cellType == 'printed' or cellType == 'written':
         generated_ids = textModel.generate(pixel_values)
         generated_text = textProcessor.batch_decode(generated_ids, skip_special_tokens=True)[0]
     elif cellType == 'fraction':
-        pixel_values = textProcessor(images=word_group_image, return_tensors="pt").to(device).pixel_values
         generated_ids = fractionModel.generate(pixel_values)
         generated_text = textProcessor.batch_decode(generated_ids, skip_special_tokens=True)[0]
+        #generated_text = fraction_check(generated_text)
     else:
         generated_text = ''
-    
+
+    if len(generated_text) == 1 or '%' in generated_text:
+        generated_ids = fractionModel.generate(pixel_values)
+        generated_text = textProcessor.batch_decode(generated_ids, skip_special_tokens=True)[0]
+        generated_text = fraction_check(generated_text)
+
+    if '%' in generated_text:
+        generated_ids = writtenModel.generate(pixel_values)
+        generated_text = textProcessor.batch_decode(generated_ids, skip_special_tokens=True)[0]
+        generated_text = fraction_check(generated_text)
+
+
     return generated_text
+
+
+def fraction_check(text):
+    original = text
+    if '/' in text:
+        index = text.index('/')
+        if ' ' not in text[:index] and (len(text[:index]) > len(text[index+1:]) or int(text[:index]) > int(text[index+1:])):
+            text = text[:index-1] + ' ' + text[index-1:]
+    if '/' not in text and len(text) > 3:
+        text = text[:-2] + ' ' + text[-2] + '/' + text[-1]
+    return text
 
 
 def do_OCR_on_cell(cell_image):
@@ -273,7 +296,7 @@ def do_OCR_on_cell(cell_image):
     def contour_sort_key(contour):
         x, y, w, h = cv2.boundingRect(contour)
         return (x + w / 2) + (y + h / 2)
-    
+
     word_contours = find_word_contours_in_cell(cell_image)
     word_contours = sorted(word_contours, key=contour_sort_key)
 
@@ -487,6 +510,11 @@ if __name__ == "__main__":
 
     # image_input_path = 'ParachuteData/pdf-pages-as-images-preprocessed-deskewed/T-11 W911QY-19-D-0046 LOT 45_09282023-014.png'
     image_input_path = './ParachuteData/pdf-pages-as-images-preprocessed-deskewed/T-11 LAT (SEPT 2022)-020.png'
-    image_output_path = './XLSXOutput/test.png'
-    xlsx_output_path = './XLSXOutput/test.xlsx'
+    image_output_path = './XLSXOutput/test3.png'
+    xlsx_output_path = './XLSXOutput/test3.xlsx'
+    convert_image_to_xlsx(image_input_path, image_output_path, xlsx_output_path, display_debug_info=True)
+
+    image_input_path = './ParachuteData/pdf-pages-as-images-preprocessed-deskewed/T-11 LAT (SEPT 2022)-052.png'
+    image_output_path = './XLSXOutput/test4.png'
+    xlsx_output_path = './XLSXOutput/test4.xlsx'
     convert_image_to_xlsx(image_input_path, image_output_path, xlsx_output_path, display_debug_info=True)

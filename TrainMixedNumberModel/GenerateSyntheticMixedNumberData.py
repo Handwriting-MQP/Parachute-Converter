@@ -292,7 +292,7 @@ def main():
     synthetic_data_directory = "SyntheticMixedNumberData"
 
     # Number of synthetic images to generate
-    number_of_images = 1000
+    number_of_images = 10000
 
     # JSON structure for storing labels
     synthetic_data_list = []
