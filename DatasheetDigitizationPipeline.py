@@ -14,44 +14,12 @@ from PreprocessImages import preprocess_image
 from DewarpPerspective import warp_perspective_deskew
 from ConvertImagesToXLSX import convert_image_to_xlsx
 
-def print_usage_and_exit():
-    print("Data directory should contain only pdfs.")
-    sys.exit()
-
-# A function to update the GUI every 100 milliseconds.
-def update_gui_from_queue(root, gui_queue):
-    while not gui_queue.empty():
-        message = gui_queue.get_nowait()
-        # Update your GUI here, e.g., insert message into a text widget
-        print(message)  # or your mechanism to update the GUI
-    root.after(100, update_gui_from_queue, root, gui_queue)  # Reschedule
-
-# Start a thread to bear the load of the pipeline which is not the "main thread",
-# as tkinter requires use of the main thread.
-def start_processing_thread(pdfs_dir, gui_queue):
-    threading.Thread(target=process_handwriting_data, args=(pdfs_dir, gui_queue), daemon=True).start()
-
-# A function to prompt the user to select a folder, then start processing that folder.
-def select_folder(gui_queue):
-    folder_selected = filedialog.askdirectory()
-    if folder_selected:
-        start_processing_thread(folder_selected, gui_queue)
-
-# An object to send text as a result of calls to print() to the gui instead of stdout.
-class TextRedirector(object):
-    def __init__(self, widget):
-        self.widget = widget
-
-    def write(self, str):
-        self.widget.config(state=tk.NORMAL)
-        self.widget.insert(tk.END, str)
-        self.widget.see(tk.END)  # Scroll to the end
-        self.widget.config(state=tk.DISABLED)
-    def flush(self):
-        pass
 
 # The function that processes the data directory.
 def process_handwriting_data(pdfs_dir, gui_queue):
+    def print_usage_and_exit():
+        print("Data directory should contain only pdfs.")
+        sys.exit()
 
     gui_queue.put("Processing started for: " + pdfs_dir)
 
@@ -140,11 +108,50 @@ def process_handwriting_data(pdfs_dir, gui_queue):
 
     gui_queue.put("Processing completed for: " + pdfs_dir)
 
+
+# Start a thread to bear the load of the pipeline which is not the "main thread",
+# as tkinter requires use of the main thread.
+def start_processing_thread(pdfs_dir, gui_queue):
+    threading.Thread(target=process_handwriting_data, args=(pdfs_dir, gui_queue), daemon=True).start()
+
+
+# A function to prompt the user to select a folder, then start processing that folder.
+def select_folder(gui_queue):
+    folder_selected = filedialog.askdirectory()
+    if folder_selected:
+        start_processing_thread(folder_selected, gui_queue)
+
+
+
+# A function to update the GUI every 100 milliseconds.
+def update_gui_from_queue(root, gui_queue):
+    while not gui_queue.empty():
+        message = gui_queue.get_nowait()
+        # Update your GUI here, e.g., insert message into a text widget
+        print(message)  # or your mechanism to update the GUI
+    root.after(100, update_gui_from_queue, root, gui_queue)  # Reschedule
+
+
+# An object to send text as a result of calls to print() to the gui instead of stdout.
+class TextRedirector(object):
+    def __init__(self, widget):
+        self.widget = widget
+
+    def write(self, str):
+        self.widget.config(state=tk.NORMAL)
+        self.widget.insert(tk.END, str)
+        self.widget.see(tk.END)  # Scroll to the end
+        self.widget.config(state=tk.DISABLED)
+    
+    def flush(self):
+        pass
+
+
 def main():
     # Create the main window
     root = tk.Tk()
     gui_queue = queue.Queue()
-    root.title("Handwriting Recognition Pipeline")
+    root.title("Datasheet Digitization Pipeline")
 
     # Create a scrolled text widget for console output
     console = scrolledtext.ScrolledText(root, state='disabled', height=10)
@@ -162,6 +169,7 @@ def main():
 
     # Run the application
     root.mainloop()
+
 
 if __name__ == '__main__':
     main()

@@ -1,4 +1,4 @@
-print('started running ConvertImagesToXLSX. imports may take a moment to load.')
+print('started running ConvertImagesToXLSX.py (imports may take a moment to load)')
 
 import os
 import sys  # for sys.stdout in tqdm
@@ -9,34 +9,39 @@ import numpy as np
 import xlsxwriter
 from tqdm import tqdm
 
-import pytesseract  # backup OCR library (for debugging)
 from transformers import VisionEncoderDecoderModel, ViTImageProcessor, ViTForImageClassification
 from transformers import TrOCRProcessor, VisionEncoderDecoderModel
+from transformers import logging
 import torch
+
+# backup OCR library (for debugging)
+import pytesseract
 
 # -------------------------------------------------- load models --------------------------------------------------
 print('started loading models')
 
-print(f'torch.cuda.is_available(): {torch.cuda.is_available()}')
-
+# set device for models
 device = "cuda:0" if torch.cuda.is_available() else "cpu"
 print(f'models will be running on device: {device}')
 
+# load OCR models
+logging.set_verbosity_error()
+# the following two lines will print warnings if logging is set to warning or lower
 textProcessor = TrOCRProcessor.from_pretrained('microsoft/trocr-base-printed')
-textModel = VisionEncoderDecoderModel.from_pretrained('microsoft/trocr-base-printed').to(device)
-
-# uses the same processor as textModel
+printedTextModel = VisionEncoderDecoderModel.from_pretrained('microsoft/trocr-base-printed').to(device)
+logging.set_verbosity_warning()
 fractionModel = VisionEncoderDecoderModel.from_pretrained("./Models/FractionModel", local_files_only=True).to(device)
 writtenModel = VisionEncoderDecoderModel.from_pretrained("./Models/WrittenModel", local_files_only=True).to(device)
 
 classifier_labels = ['fraction', 'written', 'printed', 'blank']
 classifierProcessor = ViTImageProcessor.from_pretrained('google/vit-base-patch16-224')
 classifierModel = ViTForImageClassification.from_pretrained(
-    './Models/ClassifierModel',
+    './Models/ClassifierModel', local_files_only=True,
     num_labels=len(classifier_labels),
     id2label={str(i): c for i, c in enumerate(classifier_labels)},
     label2id={c: str(i) for i, c in enumerate(classifier_labels)}
 ).to(device)
+
 print('finished loading models')
 
 
@@ -236,59 +241,66 @@ def do_OCR_on_word_group(word_group_image, use_tesseract=False):
     def getClassifierPrediction(image):
         inputs = classifierProcessor(images=image, return_tensors="pt").to(device)
         outputs = classifierModel(**inputs)
-        logits = outputs.logits
-        # model predicts one of the 1000 ImageNet classes
-        predicted_class_idx = logits.argmax(-1).item()
+        predicted_class_idx = outputs.logits.argmax(-1).item()
         options = {
             0: 'fraction',
             1: 'written',
             2: 'printed',
-            3: 'blank',
-
+            3: 'blank'
         }
-        # print(predicted_class_idx)
-        # print("Predicted class:", options[predicted_class_idx])
         return options[predicted_class_idx]
-
+    
+    def fraction_check(text):
+        # TODO: fix this!
+        try:
+            original = text
+            if '/' in text:
+                index = text.index('/')
+                if ' ' not in text[:index] and (len(text[:index]) > len(text[index+1:]) or int(text[:index]) > int(text[index+1:])):
+                    text = text[:index-1] + ' ' + text[index-1:]
+            if '/' not in text and len(text) > 3:
+                text = text[:-2] + ' ' + text[-2] + '/' + text[-1]
+            return text
+        except ValueError:
+            print('Error in fraction_check: ' + original)
+            return "Error in fraction_check: " + original
+    
+    # use tesseract if specified
     if use_tesseract:
+        # NOTE: if tesseract isn't already installed, you can install it here: https://github.com/UB-Mannheim/tesseract/wiki
+        pytesseract.pytesseract.tesseract_cmd = 'C:/Program Files/Tesseract-OCR/tesseract.exe'
         return pytesseract.image_to_string(word_group_image).strip()
-
+    
+    # classify the cell (one of 'fraction', 'written', 'printed', 'blank')
     cellType = getClassifierPrediction(word_group_image)
+
+    # run text processor on the image to get input for OCR models
     pixel_values = textProcessor(images=word_group_image, return_tensors="pt").to(device).pixel_values
 
+    # run the appropriate OCR model
     if cellType == 'printed' or cellType == 'written':
-        generated_ids = textModel.generate(pixel_values)
+        generated_ids = printedTextModel.generate(pixel_values, max_new_tokens=1000)
         generated_text = textProcessor.batch_decode(generated_ids, skip_special_tokens=True)[0]
     elif cellType == 'fraction':
-        generated_ids = fractionModel.generate(pixel_values)
+        generated_ids = fractionModel.generate(pixel_values, max_new_tokens=1000)
         generated_text = textProcessor.batch_decode(generated_ids, skip_special_tokens=True)[0]
-        #generated_text = fraction_check(generated_text)
     else:
         generated_text = ''
-
+    
+    # if the generated text is only one character or contains a '%' character, the cell classifier was probably wrong
+    # and we should try the fraction model
     if len(generated_text) == 1 or '%' in generated_text:
-        generated_ids = fractionModel.generate(pixel_values)
+        generated_ids = fractionModel.generate(pixel_values, max_new_tokens=1000)
         generated_text = textProcessor.batch_decode(generated_ids, skip_special_tokens=True)[0]
         generated_text = fraction_check(generated_text)
-
+    
+    # TODO: why is this here? what does it do?
     if '%' in generated_text:
-        generated_ids = writtenModel.generate(pixel_values)
-        generated_text = textProcessor.batch_decode(generated_ids, skip_special_tokens=True)[0]
-        generated_text = fraction_check(generated_text)
-
+       generated_ids = writtenModel.generate(pixel_values, max_new_tokens=1000)
+       generated_text = textProcessor.batch_decode(generated_ids, skip_special_tokens=True)[0]
+       generated_text = fraction_check(generated_text)
 
     return generated_text
-
-
-def fraction_check(text):
-    original = text
-    if '/' in text:
-        index = text.index('/')
-        if ' ' not in text[:index] and (len(text[:index]) > len(text[index+1:]) or int(text[:index]) > int(text[index+1:])):
-            text = text[:index-1] + ' ' + text[index-1:]
-    if '/' not in text and len(text) > 3:
-        text = text[:-2] + ' ' + text[-2] + '/' + text[-1]
-    return text
 
 
 def do_OCR_on_cell(cell_image):
@@ -315,7 +327,7 @@ def do_OCR_on_cell(cell_image):
     return ' '.join(cell_text)
 
 
-def generate_xlsx_with_detected_text(image, cell_contours, xlsx_path, display_debug_info=False):
+def generate_xlsx_with_detected_text(image, cell_contours, xlsx_path, display_debug_info):
     """
     Generates an Excel file with text detected in various sections of an image.
 
@@ -350,7 +362,7 @@ def generate_xlsx_with_detected_text(image, cell_contours, xlsx_path, display_de
 
     # generate data tuples from filtered contours
     tqdm_output = sys.stdout if display_debug_info else open(os.devnull, 'w')
-    for cell_contour in tqdm(cell_contours, file=tqdm_output):
+    for cell_contour in tqdm(cell_contours, file=tqdm_output, position=0, leave=True):
         # get the bounding rectangle for the contour
         x, y, w, h = cv2.boundingRect(cell_contour)
 
@@ -429,7 +441,6 @@ def generate_xlsx_with_detected_text(image, cell_contours, xlsx_path, display_de
                             row_bottom_edge_index: {row_bottom_edge_index}')
 
     workbook.close()
-    print(f'Finished generating an Excel for: {xlsx_path}')
 
 
 def convert_image_to_xlsx(image_input_path, image_output_path, xlsx_output_path, display_debug_info=False):
@@ -472,6 +483,7 @@ def convert_image_to_xlsx(image_input_path, image_output_path, xlsx_output_path,
             f.write("this file is a placeholder. we didn't think this page had cells on it.")
     else:
         generate_xlsx_with_detected_text(image, cell_contours, xlsx_output_path, display_debug_info)
+        print(f'Finished generating an Excel for: {xlsx_output_path}')
 
 
 def main():
@@ -499,22 +511,14 @@ def main():
         xlsx_output_path = os.path.join(output_folder, xlsx_filename)
 
         print(f'{image_input_path} started')
-        convert_image_to_xlsx(image_input_path, image_output_path, xlsx_output_path)
+        convert_image_to_xlsx(image_input_path, image_output_path, xlsx_output_path, display_debug_info=True)
 
 
 if __name__ == "__main__":
-    # NOTE: if tesseract isn't already installed, you can install it here: https://github.com/UB-Mannheim/tesseract/wiki
-    # pytesseract.pytesseract.tesseract_cmd = 'C:/Program Files/Tesseract-OCR/tesseract.exe'
-
     # main()
 
     # image_input_path = 'ParachuteData/pdf-pages-as-images-preprocessed-deskewed/T-11 W911QY-19-D-0046 LOT 45_09282023-014.png'
     image_input_path = './ParachuteData/pdf-pages-as-images-preprocessed-deskewed/T-11 LAT (SEPT 2022)-020.png'
-    image_output_path = './XLSXOutput/test3.png'
-    xlsx_output_path = './XLSXOutput/test3.xlsx'
-    convert_image_to_xlsx(image_input_path, image_output_path, xlsx_output_path, display_debug_info=True)
-
-    image_input_path = './ParachuteData/pdf-pages-as-images-preprocessed-deskewed/T-11 LAT (SEPT 2022)-052.png'
-    image_output_path = './XLSXOutput/test4.png'
-    xlsx_output_path = './XLSXOutput/test4.xlsx'
+    image_output_path = './XLSXOutput/test.png'
+    xlsx_output_path = './XLSXOutput/test.xlsx'
     convert_image_to_xlsx(image_input_path, image_output_path, xlsx_output_path, display_debug_info=True)
