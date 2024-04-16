@@ -116,10 +116,6 @@ analysis, enhancing the Army’s ability to monitor and understand parachute int
 
 <!-- GETTING STARTED -->
 ## Getting Started
-
-This is an example of how you may give instructions on setting up your project locally.
-To get a local copy up and running follow these simple example steps.
-
 ### Prerequisites
 1. Converting Images to Excel:
    1. Download the "Models" folder from Google Drive (Handwriting MQP/Code and Data/Models) and place it in the project root
