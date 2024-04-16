@@ -29,7 +29,7 @@
 <br />
 <div align="center">
   <a href="https://github.com/Handwriting-MQP/Parachute-Converter">
-    <img src="misc/logo.png" alt="Logo"  >
+    <img src="misc/logo.png" alt="Logo"  width="500">
   </a>
 
 <h3 align="center">Machine Learning, Image Processing,
