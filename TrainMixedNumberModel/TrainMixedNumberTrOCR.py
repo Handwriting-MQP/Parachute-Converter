@@ -1,3 +1,7 @@
+"""
+Code copied from Colab notebook. Code may not run locally without modification.
+"""
+
 import pandas as pd
 from sklearn.model_selection import train_test_split
 import torch
@@ -8,7 +12,6 @@ from transformers import VisionEncoderDecoderModel
 from transformers import Seq2SeqTrainer, Seq2SeqTrainingArguments
 from transformers import default_data_collator
 from datasets import load_metric
-# import jiwer
 
 file_path = "SyntheticMixedNumberDataWithBoxLines/labels.json"
 processor_name = "microsoft/trocr-base-handwritten"

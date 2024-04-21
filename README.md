@@ -29,7 +29,7 @@
 <br />
 <div align="center">
   <a href="https://github.com/Handwriting-MQP/Parachute-Converter">
-    <img src="misc/logo.png" alt="Logo"  width="500">
+    <img src="readme-images/logo.png" alt="Logo"  width="500">
   </a>
 
 <h3 align="center">Machine Learning, Image Processing,
@@ -91,11 +91,7 @@ and Mathematical Sciences.
 <!--[![Product Name Screen Shot][product-screenshot]](https://example.com)-->
 
 This repository details the development of a software program aimed at converting handwritten parachute
-data records from the Natick Army Lab into an analyzable digital format. Due to the failure of traditional
-OCR models to recognize handwritten fractions, a crucial part of the data, we generated a synthetic dataset
-to specifically fine-tune these models. The software utilizes image processing and OCR technologies to trans-
-late text and replicate the physical document’s layout in a digital format. This innovation streamlines data
-analysis, enhancing the Army’s ability to monitor and understand parachute integrity and lifecycle.
+data records from the Natick Army Lab into an analyzable digital format. Due to the failure of traditional OCR models to recognize handwritten fractions, a crucial part of the data, we generated a synthetic dataset to specifically fine-tune these models. The software utilizes image processing and OCR technologies to trans-late text and replicate the physical document’s layout in a digital format. This innovation streamlines data analysis, enhancing the Army’s ability to monitor and understand parachute integrity and lifecycle.
 
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
@@ -118,10 +114,9 @@ analysis, enhancing the Army’s ability to monitor and understand parachute int
 ## Getting Started
 ### Prerequisites
 1. Converting Images to Excel:
-   1. Download the "Models" folder from Google Drive (Handwriting MQP/Code and Data/Models) and place it in the project root
-   2. Download Parachute Documents from Google Drive (Handwriting MQP/Parachute Information)
+   1. Download the "Models" folder from OneDrive [here](https://wpi0-my.sharepoint.com/:f:/g/personal/eltrilling_wpi_edu/ElXqwztGnt1In2gNbu6Cf54Bohex30jY_KiDKKS_BYYHrA?e=u1bkQK) and place it in the project root
 2. Training Cell Classifier Model:
-   1. download "words.zip" from Google Drive in the folder "Handwriting MQP/Code and Data/Large Data Files"
+   1. download "words.zip" from OneDrive [here](https://wpi0-my.sharepoint.com/:f:/g/personal/eltrilling_wpi_edu/ElXqwztGnt1In2gNbu6Cf54Bohex30jY_KiDKKS_BYYHrA?e=u1bkQK)
    2. unzip it to "./TrainCellClassifierModel/IAM-data/words"
 
 ### Installation
@@ -148,30 +143,12 @@ analysis, enhancing the Army’s ability to monitor and understand parachute int
 4. run ConvertImagesToXLSX to do OCR on the images
     - first it finds cell edges
     - then it does OCR on each cell
-5. run ``pyinstaller DatasheetDigitizationPipeline.py`` to save project as an executable
-   - .exe file will be saved under "./dist/HandwritingRecognitionPipeline/"
+5. run ``pyinstaller DatasheetDigitizationPipelineGUI.py`` to convert the project to an executable
+   - a fille called "DatasheetDigitizationPipelineGUI.exe" will be saved under "./dist/HandwritingRecognitionPipelineGUI/"
 
 <!--_For more examples, please refer to the [Documentation](https://example.com)_-->
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
-
-## Project Structure
-
-The project is seperated into three parts, the main files, the models folder, and the problems folder.
-
-1. Main Files:
-   - These are `main.py` and `main.sh`, which is used to actually run the program. `main.py` contains the logic for running the code
-   using the user specified parameters, and `main.sh` is used to run it in SLURM
-2. Models Folder:
-   - This folder contains the various different model types. `models_interfaces.py` contains classes with the base model
-   logic that can be overriden for more specific logic
-   - `nn_continuous.py` contains the two Hadamard continuous models
-   - `nn_discontinuous.py` contains the two Piecewise discontinuous models
-3. Problems Folder:
-   - This folder contains the different models to test the models on as well as the logic to train and evaluate them
-   - `problem_interface.py` contains the base logic of training and evaluating a model against a specific problem
-   - `denoise_classifier.py` is logic for the problem of denonising and classifying and MNIST image
-   - `image_as_classification.py` is logic for treating the entire MNIST image as a black and white classification problem
 
 
 <!-- LICENSE -->
