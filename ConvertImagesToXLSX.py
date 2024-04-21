@@ -31,7 +31,6 @@ textProcessor = TrOCRProcessor.from_pretrained('microsoft/trocr-base-printed')
 printedTextModel = VisionEncoderDecoderModel.from_pretrained('microsoft/trocr-base-printed').to(device)
 logging.set_verbosity_warning()
 fractionModel = VisionEncoderDecoderModel.from_pretrained("./Models/FractionModel", local_files_only=True).to(device)
-writtenModel = VisionEncoderDecoderModel.from_pretrained("./Models/WrittenModel", local_files_only=True).to(device)
 
 classifier_labels = ['fraction', 'written', 'printed', 'blank']
 classifierProcessor = ViTImageProcessor.from_pretrained('google/vit-base-patch16-224')
@@ -240,8 +239,11 @@ def generate_image_with_rectangle_overlays(image, cell_contours, image_output_pa
 def do_OCR_on_word_group(word_group_image, use_tesseract=False):
     def getClassifierPrediction(image):
         inputs = classifierProcessor(images=image, return_tensors="pt").to(device)
+        # Outputs is an array of size 4 of a probability distribution
         outputs = classifierModel(**inputs)
+        # Gets the index of the largest probability
         predicted_class_idx = outputs.logits.argmax(-1).item()
+        # What each element of the array represents
         options = {
             0: 'fraction',
             1: 'written',
@@ -249,22 +251,7 @@ def do_OCR_on_word_group(word_group_image, use_tesseract=False):
             3: 'blank'
         }
         return options[predicted_class_idx]
-    
-    def fraction_check(text):
-        # TODO: fix this!
-        try:
-            original = text
-            if '/' in text:
-                index = text.index('/')
-                if ' ' not in text[:index] and (len(text[:index]) > len(text[index+1:]) or int(text[:index]) > int(text[index+1:])):
-                    text = text[:index-1] + ' ' + text[index-1:]
-            if '/' not in text and len(text) > 3:
-                text = text[:-2] + ' ' + text[-2] + '/' + text[-1]
-            return text
-        except ValueError:
-            print('Error in fraction_check: ' + original)
-            return "Error in fraction_check: " + original
-    
+
     # use tesseract if specified
     if use_tesseract:
         # NOTE: if tesseract isn't already installed, you can install it here: https://github.com/UB-Mannheim/tesseract/wiki
@@ -292,13 +279,6 @@ def do_OCR_on_word_group(word_group_image, use_tesseract=False):
     if len(generated_text) == 1 or '%' in generated_text:
         generated_ids = fractionModel.generate(pixel_values, max_new_tokens=1000)
         generated_text = textProcessor.batch_decode(generated_ids, skip_special_tokens=True)[0]
-        generated_text = fraction_check(generated_text)
-    
-    # TODO: why is this here? what does it do?
-    if '%' in generated_text:
-       generated_ids = writtenModel.generate(pixel_values, max_new_tokens=1000)
-       generated_text = textProcessor.batch_decode(generated_ids, skip_special_tokens=True)[0]
-       generated_text = fraction_check(generated_text)
 
     return generated_text
 

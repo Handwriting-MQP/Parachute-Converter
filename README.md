@@ -148,6 +148,8 @@ analysis, enhancing the Army’s ability to monitor and understand parachute int
 4. run ConvertImagesToXLSX to do OCR on the images
     - first it finds cell edges
     - then it does OCR on each cell
+5. run ``pyinstaller DatasheetDigitizationPipeline.py`` to save project as an executable
+   - .exe file will be saved under "./dist/HandwritingRecognitionPipeline/"
 
 <!--_For more examples, please refer to the [Documentation](https://example.com)_-->
 
