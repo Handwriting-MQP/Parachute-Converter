@@ -32,19 +32,21 @@
     <img src="readme-images/logo.png" alt="Logo"  width="500">
   </a>
 
-<h3 align="center">Machine Learning, Image Processing,
-and Transfer Learning for
-Handwritten Spreadsheet Digitization</h3>
+  <h3 align="center">
+    Machine Learning, Image Processing,
+    and Transfer Learning for
+    Handwritten Spreadsheet Digitization
+  </h3>
 
   <p align="center">
     A Major Qualifying Project (MQP) Report
-Submitted to the Faculty of
-WORCESTER POLYTECHNIC INSTITUTE
-in partial fulfillment of the requirements
-for the Degree of Bachelor of Science in
-Computer Science,
-Data Science,
-and Mathematical Sciences.
+    Submitted to the Faculty of
+    WORCESTER POLYTECHNIC INSTITUTE
+    in partial fulfillment of the requirements
+    for the Degree of Bachelor of Science in
+    Computer Science,
+    Data Science,
+    and Mathematical Sciences.
     <br />
     <a href="https://github.com/Handwriting-MQP/Parachute-Converter"><strong>Explore the docs »</strong></a>
     <br />
@@ -90,8 +92,7 @@ and Mathematical Sciences.
 ## About The Project
 <!--[![Product Name Screen Shot][product-screenshot]](https://example.com)-->
 
-This repository details the development of a software program aimed at converting handwritten parachute
-data records from the Natick Army Lab into an analyzable digital format. Due to the failure of traditional OCR models to recognize handwritten fractions, a crucial part of the data, we generated a synthetic dataset to specifically fine-tune these models. The software utilizes image processing and OCR technologies to trans-late text and replicate the physical document’s layout in a digital format. This innovation streamlines data analysis, enhancing the Army’s ability to monitor and understand parachute integrity and lifecycle.
+This report details the development of a software program aimed at converting handwritten parachute data records from the Natick Army Lab into an analyzable digital format. Due to the failure of traditional OCR models to recognize handwritten fractions, a crucial part of the data, we generated a synthetic dataset to specifically fine-tune these models. The software utilizes image processing and OCR technologies to translate text and replicate the physical document's layout in a digital format. This innovation streamlines data analysis, enhancing the Army's ability to monitor and understand parachute integrity and lifecycle.
 
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>

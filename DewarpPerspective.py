@@ -37,8 +37,8 @@ def extract_cell_edges_from_image(image):
 
     # combine edges
     all_edges = vertical_edges | horizontal_edges
-    cv2.imwrite('test04.png', all_edges)
-
+    # cv2.imwrite('test04.png', all_edges)
+    
     return all_edges
 
 
